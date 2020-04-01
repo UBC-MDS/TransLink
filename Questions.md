@@ -1,3 +1,3 @@
 # Questions for TransLink
 
-_Please write down your questions to TransLink meeting!_
+_Please write down your questions for TransLink meeting!_
