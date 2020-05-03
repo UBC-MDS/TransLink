@@ -1,6 +1,7 @@
 # Expectations Between Group Members and Simon
 
--
+- Communicates regularly with us
+- Guide us on the project in terms of Milestones, what needs to be completed by when, etc.
 
 # Communication
 
