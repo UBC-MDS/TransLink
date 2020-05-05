@@ -14,7 +14,7 @@ Contributors:
  This is a mentored group project for the Master of Data Science program at the University of British Columbia with the business parther Business Technology Services (BTS) and Insurance Claims groups of TransLink.
  
 ## Overview
-
+  
 The insurance premium is one of the largest spendings in TransLink's budget. Translink has paid over \$18 million to ICBC and \$1.6 million to the captive insurance company which makes nearly \$20 million in total. These costs are in increasing trend in the last 5 years and one of the biggest factors in this increase is the rise in the number of claims.
 
 To help TransLink reduce their insurance costs we will be looking for answers for the following questions:
@@ -65,25 +65,14 @@ To reset the repo to a clean state, with no intermediate or results files, run t
 #### Scripts
 
 1. Download and save:
-  
-  #ToDo 
 
 2. Cleaning, processing, and wrangling:
-  
-  #ToDo
-
 
 3. EDA
-  
-  #ToDo
 
 4. Analysis
-  
-  #ToDo  
 
 5. Report
-  
-  #ToDo 
     
 
 
