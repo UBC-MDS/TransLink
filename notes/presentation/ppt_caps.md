@@ -6,7 +6,7 @@ job         : UBC MDS Capstone
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : prettify      # {highlight.js, prettify, highlight}
 hitheme     : tomorrow      # 
-widgets     : []            # {mathjax, quiz, bootstrap}
+widgets     : [bootstrap]            # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 ---
@@ -17,30 +17,31 @@ knit        : slidify::knit2slides
 ## Business Question - high costs
 
 > * Insurance premium is one of the largest spendings in TransLink's budget
+> * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
-  - .fragment the patterns between different conditions of claims
-  - .fragment potential strong predictors of interest that TransLink can leverage to help reduce claim severity/frequency
+  - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
 
 ---
 ## Research Questions
 
 - What are the main predictors of the frequency and severity of bus accidents?
-       - Driver characteristics
-       - APTA description and other accident descriptions
+       - Driver characteristics (probation period, experience)
+       - Claim types and other accident descriptions
        - Bus model/model year
-       - Acceleration/Decceleration
+       - Bus routes
+       - Acceleration/decceleration
        - Weather
        - Time
        - Geographic location
        - ...
     
-- Within specific categorical features, are there specific clusters or groupings that are particularly noteworthy for having worse or better claims experience?  
+- Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims experience?  
 
 ---
 ## High Level Data Descriptions
 
 - Speed Performance
-- Incident Operators
+- Incident Operators (truncation)
 - Collisions (Preventable and Non-Preventable)
 - Claims
 
@@ -49,23 +50,51 @@ knit        : slidify::knit2slides
 
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
-    - .fragment potentially query a predictive model, again interactively
+    - .fragment query a predictive model, again interactively
   
 <sketch of report here?>
+
+> * A fully reproducible data pipeline
+    - .fragment user-friendly way to run the entire data analysis front to back using simple Make commands
+    - .fragment stored on a Docker container
+    - .fragment detailed documentation describing how to run the analysis and the code
+
 -- 
 
 ---
 ## Methodology
 
-- Supervised Learning Techniques (with an emphasis on prediction)
-- Cluster Analysis for analysis of specific categorical features (k-means, DBSCAN, or any other method that gives well defined labels)
-- Exploratory Data Analysis (visualizations such as bar charts, histograms, density plots, etc.)
-- Possibly a rigorous statistical analysis to infer significant correlations if the EDA looks promising
+- Join the Collision and Incident Operators datasets with respect to the claim ID (if given) and then split the whole dataset into test and train datasets
+- Exploratory Data Analysis on the resulting training set (visualizations to assess potential predictors of interest such as density plots, boxplots, barcharts, etc.)
 
-## Rough Timeline
+---
+## Methodology (cont)
 
-- 
-## 
+- If complete data is provided, a regression (linear regression, tree based learners, or anything that provide variable importances) on incident rate/hour worked based off driver characteristics, time of day, etc.
+- A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Poisson (if complete data is not provided)
+- Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)
 
+--- 
 
+## Rough Timeline (May 4th - June 10th)
 
+- Milestone I (May 4th - May 25th, 2020):
+  - finalize the datasets that we are working with, along with train/test splits
+  - plan to complete all of the analysis described above in the methodology by the end of the month
+  - this includes model building and answering the specific predictive hypotheses proposed by TransLink
+  
+- Milestone II (May 26th - June 10th, 2020):
+  - start and finish the interactive report
+  - check over the data pipeline with a Make file, create Docker container
+
+--- 
+
+## Rough Timeline (June 11th - June 19th)
+
+- Milestone III (June 10th - June 19th, 2020):
+  - review report
+  - prepare final presentation to TransLink
+
+- Milestone IV (June 20th - June 23rd, 2020):
+  - improve interactive report based off feedback from TransLink
+  - complete the final report
