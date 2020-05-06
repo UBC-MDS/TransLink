@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Business Question - high costs
 
 > * Insurance premium is one of the largest spendings in TransLink's budget
-> * In the past five years, claim costs have increased by about 122.5%
+> * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
   - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
 
@@ -52,7 +52,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
-    - .fragment potentially query a predictive model, again interactively
+    - .fragment query a predictive model, again interactively
   
 <sketch of report here?>
 
@@ -68,12 +68,11 @@ knitr::opts_chunk$set(echo = FALSE)
 
 - Join the Collision and Incident Operators datasets with respect to the claim ID (if given) and then split the whole dataset into test and train datasets
 - Exploratory Data Analysis on the resulting training set (visualizations to assess potential predictors of interest such as density plots, boxplots, barcharts, etc.)
-- Possibly a rigorous statistical analysis (hypothesis testing) to answer the questions of whether certain variables such as driver experience, bus routes, weather, etc. are significantly correlated with incident rate
 
 ---
 ## Methodology (cont)
 
-- If complete data is provided, a regression (linear regression or a tree based learner possibly) on incident rate/hour worked based off driver characteristics, time of day, etc.
+- If complete data is provided, a regression (linear regression, tree based learners, or anything that provide variable importances) on incident rate/hour worked based off driver characteristics, time of day, etc.
 - A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Poisson (if complete data is not provided)
 - Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)
 
@@ -84,11 +83,11 @@ knitr::opts_chunk$set(echo = FALSE)
 - Milestone I (May 4th - May 25th, 2020):
   - finalize the datasets that we are working with, along with train/test splits
   - plan to complete all of the analysis described above in the methodology by the end of the month
-  - this includes model building and answering the specific hypotheses proposed by TransLink
+  - this includes model building and answering the specific predictive hypotheses proposed by TransLink
   
 - Milestone II (May 26th - June 10th, 2020):
   - start and finish the interactive report
-  - check over the data pipeline with a Make file, create Docker image
+  - check over the data pipeline with a Make file, create Docker container
 
 --- 
 
