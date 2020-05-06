@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
 
 import pandas as pd
 
 Speed_performance = pd.read_csv('data/TransLink Raw Data/Speed performance data.csv', low_memory=False)
-
 
 Collision_preventable = pd.read_excel('data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx', skiprows=  3)
 
