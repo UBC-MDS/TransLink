@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vision over Transit Incidents and Claims</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Vision over Transit Incidents and Claims">
+  <meta name="author" content="Merve Sahin, Brayden Tang, Simardeep Kaur, Xugang Zhong">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/prettify/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="libraries/widgets/bootstrap/css/bootstrap.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  
+  <hgroup class="auto-fadein">
+    <h1>Vision over Transit Incidents and Claims</h1>
+    <h2>Data Driven Approaches to Reducing Insurance Costs to TransLink</h2>
+    <p>Merve Sahin, Brayden Tang, Simardeep Kaur, Xugang Zhong<br/>UBC MDS Capstone</p>
+  </hgroup>
+  
+  <article></article>  
+  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  
+  <article data-timings="">
+    
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  
+  <hgroup>
+    <h2>Business Question - high costs</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul class = "build incremental">
+<li>Insurance premium is one of the largest spendings in TransLink&#39;s budget</li>
+<li>In the past five years, claim costs have increased by about <strong>122.5%</strong></li>
+<li>Therefore, we have been asked to find:
+
+<ul>
+<li class='fragment'>potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  
+  <hgroup>
+    <h2>Research Questions</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul>
+<li><p>What are the main predictors of the frequency and severity of bus accidents?</p>
+
+<ul>
+<li>Driver characteristics (probation period, experience)</li>
+<li>Claim types and other accident descriptions</li>
+<li>Bus model/model year</li>
+<li>Bus routes</li>
+<li>Acceleration/decceleration</li>
+<li>Weather</li>
+<li>Time</li>
+<li>Geographic location</li>
+<li class='..</li>'></ul></li>
+<li><p>Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims experience?  </p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  
+  <hgroup>
+    <h2>High Level Data Descriptions</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul>
+<li>Speed Performance</li>
+<li>Incident Operators (truncation)</li>
+<li>Collisions (Preventable and Non-Preventable)</li>
+<li>Claims</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  
+  <hgroup>
+    <h2>Data Product</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul class = "build incremental">
+<li>A reproducible, <strong>interactive</strong> report that allows the reader to:
+
+<ul>
+<li class='fragment'>visualize relationships between claim frequency/severity and specific variables interactively</li>
+<li class='fragment'>query a predictive model, again interactively</li>
+</ul></li>
+</ul>
+
+<p><sketch of report here?></p>
+
+<ul class = "build incremental">
+<li>A fully reproducible data pipeline
+
+<ul>
+<li class='fragment'>user-friendly way to run the entire data analysis front to back using simple Make commands</li>
+<li class='fragment'>stored on a Docker container</li>
+<li class='fragment'>detailed documentation describing how to run the analysis and the code</li>
+</ul></li>
+</ul>
+
+<h2></h2>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  
+  <hgroup>
+    <h2>Methodology</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul>
+<li>Join the Collision and Incident Operators datasets with respect to the claim ID (if given) and then split the whole dataset into test and train datasets</li>
+<li>Exploratory Data Analysis on the resulting training set (visualizations to assess potential predictors of interest such as density plots, boxplots, barcharts, etc.)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  
+  <hgroup>
+    <h2>Methodology (cont)</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul>
+<li>If complete data is provided, a regression (linear regression, tree based learners, or anything that provide variable importances) on incident rate/hour worked based off driver characteristics, time of day, etc.</li>
+<li>A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Poisson (if complete data is not provided)</li>
+<li>Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  
+  <hgroup>
+    <h2>Rough Timeline (May 4th - June 10th)</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul>
+<li><p>Milestone I (May 4th - May 25th, 2020):</p>
+
+<ul>
+<li>finalize the datasets that we are working with, along with train/test splits</li>
+<li>plan to complete all of the analysis described above in the methodology by the end of the month</li>
+<li>this includes model building and answering the specific predictive hypotheses proposed by TransLink</li>
+</ul></li>
+<li><p>Milestone II (May 26th - June 10th, 2020):</p>
+
+<ul>
+<li>start and finish the interactive report</li>
+<li>check over the data pipeline with a Make file, create Docker container</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  
+  <hgroup>
+    <h2>Rough Timeline (June 11th - June 19th)</h2>
+  </hgroup>
+  
+  <article data-timings="">
+    <ul>
+<li><p>Milestone III (June 10th - June 19th, 2020):</p>
+
+<ul>
+<li>review report</li>
+<li>prepare final presentation to TransLink</li>
+</ul></li>
+<li><p>Milestone IV (June 20th - June 23rd, 2020):</p>
+
+<ul>
+<li>improve interactive report based off feedback from TransLink</li>
+<li>complete the final report</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+  
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='NA'>
+         1
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Business Question - high costs'>
+         2
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Research Questions'>
+         3
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='High Level Data Descriptions'>
+         4
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Data Product'>
+         5
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Methodology'>
+         6
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Methodology (cont)'>
+         7
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Rough Timeline (May 4th - June 10th)'>
+         8
+      </a>
+    </li>
+    
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Rough Timeline (June 11th - June 19th)'>
+         9
+      </a>
+    </li>
+    
+    </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  <script src="libraries/widgets/bootstrap/js/bootstrap.min.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootbox.min.js"></script>
+
+  <script>  
+  $(function (){ 
+    $("#example").popover(); 
+    $("[rel='tooltip']").tooltip(); 
+  });  
+  </script>  
+  <!-- Google Prettify -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+  <script src='libraries/highlighters/prettify/js/lang-r.js'></script>
+  <script>
+    var pres = document.getElementsByTagName("pre");
+    for (var i=0; i < pres.length; ++i) {
+      pres[i].className = "prettyprint linenums";
+    }
+    prettyPrint();
+  </script>
+  <!-- End Google Prettify --> 
+  </html>
