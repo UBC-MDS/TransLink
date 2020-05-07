@@ -95,7 +95,7 @@
 <li>Time</li>
 <li>Geographic location</li>
 <li class='..</li>'></ul></li>
-<li><p>Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims experience?  </p></li>
+<li><p>Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims/accident experience?</p></li>
 </ul>
 
   </article>
@@ -130,18 +130,14 @@
   
   <article data-timings="">
     <ul class = "build incremental">
-<li>A reproducible, <strong>interactive</strong> report that allows the reader to:
+<li><p>A reproducible, <strong>interactive</strong> report that allows the reader to:</p>
 
 <ul>
 <li class='fragment'>visualize relationships between claim frequency/severity and specific variables interactively</li>
 <li class='fragment'>query a predictive model, again interactively</li>
 </ul></li>
-</ul>
-
-<p><sketch of report here?></p>
-
-<ul class = "build incremental">
-<li>A fully reproducible data pipeline
+<li><p><img src="sketch.png" alt="drawing" style="width:325px;" class = "center"/></p></li>
+<li><p>A fully reproducible data pipeline</p>
 
 <ul>
 <li class='fragment'>user-friendly way to run the entire data analysis front to back using simple Make commands</li>
@@ -165,7 +161,7 @@
   
   <article data-timings="">
     <ul>
-<li>Join the Collision and Incident Operators datasets with respect to the claim ID (if given) and then split the whole dataset into test and train datasets</li>
+<li>Join the Collision and Incident Operators datasets with respect to some id (if given) and then split the whole dataset into test and train datasets</li>
 <li>Exploratory Data Analysis on the resulting training set (visualizations to assess potential predictors of interest such as density plots, boxplots, barcharts, etc.)</li>
 </ul>
 
@@ -183,7 +179,7 @@
   <article data-timings="">
     <ul>
 <li>If complete data is provided, a regression (linear regression, tree based learners, or anything that provide variable importances) on incident rate/hour worked based off driver characteristics, time of day, etc.</li>
-<li>A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Poisson (if complete data is not provided)</li>
+<li>A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Model (if complete data is not provided)</li>
 <li>Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)</li>
 </ul>
 
