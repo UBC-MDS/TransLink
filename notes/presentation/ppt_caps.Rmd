@@ -113,8 +113,7 @@ so not have this data yet, this will be available in future.
 
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
-    - .fragment query a predictive model, again interactively and perhaps through an interactive map
-
+    
 > * <img src="sketch.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
