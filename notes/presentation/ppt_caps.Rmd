@@ -57,6 +57,19 @@ knitr::opts_chunk$set(echo = FALSE)
 - Collisions (Preventable and Non-Preventable)
 - Claims
 
+*** pnotes
+
+- First one is , Speed Performance which as the name suggests gives information
+about scheduled speeds and actual speeds with which the vehicle traveled along with the
+scheduled and actual timings of the bus.
+- Second dataset tells us about how different drivers are related with the different number
+of incidents. This dataset gives a clear idea about the relationship of the drivers and their
+characteristics with incidents.
+- Third data set provides a detailed description of the collisions that took place, both
+preventable and not preventable.
+- Then at last, Translink will provide us the data about different claims that has been. We
+so not have this data yet, this will be available in future.
+
 --- {.build}
 ## Data Product
 
