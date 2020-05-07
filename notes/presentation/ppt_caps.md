@@ -155,33 +155,7 @@ so not have this data yet, this will be available in future.
 
 --- 
 
-## Rough Timeline (May 4 - May 25)
+## Rough Timeline 
 
-- Milestone 0 (May 11, 2020):
- - finalize proposal report
- 
-<br />
-- Milestone I (May 25, 2020):
-  - finalize dataset preprocessing.
-  - create the data pipeline.
-  - complete all of the analysis described in the methodology
-     - build predictive model
-     - answer the specific hypotheses proposed by TransLink
+> * <img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
 
---- 
-
-## Rough Timeline (May 25 - June 23)
-
-- Milestone II (June 15, 2020):
-  - first draft of the final report
-  - create Docker container for the data pipeline
-  
-- Milestone III (June 18, 2020):
-  - complete the final presentation to TransLink
-
-- Milestone IV (June 23, 2020):
-  - complete interactive report based on feedback
-  - finish the data pipeline
-  
-***pnotes 
--(M2)add interaction on the plots.
