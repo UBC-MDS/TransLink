@@ -20,15 +20,6 @@ knit        : slidify::knit2slides
 > * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
   - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
-  
-*** pnotes
-
-I need to focus on the following
-
-- Point 1
-- Point 2
-- Point 3
-
 
 ---
 ## Research Questions
@@ -73,15 +64,29 @@ I need to focus on the following
 ---
 ## Methodology
 
-- Join the Collision and Incident Operators datasets with respect to the claim ID (if given) and then split the whole dataset into test and train datasets
+- Join the Collision and Incident Operators datasets with respect to some id (if given) and then split the whole dataset into test and train datasets
 - Exploratory Data Analysis on the resulting training set (visualizations to assess potential predictors of interest such as density plots, boxplots, barcharts, etc.)
+
+*** pnotes
+
+- We (hopefully) expect in the coming days the ability to JOIN the datasets together (operator incidents with claims and bus speeds) so that we can properly answer the specific predictive questions asked. This is pretty crucial.
+- If we lose the ability to join, we will likely be limited in relationships we can explore since we will have no ability to relate accidents with multiple factors of interest (like speed, location, route, etc.)
 
 ---
 ## Methodology (cont)
 
 - If complete data is provided, a regression (linear regression, tree based learners, or anything that provide variable importances) on incident rate/hour worked based off driver characteristics, time of day, etc.
-- A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Poisson (if complete data is not provided)
+- A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Model (if complete data is not provided)
 - Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)
+
+*** pnotes
+
+- Complete data: as in, no truncation. In other words, we have all of the drivers, **including those who have 0 accidents.**
+- If we are forced to work only with those who are observed to have an incident, we can consider truncated counting models (Pr[X = x | X > 0]) either in frequentist or a Bayesian framework, since we are only sampling part of the observed distribution. This assumes a world with no possibility of 0 accidents, that is, in order for an operator to appear as an observation, they must have first gotten into an accident.
+- This has the advantage that we do not explicitly model Pr[X = 0] using data in which this case does not exist, simply throw it away.
+- The Bayesian method can also be used to assign some subjective probability of Pr[X = 0] in light of no data.
+- All of this is moot if we can obtain data for all operators, regardless if they have had accidents or not.
+- the cluster analysis is related to the specific question of whether we can find particular coverage codes and/or specific words in accident descriptions that are correlated with particularly bad accident experience
 
 --- 
 
