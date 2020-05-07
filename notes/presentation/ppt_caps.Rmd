@@ -63,8 +63,8 @@ knitr::opts_chunk$set(echo = FALSE)
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
     - .fragment query a predictive model, again interactively
-  
-<sketch of report here?>
+
+> * <img src="sketch.png" alt="drawing" style="width:325px;" class = "center"/>
 
 > * A fully reproducible data pipeline
     - .fragment user-friendly way to run the entire data analysis front to back using simple Make commands

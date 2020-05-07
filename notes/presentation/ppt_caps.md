@@ -20,6 +20,12 @@ knit        : slidify::knit2slides
 > * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
   - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
+  
+*** pnotes
+- On average, premiums have increased by approximately $2 million, or 17.5%, per year during this period. 
+- On average, TransLink has over 1,100 ICBC claims per year costing approximately $13 million per year.
+- There are approximately 240 collision claims per year that on average cost $3.5K per claim
+- The results of this data analysis would be used to develop loss mitigation plans that will avoid or reduce TransLink claims costs.
 
 ---
 ## Research Questions
@@ -35,7 +41,11 @@ knit        : slidify::knit2slides
        - Geographic location
        - ...
     
-- Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims experience?  
+- Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims/accident experience?
+
+*** pnotes
+- The ... refer to other potential predictors of accident experience
+- Categorical features include claim type codes (ATPA codes which are well defined categorical codes, and ATPA code descriptions that are written manually by a human) 
 
 ---
 ## High Level Data Descriptions
@@ -51,8 +61,8 @@ knit        : slidify::knit2slides
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
     - .fragment query a predictive model, again interactively
-  
-<sketch of report here?>
+
+> * <img src="sketch.png" alt="drawing" style="width:325px;" class = "center"/>
 
 > * A fully reproducible data pipeline
     - .fragment user-friendly way to run the entire data analysis front to back using simple Make commands
