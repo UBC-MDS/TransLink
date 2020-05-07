@@ -6,12 +6,21 @@ job         : UBC MDS Capstone
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : prettify      # {highlight.js, prettify, highlight}
 hitheme     : tomorrow      # 
-widgets     : [bootstrap]            # {mathjax, quiz, bootstrap}
+widgets     : [bootstrap]   # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 ---
 
 
+
+## Overview
+
+- Business Questions
+- Research Questions of Interest to address 1.
+- Data Overview
+- Data Product
+- Proposed Methodology
+- Rough Timeline
 
 --- {.build}
 ## Business Question - high costs
@@ -39,19 +48,23 @@ knit        : slidify::knit2slides
        - Weather
        - Time
        - Geographic location
-       - ...
+       - and more
     
-- Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims/accident experience?
-
 *** pnotes
 - The ... refer to other potential predictors of accident experience
 - Categorical features include claim type codes (ATPA codes which are well defined categorical codes, and ATPA code descriptions that are written manually by a human) 
 
 ---
+
+## Research Questions (cont)
+
+- Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims/accident experience?
+
+---
 ## High Level Data Descriptions
 
-- Speed Performance
-- Incident Operators (truncation)
+- Bus Speeds for All Routes, Route Information
+- Actual Incidient Reports
 - Collisions (Preventable and Non-Preventable)
 - Claims
 
@@ -60,18 +73,23 @@ knit        : slidify::knit2slides
 
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
-    - .fragment query a predictive model, again interactively
+    - .fragment query a predictive model, again interactively and perhaps through an interactive map
 
-> * <img src="sketch.png" alt="drawing" style="width:325px;" class = "center"/>
+> * <img src="sketch.png" alt="drawing" style="width:500px;" class = "center"/>
+
+---
+
+## Data Product (cont)
 
 > * A fully reproducible data pipeline
     - .fragment user-friendly way to run the entire data analysis front to back using simple Make commands
     - .fragment stored on a Docker container
     - .fragment detailed documentation describing how to run the analysis and the code
 
--- 
+![](cmake.png) ![](docker.png)
 
 ---
+
 ## Methodology
 
 - Join the Collision and Incident Operators datasets with respect to some id (if given) and then split the whole dataset into test and train datasets
@@ -85,7 +103,7 @@ knit        : slidify::knit2slides
 ---
 ## Methodology (cont)
 
-- If complete data is provided, a regression (linear regression, tree based learners, or anything that provide variable importances) on incident rate/hour worked based off driver characteristics, time of day, etc.
+- If complete data is provided, a regression model on incident rate/year based off driver characteristics, time of day, etc.
 - A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Model (if complete data is not provided)
 - Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)
 
@@ -93,7 +111,7 @@ knit        : slidify::knit2slides
 
 - Complete data: as in, no truncation. In other words, we have all of the drivers, **including those who have 0 accidents.**
 - If we are forced to work only with those who are observed to have an incident, we can consider truncated counting models (Pr[X = x | X > 0]) either in frequentist or a Bayesian framework, since we are only sampling part of the observed distribution. This assumes a world with no possibility of 0 accidents, that is, in order for an operator to appear as an observation, they must have first gotten into an accident.
-- This has the advantage that we do not explicitly model Pr[X = 0] using data in which this case does not exist, simply throw it away.
+- This has the advantage that we do not explicitly model Pr[X = 0] using data in which this case does not exist, simply throw it away. We don't really care about modelling Pr[X = 0] anyway.
 - The Bayesian method can also be used to assign some subjective probability of Pr[X = 0] in light of no data.
 - All of this is moot if we can obtain data for all operators, regardless if they have had accidents or not.
 - the cluster analysis is related to the specific question of whether we can find particular coverage codes and/or specific words in accident descriptions that are correlated with particularly bad accident experience
@@ -102,7 +120,7 @@ knit        : slidify::knit2slides
 
 ## Rough Timeline (May 4 - May 25)
 
-- Milestone 0 (May 11, 2020)
+- Milestone 0 (May 11, 2020):
  - finalize proposal report
  
 <br />
