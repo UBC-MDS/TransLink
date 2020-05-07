@@ -20,6 +20,15 @@ knit        : slidify::knit2slides
 > * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
   - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
+  
+*** pnotes
+
+I need to focus on the following
+
+- Point 1
+- Point 2
+- Point 3
+
 
 ---
 ## Research Questions
