@@ -98,9 +98,7 @@ so not have this data yet, this will be available in future.
     - .fragment user-friendly way to run the entire data analysis front to back using simple Make commands
     - .fragment stored on a Docker container
     - .fragment detailed documentation describing how to run the analysis and the code
-
-![](cmake.png) ![](docker.png)
-
+  
 ---
 
 ## Methodology
