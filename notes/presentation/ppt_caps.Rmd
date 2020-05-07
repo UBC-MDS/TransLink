@@ -84,6 +84,31 @@ preventable and not preventable.
 so not have this data yet, this will be available in future.
 
 --- {.build}
+
+## Bus Speeds for All Routes, Route Information
+
+> <img src="images/speed_data.png" alt="drawing" style="width:500px;" class = "center"/>
+
+---
+
+## Actual Incidient Reports
+
+> <img src="images/operator_incident.png" alt="drawing" style="width:500px;" class = "center"/>
+
+---
+
+## Collisions (Preventable and Non-Preventable)
+
+> <img src="images/collision_data.png" alt="drawing" style="width:500px;" class = "center"/>
+
+---
+
+## Claims
+
+> <img src="images/claim_data.png" alt="drawing" style="width:500px;" class = "center"/>
+
+---
+
 ## Data Product
 
 > * A reproducible, **interactive** report that allows the reader to:
