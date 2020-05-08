@@ -141,6 +141,7 @@ so not have this data yet, this will be available in future.
 <img src="images/operator_incident.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
@@ -152,6 +153,7 @@ so not have this data yet, this will be available in future.
 <img src="images/collision_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
@@ -159,10 +161,10 @@ so not have this data yet, this will be available in future.
 </footer>
 
 ## Claims
-
 <img src="images/claim_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
@@ -176,14 +178,16 @@ so not have this data yet, this will be available in future.
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
 
 
- <img src="sketch.png" alt="drawing" style="width:600px;" class = "center"/>
+<img src="sketch.png" alt="drawing" style="width:600px;" class = "center"/>
 
 ---
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
 </div>
 </footer>
+
 ## Data Product (cont)
 
 > * A fully reproducible data pipeline
@@ -192,11 +196,13 @@ so not have this data yet, this will be available in future.
     - .fragment detailed documentation describing how to run the analysis and the code
 
 ---
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
 </div>
 </footer>
+
 ## Methodology
 
 - Join all datasets together, split, exploratory data analysis, model, interpret
@@ -212,33 +218,32 @@ so not have this data yet, this will be available in future.
 - we are just going to try to understand the relationships initially
 - exploratory data analysis: visualize distributions of variables of interest, box plots, histograms, etc.
 - will try simple linear regression first and then work our way up
-    
+
 ---
+
+## Methodology (cont)
+
+- Cluster Analysis for analysis of specific categorical features like claim type code, claim description (LDA, DBSCAN
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
 </div>
 </footer>
-
-## Methodology (cont)
-
-- Cluster Analysis for analysis of specific categorical features like claim type code, claim description (LDA, DBSCAN)
 
 *** pnotes
 
 - This is for the second research question.
 - Basically, try to understand specific categorical features related to claim descriptions/claim counts that allow us to understand patterns in particular types of claims and their severity
 
---- 
+---
+
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
-<img src = "assets/img/logo.png" >
+<img src = "assets/img/logo.png">
 </div>
 </footer>
 
-
-
 ## Rough Timeline 
-
- <img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
-
+<div class="container">
+<img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>

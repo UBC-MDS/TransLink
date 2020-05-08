@@ -372,5 +372,14 @@ pre code {
   font-weight:normal;
 }
 
+.bottomright {
+  position: absolute;
+  bottom: 4px;
+  right: 12px;
+  font-size: 18px;
+}
 
+.container {
+  position: relative;
+}
       
