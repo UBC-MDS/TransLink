@@ -17,21 +17,36 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Overview
 
-- Business Questions
-- Research Questions of Interest to address 1.
+- Introduction 
+- Research Questions
 - Data Overview
 - Data Product
 - Proposed Methodology
 - Rough Timeline
 
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
+*** pnotes
+- we are gonna walk you through 6 parts of the presentation and here is the map of our presentation to help you navigate.
+
 --- {.build}
-## Business Question - high costs
+## Introduction
 
 > * Insurance premium is one of the largest spendings in TransLink's budget
 > * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
   - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
-  
+
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
 *** pnotes
 - On average, premiums have increased by approximately $2 million, or 17.5%, per year during this period. 
 - On average, TransLink has over 1,100 ICBC claims per year costing approximately $13 million per year.
@@ -41,9 +56,14 @@ knitr::opts_chunk$set(echo = FALSE)
 ---
 ## Research Questions
 
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
 - What are the main predictors of the frequency and severity of bus accidents?
        - Driver characteristics (probation period, experience)
-       - Claim types and other accident descriptions
        - Bus model/model year
        - Bus routes
        - Acceleration/decceleration
@@ -60,6 +80,12 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Research Questions (cont)
 
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
 - Within specific categorical features (such as claim type codes), are there specific clusters or groupings that are particularly noteworthy for having worse or better claims/accident experience?
 
 ---
@@ -69,6 +95,12 @@ knitr::opts_chunk$set(echo = FALSE)
 - Actual Incidient Reports
 - Collisions (Preventable and Non-Preventable)
 - Claims
+
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 
 *** pnotes
 
@@ -85,39 +117,78 @@ so not have this data yet, this will be available in future.
 
 --- {.build}
 
-## Bus Speeds for All Routes, Route Information
+## Bus Speeds & Route Information
 
-> <img src="images/speed_data.png" alt="drawing" style="width:500px;" class = "center"/>
+
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
+<img src="images/speed_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 
 ## Actual Incidient Reports
 
-> <img src="images/operator_incident.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="images/operator_incident.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 
-## Collisions (Preventable and Non-Preventable)
+## Collisions
 
-> <img src="images/collision_data.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="images/collision_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 
 ## Claims
 
-> <img src="images/claim_data.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="images/claim_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
 
 ## Data Product
 
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
+<<<<<<< HEAD
+    - .fragment query a predictive model, again interactively and perhaps through an interactive map
+
+ <img src="sketch.png" alt="drawing" style="width:600px;" class = "center"/>
+=======
     
 > * <img src="sketch.png" alt="drawing" style="width:500px;" class = "center"/>
+>>>>>>> 7fdf819577fce71031e97e941e372ef9b1e4448a
 
 ---
-
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 ## Data Product (cont)
 
 > * A fully reproducible data pipeline
@@ -126,7 +197,11 @@ so not have this data yet, this will be available in future.
     - .fragment detailed documentation describing how to run the analysis and the code
 
 ---
-
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 ## Methodology
 
 - Join the Collision and Incident Operators datasets with respect to some id (if given) and then split the whole dataset into test and train datasets
@@ -138,6 +213,11 @@ so not have this data yet, this will be available in future.
 - If we lose the ability to join, we will likely be limited in relationships we can explore since we will have no ability to relate accidents with multiple factors of interest (like speed, location, route, etc.)
 
 ---
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 
 ## Methodology (cont)
 
@@ -155,8 +235,37 @@ so not have this data yet, this will be available in future.
 - the cluster analysis is related to the specific question of whether we can find particular coverage codes and/or specific words in accident descriptions that are correlated with particularly bad accident experience
 
 --- 
+<footer class = 'logo'>
+<div style="position: absolute; left: 850px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
 
+<<<<<<< HEAD
+## Rough Timeline (May 4 - May 25)
+
+- Milestone 0 (May 11, 2020):
+ - finalize proposal report
+ 
+<br />
+- Milestone I (May 25, 2020):
+  - finalize dataset preprocessing.
+  - create the data pipeline.
+  - complete all of the analysis described in the methodology
+     - build predictive model
+     - answer the specific hypotheses proposed by TransLink
+
+--- 
+<footer class = 'logo'>
+<div style="position: absolute; left: 890px; top: 55px; z-index:100">
+<img src = "assets/img/logo.png" >
+</div>
+</footer>
+
+## Rough Timeline (May 25 - June 23)
+=======
 ## Rough Timeline 
+>>>>>>> 7fdf819577fce71031e97e941e372ef9b1e4448a
 
 > * <img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
 
