@@ -9,7 +9,6 @@ hitheme     : tomorrow      #
 widgets     : [bootstrap]   # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
-logo        : download.png
 ---
 
 ```{r setup, include=FALSE}
@@ -150,7 +149,7 @@ so not have this data yet, this will be available in future.
 - we are just going to try to understand the relationships initially
 - exploratory data analysis: visualize distributions of variables of interest, box plots, histograms, etc.
 - will try simple linear regression first and then work our way up
-
+    
 ---
 
 ## Methodology (cont)
