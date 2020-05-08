@@ -28,26 +28,27 @@ knit        : slidify::knit2slides
 </div>
 </footer>
 
-<footer class = 'cost'>
+
 <div style="position: absolute; left: 400px; top: 130px; z-index:100">
-<img src = "images/bus.png" >
+<img src = "images/bus_w_citation.jpg">
 </div>
-</footer>
+
 
 *** pnotes
 - we are gonna walk you through 6 parts of the presentation and here is the map of our presentation to help you navigate.
 
 --- {.build}
+
 ## Introduction
 
 > * Insurance premium is one of the largest spendings in TransLink's budget
 > * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
-  - .fragment potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
+    - strong predictors of claim severity/frequency that TransLink can leverage to help reduce claim costs
 
 <footer class = 'cost'>
-<div style="position: absolute; left: 100px; top: 250px; z-index:100">
-<img src = "images/cost.png" >
+<div style="position: absolute; left: 100px; top: 318px; z-index:100">
+<img src = "images/cost.png">
 </div>
 </footer>
 
@@ -74,18 +75,12 @@ knit        : slidify::knit2slides
 
 - What are the main predictors of the frequency and severity of bus accidents?
  
- 
 <footer class = 'logo'>
 <div style="position: absolute; left: 90px; top: 250px; z-index:100">
 <img src = "images/question.png" >
 </div>
 </footer>
  
- 
- 
-       
-
-    
 *** pnotes
 - The ... refer to other potential predictors of accident experience
 - Categorical features include claim type codes (ATPA codes which are well defined categorical codes, and ATPA code descriptions that are written manually by a human) 
@@ -97,7 +92,7 @@ knit        : slidify::knit2slides
 
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
-<img src = "assets/img/logo.png" >
+<img src = "assets/img/logo.png">
 </div>
 </footer>
 

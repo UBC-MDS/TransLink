@@ -374,12 +374,12 @@ pre code {
 
 .bottomright {
   position: absolute;
-  bottom: 4px;
-  right: 12px;
+  bottom: 5px;
+  right: 10px;
   font-size: 18px;
 }
 
 .container {
   position: relative;
 }
-      
+
