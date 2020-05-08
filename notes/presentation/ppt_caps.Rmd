@@ -256,6 +256,5 @@ so not have this data yet, this will be available in future.
 </div>
 </footer>
 
-## Rough Timeline 
 <div class="container">
 <img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
