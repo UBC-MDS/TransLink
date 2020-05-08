@@ -9,6 +9,7 @@ hitheme     : tomorrow      #
 widgets     : [bootstrap]   # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
+logo        : download.png
 ---
 
 
@@ -23,6 +24,13 @@ knit        : slidify::knit2slides
 - Rough Timeline
 
 --- {.build}
+
+<footer class = 'logo'>
+<div style="position: absolute; left: 1000px; top: 50px; z-index:100">
+<img src = "assets/img/download.png" height="80" width="80">
+</div>
+</footer>
+
 ## Business Question - high costs
 
 > * Insurance premium is one of the largest spendings in TransLink's budget

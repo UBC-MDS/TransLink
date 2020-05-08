@@ -355,12 +355,13 @@ pre code {
 }
 
 .title-slide hgroup > h1{
- font-family: 'Whitney SSm A', 'Whitney SSm B', Arial; 
+
 }
 
 .title-slide hgroup > h1, 
 .title-slide hgroup > h2 {
   color: #002145 ;  /* ; #EF5150*/
+  font-family: 'Whitney SSm A', 'Whitney SSm B', Arial; 
 }
 
       
