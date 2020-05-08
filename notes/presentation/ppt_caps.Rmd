@@ -174,9 +174,14 @@ so not have this data yet, this will be available in future.
 
 > * A reproducible, **interactive** report that allows the reader to:
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
+<<<<<<< HEAD
     - .fragment query a predictive model, again interactively and perhaps through an interactive map
 
  <img src="sketch.png" alt="drawing" style="width:600px;" class = "center"/>
+=======
+    
+> * <img src="sketch.png" alt="drawing" style="width:500px;" class = "center"/>
+>>>>>>> 7fdf819577fce71031e97e941e372ef9b1e4448a
 
 ---
 <footer class = 'logo'>
@@ -236,6 +241,7 @@ so not have this data yet, this will be available in future.
 </div>
 </footer>
 
+<<<<<<< HEAD
 ## Rough Timeline (May 4 - May 25)
 
 - Milestone 0 (May 11, 2020):
@@ -257,17 +263,9 @@ so not have this data yet, this will be available in future.
 </footer>
 
 ## Rough Timeline (May 25 - June 23)
+=======
+## Rough Timeline 
+>>>>>>> 7fdf819577fce71031e97e941e372ef9b1e4448a
 
-- Milestone II (June 15, 2020):
-  - first draft of the final report
-  - create Docker container for the data pipeline
-  
-- Milestone III (June 18, 2020):
-  - complete the final presentation to TransLink
+> * <img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
 
-- Milestone IV (June 23, 2020):
-  - complete interactive report based on feedback
-  - finish the data pipeline
-  
-***pnotes 
--(M2)add interaction on the plots.
