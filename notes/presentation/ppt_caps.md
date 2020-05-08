@@ -233,7 +233,7 @@ so not have this data yet, this will be available in future.
 
 ## Methodology (cont)
 
-- Cluster Analysis for analysis of specific categorical features like claim type code, claim description (LDA, DBSCAN
+- Cluster Analysis for analysis of specific categorical features like claim type code, claim description (LDA, DBSCAN)
 
 <footer class = 'logo'>
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
@@ -254,6 +254,5 @@ so not have this data yet, this will be available in future.
 </div>
 </footer>
 
-## Rough Timeline 
 <div class="container">
 <img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
