@@ -35,10 +35,12 @@
 /* Styles for Title Slide */
 .title-slide hgroup > h1{
   font-family: 'Whitney SSm A', 'Whitney SSm B', Arial;
+  font-size:60px;
 }
 
 .title-slide hgroup > h2{
   font-family: 'Whitney SSm A', 'Whitney SSm B', Arial;
+  font-weight:bold;
 }
 
 /* Fonts and Spacing */
@@ -54,7 +56,7 @@ slide:not(.segue) h2{
   font-family: 'Whitney SSm A', 'Whitney SSm B', Arial;
   font-size: 52px;
   font-style: normal;
-  font-weight: bold;
+  font-weight: normal;
   text-transform: normal;
   letter-spacing: -2px;
   line-height: 1.2em;
@@ -358,10 +360,17 @@ pre code {
 
 }
 
-.title-slide hgroup > h1, 
+.title-slide hgroup > h1 {
+  color: #002145 ;  /* ; #EF5150*/
+  font-family: 'Whitney SSm A', 'Whitney SSm B', Arial;
+  font-weight:normal; 
+}
+
 .title-slide hgroup > h2 {
   color: #002145 ;  /* ; #EF5150*/
-  font-family: 'Whitney SSm A', 'Whitney SSm B', Arial; 
+  font-family: 'Whitney SSm A', 'Whitney SSm B', Arial;
+  font-weight:normal;
 }
+
 
       
