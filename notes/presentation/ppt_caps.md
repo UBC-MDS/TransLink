@@ -34,6 +34,11 @@ knit        : slidify::knit2slides
 </div>
 </footer>
 
+<div class="container">
+  <img src="images/bus.png" alt="image" width="600" height="300" class = "left">
+  <div class="bottomright">CITATION</div>
+</div> 
+
 *** pnotes
 - we are gonna walk you through 6 parts of the presentation and here is the map of our presentation to help you navigate.
 
