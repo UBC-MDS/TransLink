@@ -41,13 +41,13 @@ knit        : slidify::knit2slides
 
 ## Introduction
 
-> * Insurance premium is one of the largest spendings in TransLink's budget
+> * Premium paid to ICBC is the largest component of TransLink’s overall insurance budget and it has increased by over 200% since 2014/2015
 > * In the past five years, claim costs have increased by about **122.5%**
 > * Therefore, we have been asked to find:
-    - strong predictors of claim severity/frequency that TransLink can leverage to help reduce claim costs
+    - strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs
 
 <footer class = 'cost'>
-<div style="position: absolute; left: 100px; top: 318px; z-index:100">
+<div style="position: absolute; left: 100px; top: 335px; z-index:100">
 <img src = "images/cost.png">
 </div>
 </footer>
