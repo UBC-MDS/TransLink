@@ -357,7 +357,7 @@ pre code {
 }
 
 .title-slide hgroup > h1{
- font-family: 'Whitney SSm A', 'Whitney SSm B', Arial; 
+
 }
 
 .title-slide hgroup > h1 {
@@ -372,5 +372,14 @@ pre code {
   font-weight:normal;
 }
 
+.bottomright {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  font-size: 18px;
+}
 
-      
+.container {
+  position: relative;
+}
+

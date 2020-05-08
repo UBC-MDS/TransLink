@@ -68,12 +68,11 @@
 
 <p></footer></p>
 
-<p><footer class = 'cost'></p>
-
 <div style="position: absolute; left: 400px; top: 130px; z-index:100">
-<img src = "images/bus.png" >
+<img src = "images/bus_w_citation.jpg">
 </div>
 
+<<<<<<< HEAD
 <p></footer></p>
 
 <div class="container">
@@ -81,6 +80,8 @@
   <div class="bottomright">CITATION</div>
 </div> 
 
+=======
+>>>>>>> 587a84fefd0f8c4dedf37ca6181b80c9b5df7e57
   </article>
   <!-- Presenter Notes -->
   
@@ -94,19 +95,19 @@
   
   <article data-timings="">
     <ul class = "build incremental">
-<li>Insurance premium is one of the largest spendings in TransLink&#39;s budget</li>
+<li>Premium paid to ICBC is the largest component of TransLink’s overall insurance budget and it has increased by over 200% since 2014/2015</li>
 <li>In the past five years, claim costs have increased by about <strong>122.5%</strong></li>
 <li>Therefore, we have been asked to find:
 
 <ul>
-<li class='fragment'>potential strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs</li>
+<li>strong predictors of claim severity/frequency that TransLink can leverage to help reduce costs</li>
 </ul></li>
 </ul>
 
 <p><footer class = 'cost'></p>
 
-<div style="position: absolute; left: 100px; top: 250px; z-index:100">
-<img src = "images/cost.png" >
+<div style="position: absolute; left: 100px; top: 335px; z-index:100">
+<img src = "images/cost.png">
 </div>
 
 <p></footer></p>
@@ -166,7 +167,7 @@
     <p><footer class = 'logo'></p>
 
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
-<img src = "assets/img/logo.png" >
+<img src = "assets/img/logo.png">
 </div>
 
 <p></footer></p>
@@ -359,9 +360,12 @@
 <h2>Methodology</h2>
 
 <ul>
-<li>Join the Collision and Incident Operators datasets with respect to some id (if given) and then split the whole dataset into test and train datasets</li>
-<li>Exploratory Data Analysis on the resulting training set (visualizations to assess potential predictors of interest such as density plots, boxplots, barcharts, etc.)</li>
+<li>Join all datasets together, split, exploratory data analysis, model, interpret</li>
+<li>Machine learning model that takes in multiple inputs at once</li>
+<li>Emphasis on models that can be interpreted (feature importance scores)</li>
 </ul>
+
+<p><img src="rq1.png" alt="drawing" style="width:650px;" class = "center"/></p>
 
   </article>
   <!-- Presenter Notes -->
@@ -370,22 +374,22 @@
 
 <slide class="" id="slide-13" style="background:;">
   
+  <hgroup>
+    <h2>Methodology (cont)</h2>
+  </hgroup>
+  
   <article data-timings="">
-    <p><footer class = 'logo'></p>
+    <ul>
+<li>Cluster Analysis for analysis of specific categorical features like claim type code, claim description (LDA, DBSCAN)</li>
+</ul>
+
+<p><footer class = 'logo'></p>
 
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
 <img src = "assets/img/logo.png" >
 </div>
 
 <p></footer></p>
-
-<h2>Methodology (cont)</h2>
-
-<ul>
-<li>If complete data is provided, a regression model on incident rate/year based off driver characteristics, time of day, etc.</li>
-<li>A Bayesian regression model to address the problem of truncation in the Incident Operators dataset or a Zero-Truncated Model (if complete data is not provided)</li>
-<li>Cluster Analysis for analysis of specific categorical features like claim type code, claim description (Markov Chains, LDA, DBSCAN)</li>
-</ul>
 
   </article>
   <!-- Presenter Notes -->
@@ -398,14 +402,13 @@
     <p><footer class = 'logo'></p>
 
 <div style="position: absolute; left: 850px; top: 55px; z-index:100">
-<img src = "assets/img/logo.png" >
+<img src = "assets/img/logo.png">
 </div>
 
 <p></footer></p>
 
-<h2>Rough Timeline</h2>
-
-<p><img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/></p>
+<p><div class="container">
+<img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/></p>
 
   </article>
   <!-- Presenter Notes -->
@@ -503,7 +506,7 @@
     
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=13 title='NA'>
+        data-slide=13 title='Methodology (cont)'>
          13
       </a>
     </li>
