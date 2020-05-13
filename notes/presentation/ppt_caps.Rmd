@@ -36,6 +36,7 @@ knitr::opts_chunk$set(echo = FALSE)
 </div>
 
 
+
 *** pnotes
 - we are gonna walk you through 6 parts of the presentation and here is the map of our presentation to help you navigate.
 
