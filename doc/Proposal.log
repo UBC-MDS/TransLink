@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.1.11)  12 MAY 2020 16:57
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.1.11)  12 MAY 2020 17:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -705,11 +705,11 @@ Package rerunfilecheck Info: File `Proposal.out' has not changed.
 (rerunfilecheck)             Checksum: E71F176FFAB98891976AFBA296B13C1E;689.
  ) 
 Here is how much of TeX's memory you used:
- 12807 strings out of 493610
- 186436 string characters out of 6159293
+ 12805 strings out of 493610
+ 186416 string characters out of 6159293
  290077 words of memory out of 5000000
  16708 multiletter control sequences out of 15000+600000
- 57313 words of font info for 88 fonts, out of 8000000 for 9000
+ 57230 words of font info for 87 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
  42i,14n,47p,816b,335s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019basic/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/l
@@ -720,7 +720,7 @@ asic/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019basic/t
 exmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2019basic/texmf-d
 ist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2019basic/texmf-dist/fo
 nts/type1/public/lm/lmri10.pfb>
-Output written on Proposal.pdf (3 pages, 308729 bytes).
+Output written on Proposal.pdf (3 pages, 308748 bytes).
 PDF statistics:
  100 PDF objects out of 1000 (max. 8388607)
  82 compressed objects within 1 object stream
