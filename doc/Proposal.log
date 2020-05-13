@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.1.11)  12 MAY 2020 16:57
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.1.11)  12 MAY 2020 17:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -706,7 +706,7 @@ Package rerunfilecheck Info: File `Proposal.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  12807 strings out of 493610
- 186436 string characters out of 6159293
+ 186438 string characters out of 6159293
  290077 words of memory out of 5000000
  16708 multiletter control sequences out of 15000+600000
  57313 words of font info for 88 fonts, out of 8000000 for 9000
@@ -720,7 +720,7 @@ asic/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019basic/t
 exmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2019basic/texmf-d
 ist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2019basic/texmf-dist/fo
 nts/type1/public/lm/lmri10.pfb>
-Output written on Proposal.pdf (3 pages, 308729 bytes).
+Output written on Proposal.pdf (3 pages, 308752 bytes).
 PDF statistics:
  100 PDF objects out of 1000 (max. 8388607)
  82 compressed objects within 1 object stream
