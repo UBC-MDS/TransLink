@@ -3,6 +3,7 @@ title: "Vision over Incidents and Claims Research Proposal"
 author: "Simardeep Kaur, Merve Sahin, Brayden Tang, Xugang (Kirk) Zhong"
 output:
   pdf_document:
+    fig_caption: yes
     keep_tex: true
 header-includes: 
    \usepackage{graphicx}
@@ -27,40 +28,56 @@ knitr::opts_chunk$set(cache=TRUE,
                       })
 ```
 
+
+
+
 # Summary
 
-To investigate the potential factors related to TransLink’s increasing insurance cost, the research is proposing a four-phase research plan, deploying data science skills such as exploratory data analysis, regression analysis and machine learning models to identify the incidents/claims patterns and root causes among predictors such as driver characteristics, vehicle characteristics and other third-party predictors. A fully reproducible and interactive report generated via a data pipeline is expected at the end. 
-
+In 2019/2020, TransLink has paid around 20 million in expenses for insurance claims to ICBC. Additionally, their premium to ICBC has increased by 200% during the last five years. To investigate the potential factors related to the increasing insurance cost and identify the pattern among these predictors the research is proposing a four-phase research plan, using statistical methods such as zero-truncated regression, time series modeling, and mixed-effect models. In a reproducible and interactive form, the research results will be delivered to TransLink at the end.
 
 # Introduction
 
-With the largest public transit service area in Canada, TransLink is operating more than 245 bus routes, 79 kilometers of rapid transit, etc. to meet the transportation need of 2.5 million people in Metro Vancouver as of the end of 2018 [@TransLink]. Legislatively, TransLink is required to carry a \$1 million per occurrence liability policy on each of its revenue vehicles and a \$200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%. In responding to the soaring insurance cost and road safety concern, this research will investigate the factors that influence the frequency and severity of transit incidents and claims, identifying the incidents/claims pattern. The research objectives are to:
+With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a \$1 million per occurrence liability policy on each of its revenue vehicles and a \$200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%. In response to soaring insurance costs and road safety concerns, this research will investigate variables of interest that may influence the frequency of transit incidents and claims. The research objectives are to:
 
-- Characterize the current incidents in terms of driver-end predictors, vehicle-end predictors, and other predictors based on the incidents/claims, and operator data
-- With the help of external data such as weather conditions, and geographic data, examine the main predictors of incidents and potential incidents/claim pattern
-- Recommend actions for TransLink to reduce the insurance cost strategically
+- Characterize current patterns of incident frequency in terms of variables related to drivers and vehicles
+- With the help of external data such as weather conditions and geographic data, examine how predictive these variables are of incidents/claims
+- Recommend actions for TransLink to reduce the incident frequency strategically
 - Identify research needs for future study
+
 
 # Data Product
 
-A fully reproducible and interactive report will be emerging at the end of the project. The report will give a visual representation of relationships between the frequency or severity of claims and specific variables interactively. The project will be done using a fully reproducible data pipeline so that the user can run the entire analysis using simple and understandable make commands. A docker container for reproducibility on any operating system will also be included. 
+A fully reproducible and interactive report will be delivered at the end of the project. The report will give a visual representation of relationships between the frequency of claims and specific variables interactively. The project will use a fully reproducible data pipeline so that the user can run the entire analysis using simple and understandable make commands. A docker container for reproducibility on any operating system will also be included. 
 
 # Data Description
 
-**Bus Trip Information**: This dataset consists of individual trips taken by busses over a span of five days in March 2020 with routes, speeds, vehicle information, and metadata included.
+Below is a summary of the data sets that this project will be built on.
 
-**Operator Occurrences**: This dataset provides the number of incidents (preventable and non-preventable) for all operators with at least one incident in the past three years. Information regarding each operator’s characteristics is also included.  
+The key variables in each dataset that have the highest potential to answer the core business problems are:
+- Bus model and length from the “_Bus Trip Information_” dataset.
+- Experience and probation status of the drivers from the “_Operator Occurrences_” dataset.
+- Loss location and claim description from the “_Collisions_” dataset.
+- Loss date and more granular information about the claim amount from the “_Claims_” dataset.
 
-**Collisions**: This data set provides a detailed description of both preventable and not preventable collisions that took place. Columns describing the location and time of each collision are provided, along with a brief description. 
-
-**Claims**: This dataset describes all occurrences as well as their associated costs. It includes the location, time and description of the occurrence, along with vehicle information.
 
 ![](images/picture1.png)
 
 
 # Methodology
 
-The research will mainly focus on preventable claims since the non-preventable ones are less likely to lend themselves to easy interventions used to reduce insurance-related costs. To model the occurrences which do not yield any cost, we propose a hurdle model, combing a binary classification model, predicting “equal to zero” and “greater than zero” over all occurrences with a regression model that is fit only to non-zero cost occurrences. For simplicity, the research will start with linear models. Alternatively, a different framework like Tweedie regression (which allows for exact zeros) will also be investigated. The model that predicts a held-out test set the best will be used. In terms of bias in the operator dataset, the research will examine methods such as zero-truncated models or Bayesian regression models. To find out whether certain descriptions and/or codes exhibit similar loss experience, methods such as standard cluster analyses will be deployed to identify potential groupings. Furthermore, topic modelling for the manually written accident descriptions will be used to further determine potential groupings or patterns in claim behaviour. 
+The research will focus on preventable, rather than non-preventable, claims incidents. Non-preventable incidents are less likely to lend themselves to easy interventions that could reduce insurance-related costs. Preliminary analysis will focus on the incident occurrence rather than incidence cost. This is because claims can remain open for an extended time. which means costs cannot be assessed accurately.
+
+Multiple separate analyses will be used to determine variables of interest in predicting incident occurrence. Individual variables, such as time, operator, location, and bus type, may require different statistical or machine learning approaches to relate them to the variable of interest. Through this analysis, features can then be created that can be used to fit one composite model incorporating all predictors simultaneously. To assess the predictive power of time and weather on occurrences, the research will involve a time series analysis, incorporating weather as an exogenous variable. In addition, the predictive power of bus type and location are to be analyzed using mixed-effect model approaches, due to the natural grouping of the data (region and bus category). For simplicity, a linear mixed model will be investigated first, using region and potentially bus category as a random effect. 
+
+![](images/picture3.png)
+Figure 1: Count of preventable occurrences per asset vehicle year. Older vehicles appear to show a greater number of incident occurrences. However, it is essential that the number of each type of bus in use (in each year) is obtained to get a fairer comparison so that rates can be calculated instead.
+
+
+The operator dataset only contains operators with at least one occurrence. Therefore, to account for this bias the research will examine methods such as zero-truncated models or Bayesian regression models. Finally, to find out whether certain descriptions and/or codes exhibit similar loss experience, methods such as standard cluster analyses will be deployed to identify potential groupings. Furthermore, topic modeling for the manually written accident descriptions will be used to further determine potential groupings or patterns in claim behavior. 
+
+![](images/picture4.png)
+
+Figure 2: The incidents/year against operator experience. There is a very clear correlation between operator experience and incident rate.
 
 # Timeline
 
