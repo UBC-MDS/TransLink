@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.1.11)  12 MAY 2020 17:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2020.1.11)  15 MAY 2020 10:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -672,58 +672,71 @@ File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 <"images/""picture1".png, id=47, 469.755pt x 228.855pt>
 File: "images/""picture1".png Graphic file (type png)
 <use "images/""picture1".png>
-Package pdftex.def Info: "images/""picture1".png  used on input line 156.
+Package pdftex.def Info: "images/""picture1".png  used on input line 147.
 (pdftex.def)             Requested size: 469.75386pt x 228.85443pt.
-<"images/""picture2".png, id=49, 499.8675pt x 123.46124pt>
-File: "images/""picture2".png Graphic file (type png)
-<use "images/""picture2".png>
-Package pdftex.def Info: "images/""picture2".png  used on input line 195.
-(pdftex.def)             Requested size: 469.76872pt x 116.02719pt.
+<"images/""picture3".png, id=49, 469.755pt x 279.0425pt>
+File: "images/""picture3".png Graphic file (type png)
+<use "images/""picture3".png>
+Package pdftex.def Info: "images/""picture3".png  used on input line 174.
+(pdftex.def)             Requested size: 469.75386pt x 279.04181pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--179
+[][]
+ []
+
 <"""logo".png, id=50, 712.16063pt x 146.5475pt>
 File: """logo".png Graphic file (type png)
 <use """logo".png>
-Package pdftex.def Info: """logo".png  used on input line 198.
+Package pdftex.def Info: """logo".png  used on input line 179.
 (pdftex.def)             Requested size: 113.80676pt x 23.41899pt.
 [2 <./logo.png> <./images/picture1.png>]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 205.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 205.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 205.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 207.
+<"images/""picture4".png, id=58, 469.755pt x 271.0125pt>
+File: "images/""picture4".png Graphic file (type png)
+<use "images/""picture4".png>
+Package pdftex.def Info: "images/""picture4".png  used on input line 190.
+(pdftex.def)             Requested size: 469.75386pt x 271.01183pt.
 File: """logo".png Graphic file (type png)
 <use """logo".png>
-Package pdftex.def Info: """logo".png  used on input line 207.
+Package pdftex.def Info: """logo".png  used on input line 192.
 (pdftex.def)             Requested size: 113.80676pt x 23.41899pt.
-[3 <./images/picture2.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 207.
+[3 <./images/picture3.png>]
+<"images/""picture2".png, id=64, 499.8675pt x 123.46124pt>
+File: "images/""picture2".png Graphic file (type png)
+<use "images/""picture2".png>
+Package pdftex.def Info: "images/""picture2".png  used on input line 211.
+(pdftex.def)             Requested size: 469.76872pt x 116.02719pt.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 216.
+File: """logo".png Graphic file (type png)
+<use """logo".png>
+Package pdftex.def Info: """logo".png  used on input line 216.
+(pdftex.def)             Requested size: 113.80676pt x 23.41899pt.
+[4 <./images/picture4.png> <./images/picture2.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 216.
 (./Proposal.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 207.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 207.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 216.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 216.
 Package rerunfilecheck Info: File `Proposal.out' has not changed.
 (rerunfilecheck)             Checksum: E71F176FFAB98891976AFBA296B13C1E;689.
  ) 
 Here is how much of TeX's memory you used:
- 12807 strings out of 493610
- 186438 string characters out of 6159293
+ 12763 strings out of 493610
+ 185923 string characters out of 6159293
  290077 words of memory out of 5000000
- 16708 multiletter control sequences out of 15000+600000
- 57313 words of font info for 88 fonts, out of 8000000 for 9000
+ 16680 multiletter control sequences out of 15000+600000
+ 42168 words of font info for 70 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 42i,14n,47p,816b,335s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,15n,45p,816b,335s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019basic/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/l
 ocal/texlive/2019basic/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</usr/local/tex
-live/2019basic/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/local/texlive/
-2019basic/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2019b
-asic/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019basic/t
-exmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2019basic/texmf-d
-ist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2019basic/texmf-dist/fo
-nts/type1/public/lm/lmri10.pfb>
-Output written on Proposal.pdf (3 pages, 308752 bytes).
+live/2019basic/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/
+2019basic/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2019ba
+sic/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2019basic/te
+xmf-dist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2019basic/texmf-di
+st/fonts/type1/public/lm/lmri10.pfb>
+Output written on Proposal.pdf (4 pages, 396740 bytes).
 PDF statistics:
  100 PDF objects out of 1000 (max. 8388607)
- 82 compressed objects within 1 object stream
- 20 named destinations out of 1000 (max. 500000)
- 14408 words of extra memory for PDF output out of 17280 (max. 10000000)
+ 78 compressed objects within 1 object stream
+ 19 named destinations out of 1000 (max. 500000)
+ 12370 words of extra memory for PDF output out of 14400 (max. 10000000)
 
