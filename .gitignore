@@ -1,3 +1,6 @@
 data*
 .Rhistory
 .cache
+.DS_Store
+.Rproj
+.ipynb_checkpoints
