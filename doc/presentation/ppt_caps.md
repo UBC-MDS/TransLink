@@ -30,7 +30,7 @@ knit        : slidify::knit2slides
 
 
 <div style="position: absolute; left: 400px; top: 130px; z-index:100">
-<img src = "images/bus_w_citation.jpg">
+<img src = "assets/img/bus_w_citation.jpg">
 </div>
 
 
@@ -49,7 +49,7 @@ knit        : slidify::knit2slides
 
 <footer class = 'cost'>
 <div style="position: absolute; left: 100px; top: 335px; z-index:100">
-<img src = "images/cost.png">
+<img src = "assets/img/cost.png">
 </div>
 </footer>
 
@@ -78,7 +78,7 @@ knit        : slidify::knit2slides
  
 <footer class = 'logo'>
 <div style="position: absolute; left: 90px; top: 250px; z-index:100">
-<img src = "images/question.png" >
+<img src = "assets/img/question.png" >
 </div>
 </footer>
  
@@ -137,7 +137,7 @@ so not have this data yet, this will be available in future.
 </div>
 </footer>
 
-<img src="images/speed_data.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="assets/img/speed_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
 
@@ -149,7 +149,7 @@ so not have this data yet, this will be available in future.
 
 ## Actual Incidient Reports
 
-<img src="images/operator_incident.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="assets/img/operator_incident.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
 
@@ -161,7 +161,7 @@ so not have this data yet, this will be available in future.
 
 ## Collisions
 
-<img src="images/collision_data.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="assets/img/collision_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
 
@@ -172,7 +172,7 @@ so not have this data yet, this will be available in future.
 </footer>
 
 ## Claims
-<img src="images/claim_data.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="assets/img/claim_data.png" alt="drawing" style="width:500px;" class = "center"/>
 
 ---
 
@@ -189,7 +189,7 @@ so not have this data yet, this will be available in future.
     - .fragment visualize relationships between claim frequency/severity and specific variables interactively
 
 
-<img src="sketch.png" alt="drawing" style="width:600px;" class = "center"/>
+<img src="assets/img/sketch.png" alt="drawing" style="width:600px;" class = "center"/>
 
 ---
 
@@ -220,7 +220,7 @@ so not have this data yet, this will be available in future.
 - Machine learning model that takes in multiple inputs at once
 - Emphasis on models that can be interpreted (feature importance scores)
 
-<img src="rq1.png" alt="drawing" style="width:650px;" class = "center"/>
+<img src="assets/img/rq1.png" alt="drawing" style="width:650px;" class = "center"/>
 
 *** pnotes
 
@@ -256,4 +256,4 @@ so not have this data yet, this will be available in future.
 </footer>
 
 <div class="container">
-<img src="images/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
+<img src="assets/img/timeline.png" alt="drawing" style="width:500px;" class = "center"/>
