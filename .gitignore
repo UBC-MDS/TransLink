@@ -4,3 +4,4 @@ data*
 .DS_Store
 .Rproj
 .ipynb_checkpoints
+.Rproj.user
