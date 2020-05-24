@@ -42,7 +42,17 @@ opt <- docopt(doc)
 #' @examples 
 #' fit_non_hier(tau = 0.1, data = train)
 fit_non_hier <- function(tau, data) {
+  
+  # Check for correct values of tau.
+  if (!is.numeric(tau) | tau < 0) {
+    stop("Invalid tau value. Tau must be positive and a number.")
+  }
         
+  # Check that proper column names exist in training data.
+  if (any(c("experience", "cost_centre", "number_incidents", "hours_worked_div_1957") %in% colnames(data) == FALSE)) {
+    stop("Specific columns are missing from the training data in the Bayesian model fit. Recheck column names!")
+  }
+  
   stanvars <- stanvar(tau, name = "tau")    
   prior_non_hier <- prior(normal(0, tau), class = "b")
         
@@ -82,6 +92,16 @@ fit_non_hier <- function(tau, data) {
 #' @examples
 #' fit_rand_int(tau = 8, data = train)
 fit_rand_int <- function(tau, data) {
+  
+  # Check for correct values of tau.
+  if (!is.numeric(tau) | tau < 0) {
+    stop("Invalid tau value. Tau must be positive and a number.")
+  }
+  
+  # Check that proper column names exist in training data.
+  if (any(c("experience", "cost_centre", "number_incidents", "hours_worked_div_1957") %in% colnames(data) == FALSE)) {
+    stop("Specific columns are missing from the training data in the Bayesian model fit. Recheck column names!")
+  }
           
   stanvars <- stanvar(tau, name = "tau")    
   prior_rand_int <- prior(normal(0, tau), class = "b")
@@ -121,6 +141,16 @@ fit_rand_int <- function(tau, data) {
 #' @examples
 #' fit_rand_int_slope(tau = 13, data = train)
 fit_rand_int_slope <- function(tau, data) {
+  
+  # Check for correct values of tau.
+  if (!is.numeric(tau) | tau < 0) {
+    stop("Invalid tau value. Tau must be positive and a number.")
+  }
+  
+  # Check that proper column names exist in training data.
+  if (any(c("experience", "cost_centre", "number_incidents", "hours_worked_div_1957") %in% colnames(data) == FALSE)) {
+    stop("Specific columns are missing from the training data in the Bayesian model fit. Recheck column names!")
+  }
           
   stanvars <- stanvar(tau, name = "tau")    
   prior_rand_slope <- prior(normal(0, tau), class = "b")
@@ -163,6 +193,17 @@ fit_rand_int_slope <- function(tau, data) {
 #' best_model_out = "results/operators/models/best-bayes-model.rds"
 #' )
 main <- function(train_data_path, table_out, all_model_out, best_model_out) {        
+  
+  # Check that the paths specified are correct.
+  if (!str_detect(train_data_path, ".csv")) {
+    stop("Train path must be a specific .csv file.")
+  } else if (!str_detect(table_out, ".rds")) {
+    stop("Path to store output table of LOO scores must be a specific .rds file.")
+  } else if (!str_detect(all_model_out, ".rds")) {
+    stop("Path to store the model object must be a specific .rds file.")
+  } else if (!str_detect(best_model_out, ".rds")) {
+    stop("Path to store best Bayes model must be a specific .rds file.")
+  }
   
   # Read in data, preprocess
   # If cost centre is NA, just fill with the most common value which is VTC.

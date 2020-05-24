@@ -40,23 +40,52 @@ opt <- docopt(doc)
 #' )
 main <- function(path_data, directory_out) {
 
+  # If the directory does not exist, create it to avoid R error.
   if (!dir.exists(directory_out)) {
     dir.create(directory_out)
   }
+  
+  # Check if data supplied is a .xlsx file.
+  if (!str_detect(path_data, ".xlsx|.csv")) {
+    stop("File path to data must be a specific .xlsx file where the second sheet contains the data, or a .csv file.")
+  }
 
-data <- read_xlsx(path_data, sheet = 2) %>%
-  janitor::clean_names() %>%
-  mutate(incidents_1957 = number_incidents * 1957)
-
-# Split into train and test
-
-set.seed(200350623)
-train_folds <- createDataPartition(y = data$incidents_1957, p = 0.85)
-train <- data[train_folds[[1]], ]
-test <- data[-train_folds[[1]], ]
-
-write_csv(train, paste0(directory_out, "/train.csv"))
-write_csv(test, paste0(directory_out, "/test.csv"))
+  # Read in the data differently depending on the extension.
+  if (str_detect(path_data, ".xlsx")) {    
+    data <- read_xlsx(path_data, sheet = 2) 
+  } else {
+    data <- read_csv(path_data)
+  }
+  
+  # Check for specific columns in a specific format.  
+  if (any(c("Experience", "Cost Centre", "# Incidents", "Total Hours Last3yr") %in% colnames(data) == FALSE)) {
+    stop("Data is missing specific column names required for this analysis. Columns specifically entitled
+         Experience, Cost Centre, # Incidents, and Total Hours Last3yr are required.")
+  }
+  
+  # Check if output directory is specified correctly.
+  if (endsWith(directory_out, "/")) {
+    stop("File path should not end with /")
+  }
+  
+  # Check if output directory is just a general path, and not a specific file.
+  if (str_detect(directory_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+    stop("Output path should just be a directory, not a specific file. Remove the file extension.")
+  }
+  
+  data <- data %>%
+    janitor::clean_names() %>%
+    mutate(incidents_1957 = number_incidents * 1957)
+  
+  # Split into train and test
+  
+  set.seed(200350623)
+  train_folds <- createDataPartition(y = data$incidents_1957, p = 0.85)
+  train <- data[train_folds[[1]], ]
+  test <- data[-train_folds[[1]], ]
+  
+  write_csv(train, paste0(directory_out, "/train.csv"))
+  write_csv(test, paste0(directory_out, "/test.csv"))
 
 }
 

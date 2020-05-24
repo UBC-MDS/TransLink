@@ -41,6 +41,15 @@ opt <- docopt(doc)
 #' )
 check_samples <- function(model, path_out_diag) {
   
+  # Input validation - check that model is brmsfit and that output path is not 
+  # an actual file.
+  if (!is.brmsfit(model)) {
+    stop("The model object must be of brmsfit.")
+  } else if (str_detect(path_out_diag, "\\.xlsx$|\\.csv$|\\.rds$|//.txt$")) {
+    stop("The output path for model diagnostics must be a general path, not a 
+         path to a specific file. Remove the file extension.")
+  }
+  
   trace_plot_global <- mcmc_trace(
     model,
     pars = c(parnames(model)[1:4])
@@ -81,6 +90,19 @@ check_samples <- function(model, path_out_diag) {
 #' )
 main <- function(path_to_glm, path_to_bayesian, test_data_path, results_out, path_out_diag) {
 
+  # Input validation checks. Checks for correctly specified file paths.
+  if (!str_detect(path_to_glm, ".rds")) {
+    stop("File path to GLM must be a specific file with extension .rds")
+  } else if (!str_detect(path_to_bayesian, ".rds")) {
+    stop("File path to Bayesian model must be a specific file with extension .rds")
+  } else if (!str_detect(test_data_path, ".csv")) {
+    stop("File path to test set must be a specific file with extension .csv")
+  } else if (!str_detect(results_out, ".rds")) {
+    stop("File path for table of test set scores must be a specific file with extension .rds")
+  } else if (str_detect(path_out_diag, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+    stop("path_out_diag should just be a directory, not a specific file. Remove the file extension.")
+  }
+  
   final_bayes_model <- readRDS(path_to_bayesian)
   final_glm <- readRDS(path_to_glm)
   

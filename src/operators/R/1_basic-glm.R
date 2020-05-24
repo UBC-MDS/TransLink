@@ -38,6 +38,20 @@ opt <- docopt(doc)
 #' 
 fit_model <- function(predictors, data) {
   
+  # Check that the model specification is correctly formatted.
+  if (!str_detect(predictors, "~")) {
+    stop("Invalid formula specification.")
+  } else if (!str_detect(predictors, "offset\\(log\\(hours_worked_div_1957\\)\\)")) {
+      warning("The provided formula does not have an offset term for log hours worked divided by 1957.
+              Please ensure that this is intentional.")
+  }
+  
+  # Check that data contains the right columns.
+  
+  if (any(c("experience", "cost_centre", "number_incidents", "hours_worked_div_1957") %in% colnames(data) == FALSE)) {
+    stop("Specific columns are missing from the training data in the GLM model fit. Recheck column names!")
+  }
+  
   model <- vglm(
     as.formula(paste0("number_incidents", predictors)), 
     family = pospoisson(),
@@ -65,12 +79,21 @@ fit_model <- function(predictors, data) {
 #' aic_table_out = "results/operators/report-tables/basic-glm-aic_table.rds,
 #' model_out = "results/operators/models/basic-glm.rds"
 #' )
-main <- function(train_path_data, aic_table_out, model_out) {
+main <- function(train_data_path, aic_table_out, model_out) {
 
+  # Check that the paths specified are correct.
+  if (!str_detect(train_data_path, ".csv")) {
+    stop("Train path must be a specific .csv file.")
+  } else if (!str_detect(aic_table_out, ".rds")) {
+    stop("Path to store output table of AIC scores must be a specific .rds file.")
+  } else if (!str_detect(model_out, ".rds")) {
+    stop("Path to store the model object must be a specific .rds file.")
+  }
+  
   # Read in data, preprocess
   # If cost centre is NA, just fill with the most common value which is VTC.
   # 1957 is needed to recreate the incidents/year column.
-  data <- read_csv(train_path_data) %>%
+  data <- read_csv(train_data_path) %>%
     mutate(cost_centre = ifelse(is.na(cost_centre), "VTC", cost_centre)) %>%
     mutate(
       experience = factor(experience), 
