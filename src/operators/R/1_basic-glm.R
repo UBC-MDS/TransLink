@@ -1,0 +1,124 @@
+# Author: Brayden Tang
+# Date: May 17th, 2020
+
+"This script runs a basic zero-truncated Poisson model to serve as a baseline,
+with no hierarchical modelling or Bayesian approaches of any kind. 
+This script assumes that it will be run from the root of the repository.
+Usage: basic-glm.R <train_data_path> <aic_table_out> <model_out>
+
+Options:
+<train_dath_path>   A file path that gives the location of the training set.
+<aic_table_out>     A file path specifying where to store a table of AIC scores for model selection.
+<model_out>         A file path specifying where to store the final selected model.
+" -> doc
+
+# Import packages needed for this script
+
+library(tidyverse)
+library(VGAM)
+library(docopt)
+
+opt <- docopt(doc)
+
+#' This function fits a zero-truncated Poisson GLM with some set of predictors
+#' specified by the user.
+#'
+#' @param predictors A string specifying an R formula, where the 
+#' formula references specific columns provided in data.
+#' @param data The training dataset.
+#'
+#' @return A VGAM object of the fitted model.
+#' @export
+#'
+#' @examples
+#' fit_model(
+#' predictors = "~ experience + cost_centre + offset(log(hours_worked_div_1957))",
+#' data = data
+#' )
+#' 
+fit_model <- function(predictors, data) {
+  
+  model <- vglm(
+    as.formula(paste0("number_incidents", predictors)), 
+    family = pospoisson(),
+    data = data
+  )
+  
+  model
+  
+}
+
+#' This function selects the best predictive GLM model by selecting the best feature
+#' combination amongst all possible combinations.
+#'
+#' @param train_path_data A file path to the training data set.
+#' @param aic_table_out A file path that describes where the AIC results table 
+#' should be stored.
+#' @param model_out A file path that describes where the best predictive GLM model 
+#' should be stored.
+#' @return None
+#' @export
+#'
+#' @examples
+#' main(
+#' train_path_data = "data/operators/train.csv",
+#' aic_table_out = "results/operators/report-tables/basic-glm-aic_table.rds,
+#' model_out = "results/operators/models/basic-glm.rds"
+#' )
+main <- function(train_path_data, aic_table_out, model_out) {
+
+  # Read in data, preprocess
+  # If cost centre is NA, just fill with the most common value which is VTC.
+  # 1957 is needed to recreate the incidents/year column.
+  data <- read_csv(train_path_data) %>%
+    mutate(cost_centre = ifelse(is.na(cost_centre), "VTC", cost_centre)) %>%
+    mutate(
+      experience = factor(experience), 
+      cost_centre = factor(cost_centre),
+      hours_worked_div_1957 = total_hours_last3yr / 1957) %>%
+    mutate(
+      cost_centre = relevel(cost_centre, ref = "VTC"),
+      experience = relevel(experience, ref = ">60 Months")) 
+  
+  # Define the combinations of predictors. Interactions don't work, model
+  # oversaturates.
+  predictor_combinations <- c(
+    "~ experience + offset(log(hours_worked_div_1957))",
+    "~ cost_centre + offset(log(hours_worked_div_1957))",
+    "~ experience + cost_centre + offset(log(hours_worked_div_1957))"
+  )
+  
+  # Fit all possible models as described above. This is 
+  # exactly the same thing as a for loop, iterating over each possible
+  # predictor_combination.
+  all_models <- map(predictor_combinations, fit_model, data = data)
+  
+  # Store AIC scores in a table. Clearly, a model that has 
+  # both predictors is almost certaintly a better predictive model than either
+  # one alone.
+  results_basic_glm <- tibble(
+    "Set of Predictors" = c("Experience Only", "Cost Centre Only", "Experience and Cost Centre"),
+    AIC = round(map_dbl(all_models, AIC), 2)
+    )
+  
+  # Save AIC table in results
+  saveRDS(
+    results_basic_glm,
+    aic_table_out
+    )
+  
+  # Fit final best model, and save 
+  best_basic_glm <- fit_model(
+    predictor_combinations[which.min(results_basic_glm$AIC)],
+    data = data
+    )
+  
+  saveRDS(best_basic_glm, model_out)
+
+}
+
+main(
+  train_data_path = opt$train_data_path, 
+  aic_table_out = opt$aic_table_out,
+  model_out = opt$model_out
+)
