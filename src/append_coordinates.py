@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""This script create an interactive map showing the locations of the incidents. 
+"""This script create a csv file containing the coordination of the incidents. 
 It takes the street names and the city names from "2020 Collisions- Preventable 
 and Non Preventable UBC Set Without Claim Number.xlsx" and convert them to 
-formatted addres including long and lat of the incidents and then creates the 
-map according these locations. Assuming `get-data.py` run before. It requires 
-to have an google maps API key. 
+formatted addres including long and lat of the incidents. Assuming `get-data.py`
+run before. It requires to have an google maps API key. 
 
 Usage: append_coordinates.py --input_file_path=<input_file_path> --output_file_path=<output_file_path> --api_key=<api_key>
 
