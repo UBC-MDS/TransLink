@@ -48,18 +48,20 @@ def main(input_file_path, output_file_path, api_key):
     create_dirs([location_extract_file_path,output_file_path])
 
 
-    collision_preventable = pd.read_excel(input_file_path, skiprows=  3)
+    try:
+        collision_preventable = pd.read_excel(input_file_path, skiprows=  3)
+    except:
+        raise ValueError("Input file does not exist or is not excel spreadsheet.")
     collision_locations = collision_preventable[['Loss Location At', 'Loss Location On', 'City of Incident', 'APTA']]
     collision_locations.columns = ['street1', 'street2', 'city', 'desc']
     collision_locations = collision_locations.applymap(lambda x: str(x).title())
     collision_locations.to_csv(location_extract_file_path, index=False)
-    location_df = pd.read_csv(location_extract_file_path) # TODO assumes `location_extract_file` is a csv file.
+    location_df = pd.read_csv(location_extract_file_path)
     if(len(glob.glob(output_file_path)) == 0):
-        target_location_df = pd.read_csv(location_extract_file_path) # TODO assumes `location_extract_file` is a csv file.
+        target_location_df = pd.read_csv(location_extract_file_path)
         target_location_df["lat"] = None
         target_location_df["long"] = None
         target_location_df["formatted_address"] = None
-        target_location_df["desc"] = None
     else:
         # if output_file already exists, just read the coordinates.
         target_location_df = pd.read_csv(output_file_path) 
@@ -75,9 +77,8 @@ def main(input_file_path, output_file_path, api_key):
         else:
             print("Processing ", (index+1), "/", location_df.shape[0], "Getting coordinates for Street1:", row['street1'], ", Street2: ", row['street2'], ", City:", row['city'])
             try:
-                target_location_df.loc[index,'desc'] = row['desc']
                 location = get_location(row['street1'], row['street2'], row['city'])
-                target_location_df.loc[index,'lat'] = location['latt']
+                target_location_df.loc[index,'lat'] = location['lat']
                 target_location_df.loc[index,'long'] = location['long']
                 target_location_df.loc[index,'formatted_address'] = location['address']
             except:
@@ -85,6 +86,8 @@ def main(input_file_path, output_file_path, api_key):
     
         if(index % 40 == 0):
             target_location_df.to_csv(output_file_path, index = False)
+
+    target_location_df.to_csv(output_file_path, index = False)
     os.remove(location_extract_file_path)
 
 if __name__ == "__main__":
