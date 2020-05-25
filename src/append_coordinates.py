@@ -14,7 +14,11 @@ Options:
 --output_file_path=<output_file_path>   A file path for coordinates of the incident locations.
 --api_key=<api_key>   The google maps API key to make request. 
 
-
+Example: 
+python src/append_coordinates.py \
+    --input_file "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
+    --output_file "data/processed_data/collision_locations_with_coordinates.csv" \
+    --api_key ""
 """
 import pandas as pd
 from docopt import docopt
@@ -26,12 +30,12 @@ from pathlib import Path
 opt = docopt(__doc__)
 
 
-def get_location(street2, street1, city, province = "BC"):
+def get_location(google_maps_client, street2, street1, city, province = "BC"):
     '''It creates longtitude, the lattitude and formatted address of the given street, city names.
     '''
     query_format = '{0} & {1}, {2}, {3}'
     query = query_format.format(street1, street1, city, province)
-    geocode_result = gmaps.geocode(query)
+    geocode_result = google_maps_client.geocode(query)
     address = geocode_result[0]['formatted_address']
     geometry = geocode_result[0]['geometry']['location']
     return{'lat':geometry['lat'], 'long':geometry['lng'], "address" : address}
@@ -68,19 +72,20 @@ def main(input_file_path, output_file_path, api_key):
         if not set(columns_list).issubset(target_location_df.columns):
             raise ValueError (" Target data path should contain all of: " , columns_list)
     
-    gmaps = googlemaps.Client(key=api_key)
+    google_maps_client = googlemaps.Client(key=api_key)
     
     for index, row in location_df.iterrows():
-        if(target_location_df.loc[index,'lat'] != None ):
+        if(target_location_df.loc[index,'lat'] != None):
             print("Processing ", (index+1), "/", location_df.shape[0], "Row already has coordinates, skipping the request.")
         else:
             print("Processing ", (index+1), "/", location_df.shape[0], "Getting coordinates for Street1:", row['street1'], ", Street2: ", row['street2'], ", City:", row['city'])
             try:
-                location = get_location(row['street1'], row['street2'], row['city'])
+                location = get_location(google_maps_client, row['street1'], row['street2'], row['city'])
                 target_location_df.loc[index,'lat'] = location['lat']
                 target_location_df.loc[index,'long'] = location['long']
                 target_location_df.loc[index,'formatted_address'] = location['address']
-            except:
+            except Exception as e:
+                print(str(e))
                 print("Error in processing ", (index+1), "/", location_df.shape[0], "Getting coordinates for Street1:", row['street1'], ", Street2: ", row['street2'], ", City:", row['city'])
     
         if(index % 40 == 0):
