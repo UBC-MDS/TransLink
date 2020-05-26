@@ -1,7 +1,7 @@
 #`Pull in data from S3. Replace ... with your access key and secret key.
 
 data/TransLink\ Raw\ Data/2020\ Collisions-\ Preventable\ and\ Non\ Preventable\ UBC\ Set\ Without\ Claim\ Number.xlsx data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last\ 3\ Years.xlsx data/TransLink\ Raw\ Data/pedestrain_claims.csv data/TransLink\ Raw\ Data/preventable_NonPreventable_claims.csv data/TransLink\ Raw\ Data/Speed\ performance\ data.csv: src/get-data.py
-	python src/get-data.py --access_key=AKIATB63UHM3EORBTSUU --secret_key=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
+	python src/get-data.py --access_key=... --secret_key=...
 
 #--------------Operator Analysis-------------
 
