@@ -70,7 +70,16 @@ To reset the repo to a clean state, with no intermediate or results files, run t
 
 *Note: ChromeDriver is required for saving Altair plots that are produced in our EDA analysis and then rendered in reports. If you are having issues producing Altair plots or installing ChromeDriver, please consult these links for help: [saving Altair plots](https://altair-viz.github.io/user_guide/saving_charts.html), [installing ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/)*
 
-    
+## Additional Links
+
+- [Code of Conduct](https://github.com/UBC-MDS/Translink/blob/master/CONDUCT.md)
+- [License](https://github.com/UBC-MDS/Translink/blob/master/LICENSE)
+- [Contributing](https://github.com/UBC-MDS/Translink/blob/master/CONTRIBUTING.md)
+- [Contributors](https://github.com/UBC-MDS/Translink/blob/master/CONTRIBUTORS.md)
+- [Proposal](https://github.com/UBC-MDS/TransLink/blob/master/doc/proposal/Proposal.pdf)
+- [Final Report]
+  
+
 ## References
 
 
