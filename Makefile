@@ -17,7 +17,7 @@ results/operators/report-tables/basic-glm-aic_table.rds results/operators/models
 
 # Run Bayesian models
 
-results/operators/report-tables/loo-model-cv-summary-bayes.rds results/operators/models/all-bayes-models.rds results/operators/models/best-bayes-model.rds: src/operators/R/2_bayesian-models.R data/operators/train.csv
+results/operators/report-tables/loo-model-cv-summary-bayes.rds results/operators/models/all-bayes-models.rds results/operators/models/best-bayes-model.rds: src/operators/R/2_bayesian-models.R src/operators/R/helper_scripts/bayesian-fit.R data/operators/train.csv
 	Rscript src/operators/R/2_bayesian-models.R data/operators/train.csv results/operators/report-tables/loo-model-cv-summary-bayes.rds results/operators/models/all-bayes-models.rds results/operators/models/best-bayes-model.rds
 
 # Validate all models
@@ -27,5 +27,5 @@ results/operators/report-tables/validation-results.rds results/operators/bayes-d
 
 # Fit the final model on the entire dataset, and generate relevant figures for report
 
-results/operators/models/final-model.rds results/operators/report-tables/posterior_samples.rds: src/operators/R/4_final-model.R data/operators/train.csv data/operators/test.csv results/operators/models/best-bayes-model.rds
+results/operators/models/final-model.rds results/operators/report-tables/posterior_samples.rds: src/operators/R/4_final-model.R src/operators/R/helper_scripts/bayesian-fit.R data/operators/train.csv data/operators/test.csv results/operators/models/best-bayes-model.rds
 	Rscript src/operators/R/4_final-model.R data/operators/train.csv data/operators/test.csv results/operators/models/best-bayes-model.rds results/operators/models/final-model.rds results/operators/report-tables/posterior_samples.rds

@@ -21,7 +21,7 @@ library(brms)
 library(docopt)
 
 # Source the required functions to fit the best Bayesian model
-source("src/operators/R/bayesian-fit.R")
+source("src/operators/R/helper_scripts/bayesian-fit.R")
 opt <- docopt(doc)
 #' This function fits the final model on the entire dataset and outputs
 #' relevant plots and tables for the interactive report.

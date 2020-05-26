@@ -26,7 +26,7 @@ library(docopt)
 opt <- docopt(doc)
 
 # Import the needed functions stored in a separate file.        
-source("src/operators/R/bayesian-fit.R")
+source("src/operators/R/helper_scripts/bayesian-fit.R")
 
 #' Fits all of the candidate Bayesian models, and outputs relevant results
 #' and fitted model objects to specified paths.
