@@ -58,7 +58,7 @@ main <- function(input_file, path_out_map){
                             "<b>","Manufacturer: ", "</b> ", target_location_df$bus_manufacturer, "<br>" ))
     
   # save the map into given file
-  mapshot(m, file = path_out_map )
+  mapshot(m, file = path_out_map)
 
 }
 
