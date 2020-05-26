@@ -4,3 +4,6 @@ data*
 .DS_Store
 .Rproj
 .ipynb_checkpoints
+.Rproj.user
+*.Rproj
+results/operators/models/all-bayes-models.rds
