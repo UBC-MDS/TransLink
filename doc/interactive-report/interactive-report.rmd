@@ -14,11 +14,35 @@ library(shiny)
 library(tidyverse)
 library(plotly)
 library(ggthemes)
+library(leaflet)
+library(mapview)
+library(tidyverse)
 ```
 
 # Introduction {.tabset}
 
 Introductory text on report?
+
+## Spatial Analysis of Incidents
+
+```{r include=FALSE}
+target_location_df = read_csv("/home/merve/Documents/TransLink/data/processed_data/collision_locations_with_coordinates.csv")
+#     target_location_df <- target_location_df %>% drop_na(c("lat", "long"))
+target_location_df <-target_location_df[!is.na(target_location_df$lat) & !is.na(target_location_df$long),]
+```
+
+```{r echo=FALSE}
+m <- leaflet() %>%
+    addProviderTiles("CartoDB.Positron") %>% 
+    addMarkers(lng=target_location_df$long, 
+               lat=target_location_df$lat, 
+               clusterOptions = markerClusterOptions(), 
+               popup=paste0("<b>", target_location_df$desc, "</b> <br>", 
+                            "<b>", "Date: ", "</b> ", target_location_df$date, "<br>", 
+                            "<b>","Bus Year: ", "</b> ", target_location_df$bus_year, "<br>", 
+                            "<b>","Manufacturer: ", "</b> ", target_location_df$bus_manufacturer, "<br>" ))
+m
+```
 
 ## Operator Analysis
 
