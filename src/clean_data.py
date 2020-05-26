@@ -12,6 +12,11 @@ Collision_non_preventable = pd.read_excel('data/TransLink Raw Data/2020 Collisio
 
 Incident_operator = pd.read_excel('data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx', sheet_name=1)
 
+Speed_performance.to_csv("../data/Clean_data/Speed performance data.csv", index=False)
+Collision_preventable.to_csv("../data/Clean_data/Collision_preventable.csv", index=False)
+Collision_non_preventable.to_csv("../data/Clean_data/Collision_non_preventable.csv", index=False)
+Incident_operator.to_csv("../data/Clean_data/Incident_operator.csv", index=False)
+
 
 
 
