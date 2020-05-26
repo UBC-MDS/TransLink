@@ -48,8 +48,14 @@ main <- function(input_file, path_out_map){
   # create the map
   m <- leaflet() %>%
     addProviderTiles("CartoDB.Positron") %>% 
-    addMarkers(lng=target_location_df$long, lat=target_location_df$lat, clusterOptions = markerClusterOptions(), popup=target_location_df$desc)
-  
+    addMarkers(lng=target_location_df$long, 
+               lat=target_location_df$lat, 
+               clusterOptions = markerClusterOptions(), 
+               popup=paste0("<b>", target_location_df$desc, "</b> <br>", 
+                            "<b>", "Date: ", "</b> ", target_location_df$date, "<br>", 
+                            "<b>","Bus Year: ", "</b> ", target_location_df$bus_year, "<br>", 
+                            "<b>","Manufacturer: ", "</b> ", target_location_df$bus_manufacturer, "<br>" ))
+    
   # save the map into given file
   mapshot(m, file = path_out_map )
 
