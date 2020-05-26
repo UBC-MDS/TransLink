@@ -123,8 +123,8 @@ main <- function(path_to_glm, path_to_bayesian, test_data_path, results_out, pat
   
   results <- tibble(
     model = c("Best Simple GLM", "Best Bayesian"),
-    RMSE = c(sqrt(mean((test_results_glm - test_data$number_incidents)^2)), 
-             sqrt(mean((test_results_bayes[, 1] - test_data$number_incidents)^2)))
+    MAE = c(mean(abs(test_results_glm - test_data$number_incidents)), 
+            mean(abs(test_results_bayes[, 1] - test_data$number_incidents)))
     )
   
   # Save the table of test set scores.
