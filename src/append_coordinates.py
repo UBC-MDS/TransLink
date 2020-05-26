@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""This script creates a csv file containing incident coordinates. 
-It takes the street and city names from "2020 Collisions- Preventable 
-and Non Preventable UBC Set Without Claim Number.xlsx" and converts them to
-formatted addresses, including long and lat of the incidents. Assumes `get-data.py`
-is run before. A google maps API key is also required. 
+"""This script create a csv file containing the coordination of the incidents. 
+It takes the street names and the city names from "2020 Collisions- Preventable 
+and Non Preventable UBC Set Without Claim Number.xlsx" and convert them to 
+formatted addres including long and lat of the incidents. Assuming `get-data.py`
+run before. It requires to have an google maps API key. 
 
 Usage: append_coordinates.py --input_file_path=<input_file_path> --output_file_path=<output_file_path> --api_key=<api_key>
 
@@ -55,8 +55,8 @@ def main(input_file_path, output_file_path, api_key):
         collision_preventable = pd.read_excel(input_file_path, skiprows=  3)
     except:
         raise ValueError("Input file does not exist or is not excel spreadsheet.")
-    collision_locations = collision_preventable[['Loss Location At', 'Loss Location On', 'City of Incident', 'APTA']]
-    collision_locations.columns = ['street1', 'street2', 'city', 'desc']
+    collision_locations = collision_preventable[['Loss Location At', 'Loss Location On','City of Incident', 'Loss Date (MM/DD/YEAR)','APTA Desc', 'Asset Vehicle Year', 'Asset Manufacturer']]
+    collision_locations.columns = ['street1', 'street2', 'city', 'date', 'desc', 'bus_year', 'bus_manufacturer' ]
     collision_locations = collision_locations.applymap(lambda x: str(x).title())
     collision_locations.to_csv(location_extract_file_path, index=False)
     location_df = pd.read_csv(location_extract_file_path)
@@ -68,7 +68,7 @@ def main(input_file_path, output_file_path, api_key):
     else:
         # if output_file already exists, just read the coordinates.
         target_location_df = pd.read_csv(output_file_path) 
-        columns_list = ['lat', 'long', 'formatted_address', 'desc','street1', 'street2', 'city']
+        columns_list = ['lat', 'long', 'formatted_address', 'date', 'desc', 'bus_year', 'bus_manufacturer','street1', 'street2', 'city']
         if not set(columns_list).issubset(target_location_df.columns):
             raise ValueError (" Target data path should contain all of: " , columns_list)
     
