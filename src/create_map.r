@@ -43,7 +43,8 @@ main <- function(input_file, path_out_map){
   }
   
   # remove the null values 
-  target_location_df <-target_location_df[!is.na(target_location_df$lat) & !is.na(target_location_df$long),]
+  target_location_df <- target_location_df %>%
+  drop_na(lat, long)
   
   # create the map
   m <- leaflet() %>%
