@@ -6,7 +6,7 @@ against the held out test set. This script assumes it will be run from the
 root of the repository. Furthermore, this script also generates Bayesian
 diagnostic plots and summaries to ensure legitimacy of MCMC samples, if need be.
 
-Usage: validation.R --path_to_glm=<path_to_glm> --path_to_bayesian=<path_to_bayesian> <test_data_path> <results_out> <path_out_diag>
+Usage: 3_validation.R --path_to_glm=<path_to_glm> --path_to_bayesian=<path_to_bayesian> <test_data_path> <results_out> <path_out_diag>
 
 Options:
 --path_to_glm=<path_to_glm>             A file path to the best basic GLM model.

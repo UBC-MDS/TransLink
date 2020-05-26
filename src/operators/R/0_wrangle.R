@@ -4,7 +4,7 @@
 "This script reads in the raw data and then splits it into train/test sets.
 The files are stored in the main data folder. This script assumes that the user
 is running this script from the root of the repository.
-Usage: wrangle.R <path_data> <directory_out>
+Usage: 0_wrangle.R <path_data> <directory_out>
 
 Options:
 <path_data>       A file path that gives the location of the raw data.

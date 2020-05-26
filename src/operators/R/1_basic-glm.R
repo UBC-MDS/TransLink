@@ -4,7 +4,7 @@
 "This script runs a basic zero-truncated Poisson model to serve as a baseline,
 with no hierarchical modelling or Bayesian approaches of any kind. 
 This script assumes that it will be run from the root of the repository.
-Usage: basic-glm.R <train_data_path> <aic_table_out> <model_out>
+Usage: 1_basic-glm.R <train_data_path> <aic_table_out> <model_out>
 
 Options:
 <train_dath_path>   A file path that gives the location of the training set.

@@ -36,7 +36,7 @@ boxplot_experience <- ggplot(data, aes(x = experience, y = incidents_year)) +
 
 boxplot_experience +
   theme(text = element_text(size = 16),
-        axis.text=element_text(size=12),
+        axis.text = element_text(size=12),
         axis.title.y = element_text(vjust = 6))
 
 ggplotly(boxplot_experience)
