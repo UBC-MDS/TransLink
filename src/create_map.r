@@ -17,7 +17,6 @@ library(docopt)
 library(leaflet)
 library(mapview)
 library(tidyverse)
-library(stringr)
 
 opt <- docopt(doc)
 
