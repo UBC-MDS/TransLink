@@ -77,6 +77,7 @@ m <- leaflet() %>%
 
 m
 ```
+
 ## Operator Analysis
 
 METHODOLOGY/More analysis that was carried out (tables probably)
@@ -201,7 +202,8 @@ output$fe_plot <- renderPlotly({
   cost_centre_sel <- input$cost_centre_oa_re
 
   if (cost_centre_sel != "All") {
-    effects_per_centre <- pop_effect + random_effects[, cost_centre_sel, ]
+      intercept <- pop_effect[, 1] + random_effects[, cost_centre_sel, 1]
+      effects_per_centre <- cbind(intercept, intercept + pop_effect[, 2:4] + random_effects[, cost_centre_sel, 2:4])
   } else {
     intercept <- pop_effect[, 1]
     effects_per_centre <- cbind(intercept, (pop_effect + intercept)[, 2:4])
