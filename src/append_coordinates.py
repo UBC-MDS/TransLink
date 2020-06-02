@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-This script creates a csv file containing incident coordinates. 
+"""This script creates a csv file containing incident coordinates. 
 It takes the street and city names from "2020 Collisions- Preventable 
 and Non Preventable UBC Set Without Claim Number.xlsx" and converts them to
 formatted addresses, including long and lat of the incidents. Assumes `get-data.py`
