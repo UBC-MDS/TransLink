@@ -3,7 +3,7 @@
 
 """This script creates a csv file containing the coordination of the incidents. 
 It takes the street names and the city names from "Preventable and Non Preventable_tabDelimited.txt"
-and convert them to formatted addresses including long and lat of the incidents. Assumes `get-data.py`
+and converts them to formatted addresses including long and lat of the incidents. Assumes `get-data.py`
 is run before. A google maps API key is also required. 
 
 Usage: append_coordinates.py --input_file_path=<input_file_path> --output_file_path=<output_file_path> --api_key=<api_key>
