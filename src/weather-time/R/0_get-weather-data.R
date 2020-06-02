@@ -13,6 +13,7 @@ Options:
 " -> doc
 
 library(tidyverse)
+library(tsibble)
 library(lubridate)
 library(weathercan)
 library(docopt)
@@ -168,7 +169,7 @@ build_daily_series <- function(location, variable, year_day, stations_per_loc) {
 #' @examples
 #' main(
 #' path_claims_data = "data/TransLink Raw Data/claim_vehicle_employee_line.csv",
-#' path_preventables-data = "data/TransLink Raw Data/preventable_NonPreventable_claims.csv",
+#' path_preventables_data = "data/TransLink Raw Data/preventable_NonPreventable_claims.csv",
 #' data_path_out = "data/weather-time"
 #' )
 main <- function(path_claims_data, path_preventables_data, data_path_out) {
@@ -318,8 +319,8 @@ saveRDS(all_data_combined_weather, paste0(data_path_out, "/time_series_weather.r
 
 final_data_set <- claims_line_data %>%
 left_join(., all_data_combined_weather, by = c("loss_date", "city_of_incident" = "location")) %>%
-mutate(year = year(loss_date), week = week(loss_date)) %>%
-group_by(year, week, city_of_incident) %>%
+mutate(year_week = yearweek(loss_date)) %>%
+group_by(year_week, city_of_incident) %>%
 summarize(
   count = sum(n),
   min_temp = min(min_temp, na.rm = TRUE),
@@ -329,19 +330,17 @@ summarize(
   total_rain = sum(total_rain, na.rm = TRUE),
   total_snow = sum(total_snow, na.rm = TRUE)) %>%
 mutate_all(~ifelse(is.nan(.), NA,.)) %>%
-mutate_all(~ifelse(is.infinite(.), NA, .)) %>%
-  mutate(beginning = ymd(str_c(year, "-01-01")), final_date = beginning + weeks(week)) %>%
-  select(-beginning)
+mutate_all(~ifelse(is.infinite(.), NA, .)) 
 
 saveRDS(final_data_set, paste0(data_path_out, "/time-series-final-complete.rds"))
 
 # Leave the last year of data (week of 2019-04-30 to 2020-04-29) as test
 
 train <- final_data_set %>%
-  filter(final_date < "2019-04-30")
+  filter(year_week < yearweek("2019 W16"))
 
 test <- final_data_set %>%
-  filter(final_date >= "2019-04-30")
+  filter(year_week >= yearweek("2019 W16"))
 
 write_csv(train, paste0(data_path_out, "/train.csv"))
 write_csv(test, paste0(data_path_out, "/test.csv"))

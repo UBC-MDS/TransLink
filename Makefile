@@ -33,4 +33,4 @@ results/operators/models/final-model.rds results/operators/report-tables/posteri
 #--------------Time Series Weather Analysis-------------
 
 data/weather-time/time-series-final-complete.rds data/weather-time/time_series_weather.rds data/weather-time/train.csv data/weather-time/test.csv: src/weather-time/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/preventable_NonPreventable_claims.csv
-	Rscript src/weather-time/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\Raw\ Data/preventable_NonPreventable_claims.csv data/weather-time
+	Rscript src/weather-time/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/preventable_NonPreventable_claims.csv data/weather-time
