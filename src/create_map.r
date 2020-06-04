@@ -11,7 +11,7 @@ Usage: src/create_map.r --input_file=<input_file> --path_out_map=<path_out_map>
 Options:
 --input_file=<input_file>   Path (including filename) to cleaned league and fifa file
 --path_out_map=<path_out_map>    A file path specifying where to output the map. 
-" -> doc
+" 
 #example to run:Rscript src/create_map.r --input_file="../data/processed_data/collision_locations_with_coordinates.csv" --path_out_map="../data/static_map.png"
 library(docopt)
 library(leaflet)
