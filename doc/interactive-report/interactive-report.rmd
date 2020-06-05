@@ -18,6 +18,7 @@ library(leaflet)
 library(mapview)
 library(tidyverse)
 library(lubridate)
+library(htmlwidgets)
 ```
 
 # Introduction {.tabset}
@@ -26,56 +27,129 @@ Introductory text on report?
 
 ## Spatial Analysis of Incidents
 
-```{r include=FALSE}
-target_location_df = read_csv("results/processed_data/collision_locations_with_coordinates.csv")
-target_location_df <-target_location_df %>% drop_na(lat, long)
-target_location_df$months <- month(as.POSIXlt(target_location_df$date, format="%Y-%m-%d"))
-cwo <- target_location_df %>% filter(desc %in% c("Collisions With Objects", "Collisions With Objects (At G/C)"))
-cwv <- target_location_df %>% filter(desc %in% c("Collisions With Other Vehicles", "Collisions With Vehicles (At G/C)"))
-cwp <- target_location_df %>% filter(desc == "Collisions With People")
+```{r include= FALSE}
+my_data <- read_csv("results/processed_data/new_dataset.csv")
+
+ui <-  fluidPage(
+  # Give the page a title
+  titlePanel("Spatial Analysis for TransLink Incidents"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("year", "Years", min(my_data$years), max(my_data$years),
+              value = range(my_data$years), step= 1, sep = ""),
+      br(),
+      selectInput("experience", "Experience level of the operators",
+                  choices = unique(na.omit(my_data$Experience_Category))),
+      br(),
+      plotOutput("plot", width = "100%", height = "200px")
+      
+    ),
+     mainPanel(
+       
+       htmlOutput("summary"),
+       br(),
+       leafletOutput("map")
+       ), 
+))
+
+
+ 
+
+server <- function (input, output) {
+  
+  year_data <- reactive({
+    my_data %>% filter(years > input$year[1] & years < input$year[2])
+  })
+  
+  output$map <- renderLeaflet({
+    year_data() %>% 
+      leaflet() %>%
+      addProviderTiles("CartoDB.Positron", group = "Streets") %>% 
+      addProviderTiles("Esri.WorldImagery", group = "Detailed") %>% 
+      addProviderTiles("CartoDB.DarkMatter", group = "Dark") %>%
+      setView(lng = -123.1171, lat = 49.2820, zoom = 12)
+    
+  })
+  
+  
+  
+  observe({
+    
+    experience <- input$experience
+      pal <- colorFactor(palette = "viridis", domain = NULL)
+      colors = rgb(t(col2rgb(palette())) / 255)
+    
+    sub_data <- year_data() %>% 
+      filter(year_data()$Experience_Category == experience)
+    
+    leafletProxy("map") %>% clearControls() %>% clearMarkers() %>% 
+      addCircleMarkers(lng = jitter(sub_data$long, factor = 0.1),
+                       lat = jitter(sub_data$lat, factor = 0.1),
+                       #stroke = FALSE, fillOpacity = 0.5, radius = 3,
+                       color = pal(sub_data$cost_range),
+                       #clusterOptions = markerClusterOptions(maxClusterRadius = 1),
+                       radius=3, # Total count
+                       stroke=FALSE, # Circle stroke
+                       fillOpacity=0.5,
+                       popup=paste0("<b>", sub_data$apta_desc, "</b> <br>",
+                                    "<b>", "Date: ", "</b> ", sub_data$loss_date, "<br>",
+                                    "<b>", "Cost: ", "</b>$", sub_data$`paid_cost$`, "<br>",
+                                    "<b>", "Employee Id: ", "</b> ", sub_data$employee_id, "<br>",
+                                    "<b>", "Bus Age: ", "</b> ", sub_data$bus_age, "<br>",
+                                    "<b>","Manufacturer: ", "</b> ", sub_data$asset_manufacturer, "<br>" ),
+                       #popupOptions = popupOptions(closeOnClick = TRUE),
+      ) %>% leaflet::addLayersControl(baseGroups = c('Streets','Detailed', "Dark"),
+                                      options = layersControlOptions(collapsed = FALSE)) %>% 
+      addLegend(data = sub_data,"bottomleft", 
+                pal = pal,
+                # colors = colors,
+                values = ~cost_range,
+                title = "Cost Levels", 
+                opacity = .9)
+  
+  })
+  
+  output$summary <- renderText({
+    updated_data <- year_data() %>% 
+      filter(year_data()$Experience_Category == input$experience)
+    
+    paste("<b>Summary: </b>", "<br>",
+      "There are " , dim(updated_data)[1], " incidents between these years.")
+  })
+
+  # output$plot1 <- renderPlot({
+  #   updated_data <- year_data() %>% 
+  #     filter(year_data()$Experience_Category == input$experience)
+  #   # Add a little noise to the cars data
+  #   # p <- updated_data %>% filter(bus_age > -1  & bus_age < 30 ) %>% 
+  #   #   ggplot(aes(bus_age)) +geom_histogram(bins = 20) +
+  #   #   labs(title = "The distribution of bus age", 
+  #   #        x = 'bus age', 
+  #   #        y = 'number of incidents')
+  #   # p + theme_economist()
+  #   p1 <- updated_data %>% ggplot(aes(city_of_incident)) + geom_bar()+ theme(axis.text.x = element_text(angle = 90)) +
+  #     labs(title = "The number of incidents in different cities",
+  #          x = '',
+  #          y = 'number of incidents') 
+  #   p1 + theme_economist()
+  # })
+  output$plot <- renderPlot({
+    updated_data <- year_data() %>% 
+      filter(year_data()$Experience_Category == input$experience)
+    updated_data %>% filter(bus_age > -1  & bus_age < 30 ) %>%
+      ggplot(aes(bus_age)) +geom_histogram(bins = 20) +
+      labs(title = "The Distribution of Bus Ages",
+           x = 'Bus Age',
+           y = 'Number of Incidents') + theme_economist_white()
+    
+  })
+}
 
 ```
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-pal <- colorFactor(palette = "viridis", domain = NULL)
-m <- leaflet() %>%
-    addProviderTiles("CartoDB.Positron") %>% 
-    addCircleMarkers(data = cwo,
-                     stroke = FALSE, fillOpacity = 0.5, radius = 3,
-                     color = ~pal(cwo$months),
-                     popup=paste0("<b>", cwo$desc, "</b> <br>", 
-                            "<b>", "Date: ", "</b> ", cwo$date, "<br>", 
-                            "<b>","Bus Year: ", "</b> ", cwo$bus_year, "<br>", 
-                            "<b>","Manufacturer: ", "</b> ", cwo$bus_manufacturer, "<br>" ),
-                     group = 'Collisions With Objects') %>%
-    addCircleMarkers(data = cwv,
-                     stroke = FALSE, fillOpacity = 0.5, radius = 3,
-                     color = ~pal(cwv$months), 
-                     popup=paste0("<b>", cwv$desc, "</b> <br>", 
-                            "<b>", "Date: ", "</b> ", cwv$date, "<br>", 
-                            "<b>","Bus Year: ", "</b> ", cwv$bus_year, "<br>", 
-                            "<b>","Manufacturer: ", "</b> ", cwv$bus_manufacturer, "<br>" ),
-                     group = 'Collisions With Vehicles') %>%
-    addCircleMarkers(data = cwp,
-                     stroke = FALSE, fillOpacity = 0.5, radius = 3,
-                     color = ~pal(cwp$months), 
-                     popup=paste0("<b>", cwp$desc, "</b> <br>", 
-                            "<b>", "Date: ", "</b> ", cwp$date, "<br>", 
-                            "<b>","Bus Year: ", "</b> ", cwp$bus_year, "<br>", 
-                            "<b>","Manufacturer: ", "</b> ", cwp$bus_manufacturer, "<br>" ),
-                     group = 'Collisions With People')%>%
-  leaflet::addLayersControl(overlayGroups = c("Collisions With Objects", "Collisions With Vehicles", "Collisions With People"),
-                   options = layersControlOptions(collapsed = FALSE)) %>%
-  addLegend(
-    data = target_location_df,
-    "bottomleft", 
-    pal = pal,
-    values = ~months,
-    opacity = .9,
-    title = "Months"
-  )
-
-m
+```{r , echo = FALSE}
+shinyApp(ui, server)
 ```
 
 ## Operator Analysis
