@@ -4,7 +4,7 @@ data/TransLink\ Raw\ Data/2020\ Collisions-\ Preventable\ and\ Non\ Preventable\
 	python src/get-data.py --access_key=... --secret_key=...
 
 #--------------Operator Analysis-------------
-
+# Possibly delete if ML-model works!
 # Wrangle the data, split into train and test
 
 data/operators/train.csv data/operators/test.csv: src/operators/R/0_wrangle.R data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last\ 3\ Years.xlsx
@@ -31,6 +31,19 @@ results/operators/models/final-model.rds results/operators/report-tables/posteri
 	Rscript src/operators/R/4_final-model.R data/operators/train.csv data/operators/test.csv results/operators/models/best-bayes-model.rds results/operators/models/final-model.rds results/operators/report-tables/posterior_samples.rds
 
 #--------------Time Series Weather Analysis-------------
-
+# Possibly delete if ml-model works!
 data/weather-time/time-series-final-complete.rds data/weather-time/time_series_weather.rds data/weather-time/train.csv data/weather-time/test.csv: src/weather-time/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/preventable_NonPreventable_claims.csv
 	Rscript src/weather-time/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/weather-time
+
+
+#-------------ML-Model--------------------------
+
+# Get weather data and wrangle exisiting data
+
+data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds: src/ml-model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv
+	Rscript src/ml-model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv data/ml-model
+	
+# Get training and testing data sets
+
+data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test.csv: src/ml-model/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds
+	Rscript src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds data/ml-model

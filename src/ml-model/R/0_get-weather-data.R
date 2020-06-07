@@ -154,14 +154,13 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
     } else if (!str_detect(path_employee_data, ".csv")) {
       stop("path_employee_data should be a specific .csv file.")
     } else if (str_detect(data_path_out, "\\.xlsx$|\\.csv$|\\.rds$|//.txt$")) {
-      stop("The output path for model diagnostics must be a general path, not a 
+      stop("The output path must be a general path, not a 
              path to a specific file. Remove the file extension.")
     } else if (endsWith(data_path_out, "/")) {
       stop("data_path_out should not end with /")
     }
       
   # Read in preventables data set to identify the preventable claims only
-      
   preventables_data <- read_tsv(path_preventables_data) %>%
     janitor::clean_names() %>%
     distinct(claim_id, time_of_loss, .keep_all = TRUE) %>%
@@ -268,7 +267,7 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
   # reason why we do it this way is so that we do not have to keep pinging 
   # the Environment Canada site over and over again. Note that we explicitly
   # make 889 and 51442 be the same code since it is the Vancouver airport.
-  
+  paste("Downloading hourly data from Environment Canada")
   all_relevant_weather <- weather_dl(all_relevant_stations, interval = "hour", start = "2011-01-01") %>%
     mutate(station_id = ifelse(station_id == 51442 | station_id == 889, 999, station_id),
            date = ymd(date)) 
@@ -289,7 +288,7 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
   # Get all relevant weather related data.
   weather_vars <- c("pressure", "rel_hum", "elev","temp", "visib", "wind_dir", "wind_spd")
   all_locations <- unique(claims_line_data$city_of_incident)
-  
+  paste("Building hourly data.")
   data_with_weather <- map(.x = all_locations, .f = function(x) {
     build_hourly_series(
       location = x,
@@ -301,7 +300,7 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
   rm(stations_per_loc)
   gc()
   # For the day data: we need precipitation data which is not tracked by the hour
-  
+  paste("Downloading daily data from Environment Canada.")
   all_relevant_weather_day <- weather_dl(all_relevant_stations_day, interval = "day", start = "2011-01-01") %>%
     mutate(station_id = ifelse(station_id == 51442 | station_id == 889, 999, station_id),
            date = ymd(date)) 
@@ -335,10 +334,10 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
   final_data_hour <- bind_rows(data_with_weather)
   final_data_day <- bind_rows(data_with_weather_day) %>%
     select(all_of(weather_vars_day))
-  
+  paste("Done.")
   final_data <- bind_cols(final_data_hour, final_data_day)
   
-  saveRDS(final_data, paste0(data_path_out, "/final_data.rds"))
+  saveRDS(final_data, paste0(data_path_out, "/cleaned_accident_data.rds"))
   
 }
 
