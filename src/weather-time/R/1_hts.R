@@ -1,64 +1,90 @@
 library(hts)
 library(forecast)
+library(tsibble)
+library(tscount)
 library(tidyverse)
 library(parallel)
 
+source("src/weather-time/R/helper_scripts/ts_fit.R")
+
 train <- read_csv("data/weather-time/train.csv")
-all_locations <- unique(train$city_of_incident)
-create_ts <- function(location, train) {
-  
-  location_only <- train %>%
-    filter(city_of_incident == {{location}}) 
-  
-  ts(data = location_only$count, start = c(2011, 1), frequency = 365.25/7)
-  
-}
+all_locations <- c("All", unique(train$city_of_incident))
 
-# Convert the data all into a time series object
-
-all_series <- map(all_locations, .f = function(x) create_ts(x, train = train)) %>%
-  set_names(all_locations) 
-
-combinations_of_vars <- list(
+predictor_combinations <- list(
   c("mean_temp", "total_precip"),
-  c("mean_temp", "total_rain", "total_snow"),
+  c("mean_temp", "total_snow", "total_rain"),
+  c("total_precip"),
+  c("max_temp"),
+  c("mean_temp"),
+  c("min_temp", "total_snow", "total_rain"),
+  c("max_temp", "total_precip"),
   c("min_temp", "total_precip"),
-  c("min_temp", "max_temp", "total_precip"),
-  c("mean_temp", "min_temp", "max_temp", "total_precip"),
-  c("mean_temp", "min_temp", "max_temp", "total_snow", "total_rain"),
-  c("All")
+  c("max_temp", "total_snow", "total_rain"),
+  c("None")
 )
 
-fit_arima <- function(location, all_series, possible_vars) {
+p <- 3:8
+K <- 0:6
+
+all_combinations <- expand.grid(
+  location = all_locations,
+  combn = predictor_combinations,
+  order = p,
+  seasonal = K, 
+  stringsAsFactors = FALSE
+)
+
+all_results <- mcmapply(
+  FUN = fit_ts,
+  location = all_combinations$location,
+  predictor_combination = all_combinations$combn, 
+  p = all_combinations$order, 
+  seas = all_combinations$seasonal,
+  MoreArgs = list(train = train),
+  mc.cores = detectCores() - 2
+)
+
+all_combined <- bind_cols(all_combinations, AICc = all_results) %>%
+  group_by(location) %>%
+  nest() %>%
+  mutate(data = map(data, function(x) x %>% mutate(rel_like = exp(-(min(AICc) - AICc) / 2))))
+
+
+saveRDS(all_combined, "results/weather-time/all_results.rds")
+
+# Forecast the aggregate series 
+
+all_locations <- train %>%
+  group_by(year_week) %>%
+  summarize(count = sum(count))
+
+agg_ts <- ts(all_locations$count, start = c(2011, 1), frequency = 365.25/7)
+all_combinations_agg <- as_tibble(expand.grid(order = p, seasonal = K, stringsAsFactors = FALSE))
+
+fit_agg_ts <- function(x, p, K) {
   
-  aicc <- numeric(length(possible_vars))
+  fourier_terms <- fourier(x = x, K = K)
   
-  for (i in seq_along(possible_vars)) {
-  
-    if (possible_vars[[i]] == "All") {
-      arima_temp <- auto.arima(y = all_series[[location]])
-    } else {
-      xreg <- train %>%
-        filter(city_of_incident == {{location}}) %>%
-        select(all_of(possible_vars[[i]])) %>%
-        data.matrix(.)
-      
-      arima_temp <- auto.arima(y = all_series[[location]], xreg = xreg)
-    }
-    aicc[i] <- arima_temp$aicc
-  }
-  
-  tibble(
-    variable = unlist(map(.x = possible_vars, function(x) paste(x, collapse = "|"))),
-    aicc = aicc
-  )
-  
+  model <- tsglm(
+    ts = x, model = list(past_obs = 1:p, past_mean = 52, external = TRUE),
+    xreg = fourier_terms,
+    link = "log",
+    distr = "poisson"
+    )
+ 
+  m <- length(model$coefficients)
+  AIC(model) + (2 * m + 2 * m^2) / (nrow(train) - m - 1)
+   
 }
 
-all_results <- mclapply(
-  X = all_locations,
-  FUN = fit_arima,
-  all_series = all_series,
-  possible_vars = combinations_of_vars,
-  mc.cores = 4
+all_results_agg <- unlist(pmap(
+  .l = list(p = all_combinations_agg$order, K = all_combinations_agg$seasonal),
+  .f = ~fit_agg_ts(x = agg_ts, p = ..1, K = ..2) 
+))
+
+final_agg_model <- tsglm(
+  ts = agg_ts, model = list(past_obs = 1:8, past_mean = 52, external = TRUE),
+  xreg = fourier(x = agg_ts, K = 6),
+  link = "log",
+  distr = "poisson"
 )

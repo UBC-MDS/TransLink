@@ -18,7 +18,7 @@ library(lubridate)
 library(weathercan)
 library(docopt)
 
-source("src/weather-time/R/helper_scripts/build_series.R")
+source("src/ml-model/R/helper-scripts/build_series.R")
 
 opt <- docopt(doc)
 
@@ -143,7 +143,7 @@ closest_stations_per_location <- function(location, location_lat_long, all_relev
 #' path_claims_data = "data/TransLink Raw Data/claim_vehicle_employee_line.csv",
 #' path_preventables_data = "data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt",
 #' path_employee_data = "data/TransLink Raw Data/employee_experience_V2.csv",
-#' data_path_out = "data/weather-time"
+#' data_path_out = "data/ml-model"
 #' )
 main <- function(path_claims_data, path_preventables_data, path_employee_data, data_path_out) {
 
@@ -297,7 +297,7 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
       stations_per_loc = stations_per_loc,
       claims_line_data = claims_line_data)})
   
-  saveRDS(stations_per_loc, "data/weather-time/stations_per_loc_hour.rds")
+  saveRDS(stations_per_loc, "data/ml-model/stations_per_loc_hour.rds")
   rm(stations_per_loc)
   gc()
   # For the day data: we need precipitation data which is not tracked by the hour
@@ -326,7 +326,7 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
       stations_per_loc = stations_per_loc_day,
       claims_line_data = claims_line_data)})
   
-  saveRDS(stations_per_loc_day, "data/weather-time/stations_per_loc_day.rds")
+  saveRDS(stations_per_loc_day, "data/ml-model/stations_per_loc_day.rds")
   rm(stations_per_loc_day)
   gc()
   
