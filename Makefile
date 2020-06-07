@@ -40,10 +40,10 @@ data/weather-time/time-series-final-complete.rds data/weather-time/time_series_w
 
 # Get weather data and wrangle exisiting data
 
-data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds: src/ml-model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv
-	Rscript src/ml-model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv data/ml-model
+data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds: src/ml-model/R/0_get-weather-data.R 'data/TransLink Raw Data/claim_vehicle_employee_line.csv' 'data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt' 'data/TransLink Raw Data/employee_experience_V2.csv'
+	Rscript src/ml-model/R/0_get-weather-data.R 'data/TransLink Raw Data/claim_vehicle_employee_line.csv' 'data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt' 'data/TransLink Raw Data/employee_experience_V2.csv' data/ml-model
 	
 # Get training and testing data sets
 
-data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test.csv: src/ml-model/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds
+data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test.csv: src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds
 	Rscript src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds data/ml-model

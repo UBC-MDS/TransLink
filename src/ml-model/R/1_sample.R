@@ -214,10 +214,12 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
   write_csv(all_samples_combined, paste0(path_out, "/final_data_combined.csv"))
   
   set.seed(200350623)
-  train_index <- caret::createDataPartition(y = all_samples_combined$incident, p = 0.85)
+  shuffle_rows <- sample(nrow(all_samples_combined))
+  all_samples_combined_shuffled <- all_samples_combined[shuffle_rows, ]
+  train_index <- caret::createDataPartition(y = all_samples_combined_shuffled$incident, p = 0.85)
   
   # Write train and test sets.
-  write_csv(all_samples_combined[train_index[[1]], ], paste0(path_out, "/train.csv"))
-  write_csv(all_samples_combined[-train_index[[2]], ], paste0(path_out, "/test.csv"))
+  write_csv(all_samples_combined_shuffled[train_index[[1]], ], paste0(path_out, "/train.csv"))
+  write_csv(all_samples_combined_shuffled[-train_index[[1]], ], paste0(path_out, "/test.csv"))
   
 }
