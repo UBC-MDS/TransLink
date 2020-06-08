@@ -1,0 +1,44 @@
+---
+title: "Question for TransLink"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx`
+
+- Is `vehicle number` same as `bus_no` in `Bus_spec`?
+- What does `CMBC seniority Number` mean?
+- Description code
+- APTA
+
+
+### `Bus_spec.csv`
+
+- What is the hierarchy of `asset_class`, `asset_category`? 
+- How were the `asset_age` calculated for decommissioned buses? For the installed ones, we can anticipate the age is calculated by subtracting the commision year from 2020.
+- What is the unit for `asset_totalusage`? mile or meter?
+
+
+### `claim_vehicle_employee_line.csv`
+
+- How was `bus_carry_capacity` equal `asset_carry_capacity` +  `asset_sitting_capacity` (from `Bus_spec.csv`)
+- 
+- 
+
+### `preventable_NonPreventable_claims.csv`
+
+- `Loss_Date` column, there are many NAs. 
+- `Bus route code` column, row #13, 14, etc., the format is weird from others, does it have any special meaning?
+- `Asset Manufacturer` column, row #87/88, it seems that the data was retrieved improperly. 
+- The relationship between `cost_center` and `incident city`, in row #5-7 Van has code 366, 167, #21, van is 318. Could you plz give us a table of cost center code and its corresponding city?
+
+### `pedestrain_claims.csv`
+
+- `injury_severity_level`, how was this be recorded, can we get a sample of claim form?
+
+
+

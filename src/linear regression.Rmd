@@ -1,0 +1,98 @@
+---
+title: "linear regression"
+author: "kirk"
+date: "27/05/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(readr)
+library(lubridate)
+library(testthat)
+```
+
+```{r}
+
+```
+
+```{r}
+
+df_origin <- read_csv("../data/TransLink Raw Data/preventable_NonPreventable_claims.csv")
+sum(is.na((df_origin$Loss_Date)))
+
+df <- df_origin[-c(3,6:7,13:16)]
+# drop rows with NAs in Loss_Date
+
+```
+
+```{r}
+df$Loss_Date <- as.Date(df$Loss_Date,"%d/%m/%Y")
+df$Loss_day <- weekdays(df$Loss_Date)
+df$Loss_year <- year(df$Loss_Date)
+df$Loss_month <-month(df$Loss_Date)
+```
+
+```{r}
+df$Loss_month <- as.factor(df$Loss_month)
+df$Loss_day <- as.factor(df$Loss_day)
+df$Loss_year <- as.factor(df$Loss_year)
+
+df$Loss_day <- ordered(df$Loss_day, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", 
+"Friday", "Saturday", "Sunday"))
+
+# test function
+expect(TRUE,length(unique(df$Loss_day))==7)
+```
+
+```{r}
+## group by weekday
+
+
+df_year <- df %>% 
+  group_by(Loss_year) %>% 
+  count()
+
+df_month <- df %>% 
+  group_by(Loss_month) %>% 
+  count()
+
+df_day <- df %>% 
+  group_by(Loss_day) %>% 
+  count()
+
+```
+
+```{r}
+df %>% 
+  ggplot()+
+  geom_bar(aes(x=Loss_day))
+
+df %>% 
+  ggplot()+
+  geom_bar(aes(x=Loss_month))
+
+
+df %>% 
+  ggplot()+
+  geom_bar(aes(x=Loss_year))
+
+
+```
+```{r}
+
+df1 <- df %>% 
+  group_by(Loss_year, Loss_month,Loss_day) %>% 
+  summarise(count=n())
+df1
+df1 %>% 
+  ggplot()+
+  geom_boxplot(aes(x=Loss_day,y=count))
+
+```
+
+
