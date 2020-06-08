@@ -4,8 +4,6 @@ import datetime
 import multiprocessing
 import itertools
 
-[list(zip(x,list2)) for x in itertools.permutations(list1,len(list2))]
-
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 from shap import TreeExplainer, summary_plot
@@ -92,13 +90,6 @@ def preprocessor(X):
     train['total_snow'] = [np.log1p(x) for x in train['total_snow']]
     train['wind_spd'] = [np.log1p(x) for x in train['wind_spd']]
 
-    # Interaction
-
-    lines = train['line_no'].unique()
-    hours = train['hour'].unique()
-
-    all_combinations = [list(zip(x, hours)) for x in itertools.permutations(lines,len(hours))]
-    
     # Sqrt transformation for left skewed
 
     train['rel_hum'] = [np.sqrt(x) for x in train['rel_hum']]
@@ -170,7 +161,7 @@ space = {
     'max_depth': hp.choice('max_depth', np.arange(1, 15, dtype=int)),
     'colsample_bytree': hp.uniform('colsample_bytree', 0.15, 1),
     'reg_alpha': hp.uniform('reg_alpha', 0, 15),
-    'num_leaves': hp.choice('num_leaves', np.arange(30, 900, dtype=int)),
+    'num_leaves': hp.choice('num_leaves', np.arange(5, 900, dtype=int)),
     'reg_lambda': hp.uniform('reg_lambda', 0, 30),
     'subsample': hp.uniform('subsample', 0.5, 1),
     }
@@ -206,7 +197,6 @@ final_lgb.fit(
 )
 
 test_scores = final_lgb.predict_proba(X=test_set.drop(columns=['incident']))
-
 test_roc = roc_auc_score(y_true=test_set['incident'], y_score=test_scores[:, 1])
 
 feat_import = TreeExplainer(final_lgb).shap_values(X=train_set.drop(columns=['incident']))
