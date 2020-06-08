@@ -1,3 +1,4 @@
+<img src="images/logo.png" width="150" align = "right">
 # Vision over Transit Incidents & Claims
 
 Contributors: 
