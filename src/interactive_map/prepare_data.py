@@ -34,6 +34,7 @@ import glob
 import os
 import googlemaps
 from pathlib import Path
+import math
 
 opt = docopt(__doc__)
 
@@ -114,6 +115,12 @@ def main(claims_file_path, collisions_file_path, employee_file_path, output_file
 
     #create experience in terms of months
     combined_df['experience_in_months'] = combined_df.apply(get_experience_in_months, axis = 1)
+
+    #create experience levels
+    bin_labels = ['< 6 months', '6-18 months', '18-60 months', '> 60 months']
+    combined_df['experience_levels'] = pd.cut(combined_df['experience_in_months'],
+                              bins=[0, 6, 18, 60, math.inf],
+                              labels=bin_labels)
 
     #remove the rows if both street names are null.
     combined_df = combined_df.dropna(subset=["loss_location_at", "loss_location_on"], how = 'all')
