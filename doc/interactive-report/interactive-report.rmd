@@ -42,12 +42,15 @@ ui <-  fluidPage(
       selectInput("experience", "Experience level of the operators",
                   choices = unique(na.omit(my_data$Experience_Category))),
       br(),
-      plotOutput("plot", width = "100%", height = "200px")
+      htmlOutput("summary")
+      
       
     ),
      mainPanel(
+       fluidRow(column(3, plotOutput("plot1", width = "100%", height = "200px") ),
+                column(3, plotOutput("plot2", width = "100%", height = "100px") ) )
        
-       htmlOutput("summary"),
+       
        br(),
        leafletOutput("map")
        ), 
@@ -77,9 +80,9 @@ server <- function (input, output) {
   observe({
     
     experience <- input$experience
-      pal <- colorFactor(palette = "viridis", domain = NULL)
+      pal <- colorFactor(palette = c("turquoise", "steelblue4","sienna1", "violetred1" ), levels = c("Level1 (<$200)", "Level2 ($200-$1.000)", "Level3 ($1.000-$10.000)", "Level4 (>$10.000)"))
       colors = rgb(t(col2rgb(palette())) / 255)
-    
+      
     sub_data <- year_data() %>% 
       filter(year_data()$Experience_Category == experience)
     
@@ -134,14 +137,27 @@ server <- function (input, output) {
   #          y = 'number of incidents') 
   #   p1 + theme_economist()
   # })
-  output$plot <- renderPlot({
+  
+  output$plot2 <- renderPlot({
+    updated_data <- year_data() %>%
+      filter(year_data()$Experience_Category == input$experience)
+      n <- dim(updated_data)[1]
+      p <- updated_data %>% group_by(cost_range) %>%
+           summarise(prop_cost_range =n()/ n) %>%
+           ggplot(aes(x = "" , y = prop_cost_range, fill = cost_range)) +
+           geom_bar(stat= "identity") + coord_polar( "y", start = 0) +
+           geom_text(aes(label = paste0(round(prop_cost_range*100), "%")), position = position_stack(vjust = 0.5), color = "white")+theme_void()+                    scale_fill_manual(values=c("turquoise", "steelblue4", "sienna1", "violetred1" ))
+      p
+  })
+
+  output$plot1 <- renderPlot({
     updated_data <- year_data() %>% 
       filter(year_data()$Experience_Category == input$experience)
     updated_data %>% filter(bus_age > -1  & bus_age < 30 ) %>%
-      ggplot(aes(bus_age)) +geom_histogram(bins = 20) +
+      ggplot(aes(bus_age)) +geom_density(fill = 'lightblue') +
       labs(title = "The Distribution of Bus Ages",
            x = 'Bus Age',
-           y = 'Number of Incidents') + theme_economist_white()
+           y = 'Number of Incidents') + theme_bw()
     
   })
 }
