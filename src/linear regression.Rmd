@@ -14,28 +14,49 @@ library(tidyverse)
 library(readr)
 library(lubridate)
 library(testthat)
+library(dplyr)
+library(broom)
 ```
 
 ```{r}
-
-```
-
-```{r}
+# import data
 
 df_origin <- read_csv("../data/TransLink Raw Data/preventable_NonPreventable_claims.csv")
+
+# check NAs
 sum(is.na((df_origin$Loss_Date)))
 
+
+# remove columns
 df <- df_origin[-c(3,6:7,13:16)]
-# drop rows with NAs in Loss_Date
+
 
 ```
 
 ```{r}
+# formatting date
 df$Loss_Date <- as.Date(df$Loss_Date,"%d/%m/%Y")
+
+# extract day/year/month from date
 df$Loss_day <- weekdays(df$Loss_Date)
 df$Loss_year <- year(df$Loss_Date)
 df$Loss_month <-month(df$Loss_Date)
 ```
+
+
+```{r}
+
+# extract incident hour
+
+df$Time_of_Loss <- as.numeric(df$Time_of_Loss)
+
+#format(strptime(sprintf('%04d', df$Time_of_Loss), format='%H%M'),'%H:%M')
+
+
+
+
+```
+
 
 ```{r}
 df$Loss_month <- as.factor(df$Loss_month)
@@ -51,7 +72,6 @@ expect(TRUE,length(unique(df$Loss_day))==7)
 
 ```{r}
 ## group by weekday
-
 
 df_year <- df %>% 
   group_by(Loss_year) %>% 
@@ -86,13 +106,106 @@ df %>%
 ```{r}
 
 df1 <- df %>% 
-  group_by(Loss_year, Loss_month,Loss_day) %>% 
+  group_by(Loss_year, Loss_month, Loss_day) %>% 
   summarise(count=n())
 df1
 df1 %>% 
   ggplot()+
   geom_boxplot(aes(x=Loss_day,y=count))
 
+```
+
+```{r echo=FALSE, warning=FALSE}
+speed <- readr::read_csv('../data/TransLink Raw Data/Speed performance data.csv')
+speed_up <- speed %>%
+  select(operating_date, vehicle_id, line_no, trip_description,
+         sch_trip_start_time, from_act_leave_time, to_act_leave_time) %>% 
+  mutate(start = paste0(operating_date, " ",
+                        stringr::str_extract(trip_description, 
+                                             "\\d{2}:\\d{2}"))) %>%
+  mutate(start_time = lubridate::ymd_hm(start, tz = "Canada/Pacific")) %>%
+  mutate(time_diff = to_act_leave_time - sch_trip_start_time) %>%
+  mutate(act_time = start_time + time_diff)
+
+
+```
+
+```{r}
+
+speed_up$Loss_Date <- as.Date(speed_up$operating_date,"%Y-%m-%d")
+speed_up$Loss_day <- weekdays(speed_up$Loss_Date)
+speed_up$Loss_year <- year(speed_up$Loss_Date)
+speed_up$Loss_month <-month(speed_up$Loss_Date)
+
+speed_up %>% 
+  group_by(Loss_day) %>% 
+  summarise(count=n())
+
+bus_per_rt <- speed_up %>%
+  mutate(hr = lubridate::hour(act_time), date = lubridate::date(act_time)) %>%
+  group_by(date, hr, line_no) %>%
+  summarise(total_buses = length(unique(vehicle_id)))
+```
+
+```{r}
+bus_per_rt$date <- as.Date(bus_per_rt$date,"%Y-%m-%d")
+bus_per_rt$Loss_day <- weekdays(bus_per_rt$date)
+
+
+bus_count <- bus_per_rt %>% 
+  drop_na() %>% 
+  group_by(Loss_day) %>% 
+  summarise(bus_count=n())
+
+```
+
+```{r}
+
+result <- left_join(df1, bus_count, by = "Loss_day")
+
+result <- result %>%
+  mutate(Loss_day = as.factor(Loss_day), Loss_day = fct_relevel(Loss_day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")))
+
+
+# result$Loss_day <- as.factor(result$Loss_day)
+# result$Loss_day <- ordered(result$Loss_day, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", 
+#"Friday", "Saturday", "Sunday"))
+result <- result %>% 
+  mutate(incident_rate=count/bus_count)
+result %>% 
+  ggplot()+
+  geom_boxplot(aes(x=Loss_day,y=incident_rate))
+
+
+
+
+```
+```{r}
+
+m1 <- lm(incident_rate~Loss_day,data=result)
+tidy(m1)
+
+```
+
+
+
+```{r}
+
+result1 <- result %>% 
+  mutate(day=if_else((Loss_day=="Sunday")|(Loss_day=="Saturday"), "weekend","weekday")) %>% 
+  group_by(Loss_year,Loss_month,day) %>% 
+  summarise(new_count=sum(count), total=sum(bus_count)) %>% 
+  mutate(incident_rate=new_count/total)
+
+result1 %>% 
+  ggplot()+
+  geom_boxplot(aes(x=day,y=incident_rate))
+```
+
+```{r}
+
+m2 <- lm(incident_rate~day,data = result1)
+tidy(m2)
 ```
 
 
