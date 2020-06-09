@@ -3,7 +3,7 @@
 
 """
 This script joins the following datasets`claim_vehicle_employee_line.csv`, 
-`Preventable and Non Preventable_tabDelimited.txt` and `Employee_Experience.csv`
+`Preventable and Non Preventable_tabDelimited.txt` and `employee_experience_V2.csv`
 to create a CSV file that contains the required information for the interactive plot.
 It also cleans the resulting CSV file to get a successful result from the Google 
 Maps API. Assumes `get-data.py` is run before. 
@@ -22,7 +22,7 @@ Example:
 python src/interactive_map/prepare_data.py \
     --claims_file_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
     --collisions_file_path  "data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt"\
-    --employee_file_path "data/TransLink Raw Data/Employee_Experience.csv"\
+    --employee_file_path "data/TransLink Raw Data/employee_experience_V2.csv"\
     --output_file_path "results/processed_data/collision_with_claim_and_employee_info.csv" 
     
 """
@@ -57,21 +57,32 @@ def compare_loss_date(row):
         val =  row.loss_date_y
     return val
 
+
+def get_experience_in_months(row):
+    """
+    It creates experience in terms of months by using the incident date and 
+    the operators' hiring date. 
+    """
+    difference = row['loss_date']- row['hire_date']
+    return round(difference.days / 30,0)
+
 def main(claims_file_path, collisions_file_path, employee_file_path, output_file_path):
 
     #read the collisions dataset
     collision = pd.read_csv(collisions_file_path, delimiter="\t")
     collision.columns = map(str.lower, collision.columns)
-    #take only the required information
+    #take the required columns
     collision = collision[['loss_location_at','preventable_nonpreventable', 'loss_location_on',
-    'city_of_incident', 'loss_date','apta_desc', 'asset_vehicle_year', 'asset_manufacturer', "claim_id"]]
+    'city_of_incident', 'loss_date','apta_desc', 'asset_vehicle_year', 'asset_manufacturer', 
+    "claim_id", 'time_of_loss']]
     #convert `loss_date` to date_time
     collision['loss_date'] = pd.to_datetime(collision['loss_date'], format="%d/%m/%Y")
 
     #read the claims dataset
-    claims = pd.read_csv(claims_file_path)
-    #take only the required information
-    claims = claims[['claim_id', 'paid_cost$', 'empl_id', 'loss_date']]
+    claims = pd.read_csv(claims_file_path, low_memory=False)
+    #take the required columns
+    claims = claims[['claim_id', 'paid_cost$', 'empl_id','day_of_week', 'loss_date', 
+    'claim_status', 'line_no', 'bus_no', 'bus_fuel_type','bus_carry_capacity' ]]
     #give a better name for join
     claims = claims.rename(columns = {'empl_id': 'employee_id'})
     #convert `loss_date` to date_time
@@ -80,7 +91,9 @@ def main(claims_file_path, collisions_file_path, employee_file_path, output_file
     #read the employees dataset
     employee = pd.read_csv(employee_file_path)
     #take only the required information
-    employee = employee[['employee_id', 'Experience_Category']]
+    employee = employee[['employee_id', 'hire_date']]
+    #convert `hire_date` to date_time
+    employee['hire_date'] = pd.to_datetime(employee['hire_date'], format="%Y-%m-%d")
 
     #first merge claims and employees' information with respect to employee_id column
     claims_with_employee = pd.merge(employee, claims, on=['employee_id'], how='right')
@@ -89,45 +102,48 @@ def main(claims_file_path, collisions_file_path, employee_file_path, output_file
     combined_df = pd.merge(claims_with_employee, collision, on=['claim_id'], how='left')
 
     #there are two `loss_date`s coming from claims and also collisions datasets.
-    #Take the not null one.
+    #take the not null one.
     combined_df['loss_date'] = combined_df.apply(compare_loss_date, axis = 1)
     #drop unnecessary columns
     combined_df = combined_df.drop(columns = ['loss_date_x', 'loss_date_y'])
-    #we are only interested in preventable collisions
-    combined_df_preventable = combined_df[combined_df["preventable_nonpreventable"] == "P"]
-    combined_df_preventable = combined_df_preventable.drop(columns = ['preventable_nonpreventable'])
+
+    #drop null values from `hire_date` to get valid experience
+    combined_df = combined_df.dropna(subset = ["hire_date"])
+
+    #create experience in terms of months
+    combined_df['experience_in_months'] = combined_df.apply(get_experience_in_months, axis = 1)
 
     #remove the rows if both street names are null.
-    combined_df_preventable = combined_df_preventable.dropna(subset=["loss_location_at", "loss_location_on"], how = 'all')
+    combined_df = combined_df.dropna(subset=["loss_location_at", "loss_location_on"], how = 'all')
 
     #clean city names to get a successful result from Google Maps API
-    combined_df_preventable['city_of_incident'] = combined_df_preventable['city_of_incident'].str.lower().str.strip()
-    combined_df_preventable['city_of_incident'].replace(["van", "vacovuer", "vancouer", "vancover", "vancouver", "vancovuer", "ubc", "vancouver - vtc", "vtc"], "Vancouver", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["bur", "burnaby", "bunaby"], "Burnaby", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["new wesminster", "nw", "new westminister", "new westminster"], "New Westminster", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["sur", "sureey", "surrye", "surrey", "cloverdale", "south surrey"], "Surrey", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["ladnar", "ladner", "del", "delta"], "Delta", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["coq", "coquitlam"], "Coquitlam", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["lan", "langley"], "Langley", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["pit", "pit meadow", "pitt meadows"], "Pitt Meadows", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["mr", "maple ridge"], "Maple Ridge", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["pm", "poer moody", "port moody"], "Port Moody", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["pc", "port coquitlam"], "Port Coquitlam", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["wr", "white rock", "white rock/surrey", "whiterock", "white rock / surrey"], "White Rock", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["wv", "west vancouver"], "West Vancouver", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["ric", "richmond"], "Richmond", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["nv", "north van", "north vancover", "north vancouver"], "North Vancouver", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["anmore"], "Anmore", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["belcarra"], "Belcarra", inplace=True)
-    combined_df_preventable['city_of_incident'].replace(["walnut grove"], "Walnut Grove", inplace=True)
+    combined_df['city_of_incident'] = combined_df['city_of_incident'].str.lower().str.strip()
+    combined_df['city_of_incident'].replace(["van", "vacovuer", "vancouer", "vancover", "vancouver", "vancovuer", "ubc", "vancouver - vtc", "vtc"], "Vancouver", inplace=True)
+    combined_df['city_of_incident'].replace(["bur", "burnaby", "bunaby"], "Burnaby", inplace=True)
+    combined_df['city_of_incident'].replace(["new wesminster", "nw", "new westminister", "new westminster"], "New Westminster", inplace=True)
+    combined_df['city_of_incident'].replace(["sur", "sureey", "surrye", "surrey", "cloverdale", "south surrey"], "Surrey", inplace=True)
+    combined_df['city_of_incident'].replace(["ladnar", "ladner", "del", "delta"], "Delta", inplace=True)
+    combined_df['city_of_incident'].replace(["coq", "coquitlam"], "Coquitlam", inplace=True)
+    combined_df['city_of_incident'].replace(["lan", "langley"], "Langley", inplace=True)
+    combined_df['city_of_incident'].replace(["pit", "pit meadow", "pitt meadows"], "Pitt Meadows", inplace=True)
+    combined_df['city_of_incident'].replace(["mr", "maple ridge"], "Maple Ridge", inplace=True)
+    combined_df['city_of_incident'].replace(["pm", "poer moody", "port moody"], "Port Moody", inplace=True)
+    combined_df['city_of_incident'].replace(["pc", "port coquitlam"], "Port Coquitlam", inplace=True)
+    combined_df['city_of_incident'].replace(["wr", "white rock", "white rock/surrey", "whiterock", "white rock / surrey"], "White Rock", inplace=True)
+    combined_df['city_of_incident'].replace(["wv", "west vancouver"], "West Vancouver", inplace=True)
+    combined_df['city_of_incident'].replace(["ric", "richmond"], "Richmond", inplace=True)
+    combined_df['city_of_incident'].replace(["nv", "north van", "north vancover", "north vancouver"], "North Vancouver", inplace=True)
+    combined_df['city_of_incident'].replace(["anmore"], "Anmore", inplace=True)
+    combined_df['city_of_incident'].replace(["belcarra"], "Belcarra", inplace=True)
+    combined_df['city_of_incident'].replace(["walnut grove"], "Walnut Grove", inplace=True)
 
     # trim street names
-    combined_df_preventable['loss_location_at'] = combined_df_preventable['loss_location_at'].str.strip()
-    combined_df_preventable['loss_location_on'] = combined_df_preventable['loss_location_on'].str.strip()
+    combined_df['loss_location_at'] = combined_df['loss_location_at'].str.strip()
+    combined_df['loss_location_on'] = combined_df['loss_location_on'].str.strip()
 
     #write the resulting dataframe into the output_file_path.
     create_dirs_if_not_exists([output_file_path])
-    combined_df_preventable.to_csv(output_file_path, index=False)
+    combined_df.to_csv(output_file_path, index=False)
 
 if __name__ == "__main__":
     main(opt["--claims_file_path"], opt["--collisions_file_path"], opt["--employee_file_path"], opt["--output_file_path"])
