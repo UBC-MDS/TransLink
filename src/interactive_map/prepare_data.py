@@ -39,7 +39,7 @@ opt = docopt(__doc__)
 
 def create_dirs_if_not_exists(file_path_list):
     """
-    It creates directories if they don't aldready exist. 
+    It creates directories if they don't already exist. 
 
     Parameters:
     file_path_list (list): A list of paths to be created if they don't exist.
@@ -49,7 +49,8 @@ def create_dirs_if_not_exists(file_path_list):
 
 def compare_loss_date(row):
     """
-    A helper function to be used in the main function
+    A helper function to be used in the main function to take 
+    non null values for the loss_date.
     """
     if (row['loss_date_x'] is not pd.NaT) & (row['loss_date_y'] is pd.NaT):
         val =  row.loss_date_x
@@ -60,7 +61,8 @@ def compare_loss_date(row):
 
 def get_experience_in_months(row):
     """
-    It creates experience in terms of months by using the incident date and 
+    A helper function to be used in the main functon. It creates the
+    experiences of the operators in terms of months by using the incident date and 
     the operators' hiring date. 
     """
     difference = row['loss_date']- row['hire_date']
