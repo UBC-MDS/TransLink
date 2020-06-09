@@ -21,7 +21,7 @@ library(broom)
 ```{r}
 # import data
 
-df_origin <- read_csv("../data/TransLink Raw Data/preventable_NonPreventable_claims.csv")
+df_origin <- read.delim():("../data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt",sep = "\t")
 
 # check NAs
 sum(is.na((df_origin$Loss_Date)))
