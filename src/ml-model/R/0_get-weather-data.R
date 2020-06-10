@@ -38,7 +38,7 @@ opt <- docopt(doc)
 #' @export
 #'
 #' @examples
-#' find_closest(lat = 45.121, long = -122.231)
+#' find_closest(lat = 45.121, long = -122.231, hour = FALSE)
 find_closest <- function(lat, long, hour = TRUE) {
   
   # Check for bad input
@@ -92,7 +92,8 @@ find_closest <- function(lat, long, hour = TRUE) {
 #' closest_stations_per_location(
 #' location = "Burnaby",
 #' location_lat_long = location_lat_long,
-#' all_relevant_weather = all_relevant_weather)
+#' all_relevant_weather = all_relevant_weather,
+#' hour = TRUE)
 closest_stations_per_location <- function(location, location_lat_long, all_relevant_weather, hour = TRUE) {
   
   if (!is.character(location)) {

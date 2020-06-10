@@ -122,6 +122,8 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
         set.seed(200350623)
         sample_rows <- sample_n(all_data, size = round(nrow(all_data) * 3.3, 0), replace = TRUE)
         
+        # This reads in the sheet data so that we sample hours, days, or lines that are 
+        # most relevant to when busses for some line are actually on the street
         all_combinations <- read_csv(path_sheet_data,
                                      na = c("NULL", -1),
                                      col_types = cols(line_no = col_character(), bus_number = col_character())) %>%
@@ -179,7 +181,9 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
       # overwrite the line with the randomly generated ones. Then, check
       # if the observation exists as a recorded accident by joining. If "no", 
       # then keep the synthetic observation otherwise throw it away.
-    
+      # The sampling is based on the implied probability of a particular line 
+      # operating at a specific time, on a specific day.
+      
       set.seed(200350623)
       temp <- sample_rows_with_var %>%
         filter(var_to_change == 1) %>%
