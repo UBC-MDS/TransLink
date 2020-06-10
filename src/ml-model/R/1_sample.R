@@ -4,12 +4,13 @@
 "This script recreates negative instances for the purposes of creating a machine learning model,
 as outlined here: https://medium.com/geoai/using-machine-learning-to-predict-car-accident-risk-4d92c91a7d57 and
 here: https://www.groundai.com/project/high-resolution-road-vehicle-collision-prediction-for-the-city-of-montreal/1 
-Usage: 1_sample.R <path_accident_data> <path_weather_stations_data_hour> <path_weather_stations_data_day> <path_out> 
+Usage: 1_sample.R <path_accident_data> <path_weather_stations_data_hour> <path_weather_stations_data_day> <path_sheet_data> <path_out> 
 
 Options:
 <path_accident_data> A file path that gives the location of the cleaned accident data. Should be a .rds file.
 <path_weather_stations_data_hour> A file path that gives the location of the weather stations data per hour. Should be a .rds file.
 <path_weather_stations_data_day> A file path that gives the location of the weather stations data per day. Should be a .rds file. 
+<path_sheet_data> A file path that gives the location of the bus sheet data.
 <path_out>  A file path that describes where to store the combined dataset.
 " -> doc
 
@@ -39,9 +40,11 @@ source("src/ml-model/R/helper-scripts/build_series.R")
 #' path_accident_data = "data/ml-model/cleaned_accident_data.rds",
 #' path_weather_stations_data_hour = "data/ml-model/stations_per_loc_hour.rds",
 #' path_weather_stations_data_day = "data/ml-model/stations_per_loc_day.rds",
+#' path_sheet_data = "data/TransLink Raw Data/Scheduled_Actual_services_2019.csv",
 #' path_out = "data/ml-model"
 #' )
-main <- function(path_accident_data, path_weather_stations_data_hour, path_weather_stations_data_day, path_out) {
+main <- function(path_accident_data, path_weather_stations_data_hour, path_weather_stations_data_day,
+                 path_sheet_data, path_out) {
   
         if (!str_detect(path_accident_data, ".rds")) {
           stop("path_accident_data should be a specific .rds file.")
@@ -54,6 +57,8 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
                    path to a specific file. Remove the file extension.")
         } else if (endsWith(path_out, "/")) {
           stop("path_out should not end with /")
+        } else if (!str_detect(path_sheet_data, ".csv")) {
+          stop("path_sheet_data should be a specific .csv file.")
         }
         
         # Read in data produced by 0_get-weather-data.R and group old lines with their replacement if any/remove
@@ -117,7 +122,9 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
         set.seed(200350623)
         sample_rows <- sample_n(all_data, size = round(nrow(all_data) * 3.3, 0), replace = TRUE)
         
-        all_combinations <- read_csv("data/TransLink Raw Data/Scheduled_Actual_services_2019.csv", na = c("NULL", -1), col_types = cols(line_no = col_character(), bus_number = col_character())) %>%
+        all_combinations <- read_csv(path_sheet_data,
+                                     na = c("NULL", -1),
+                                     col_types = cols(line_no = col_character(), bus_number = col_character())) %>%
           drop_na(line_no) %>%
           mutate(block = case_when(
             month(sheet_from_date) == 12 ~ 1,
