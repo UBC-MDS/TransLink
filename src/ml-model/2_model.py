@@ -121,8 +121,8 @@ def preprocessor(X, newdata):
     train['rel_hum'] = [np.sqrt(x) for x in train['rel_hum']]
     validation['rel_hum'] = [np.sqrt(x) for x in validation['rel_hum']]
 
-    train = train.drop(columns=['date', 'time', 'total_precip', 'bus_no', 'empl_id'])
-    validation = validation.drop(columns=['date', 'time', 'total_precip', 'bus_no', 'empl_id'])
+    train = train.drop(columns=['date', 'total_precip', 'bus_no', 'empl_id'])
+    validation = validation.drop(columns=['date', 'total_precip', 'bus_no', 'empl_id'])
 
     return {'train': train, 'newdata': validation, 'lookup_reg': reverse_lookup_reg}
 
@@ -135,11 +135,12 @@ def optimize_param(train, space, all_categorical, n_splits=5):
         # n_estimators is huge because we use early_stopping here!
         model = LGBMClassifier(
             n_estimators=5000,
-            learning_rate=0.01,
+            learning_rate=0.05,
             num_leaves=space['num_leaves'],
             max_depth=space['max_depth'],
             colsample_bytree=space['colsample_bytree'],
             reg_alpha=space['reg_alpha'],
+            reg_lambda=space['reg_lambda'],
             subsample_freq=5,
             n_jobs=multiprocessing.cpu_count() - 2,
             objective='binary',
@@ -173,7 +174,7 @@ def optimize_param(train, space, all_categorical, n_splits=5):
                 model.best_iteration_
             )
         
-        return {'loss': -np.mean(auroc_scores), 'params': space, 'status': STATUS_OK, 'iterations': np.round(np.median(best_iter), 0)}
+        return {'loss': -np.mean(auroc_scores), 'params': space, 'status': STATUS_OK, 'iterations': np.round(np.mean(best_iter), 0)}
 
     fmin(fn=objective, space=space, algo=tpe.suggest, max_evals=50, trials=bayes_trials, rstate=np.random.RandomState(200350623))
     return bayes_trials
@@ -197,7 +198,7 @@ space = {
 
 results = optimize_param(
     train=train_set,
-    n_splits=5,
+    n_splits=10,
     space=space,
     all_categorical=all_categorical_regular)
 
@@ -206,11 +207,12 @@ n_iter = results.best_trial['result']['iterations']
 
 final_lgb = LGBMClassifier(
     n_estimators=int(n_iter),
-    learning_rate=0.01,
+    learning_rate=0.05,
     num_leaves=best_model_params['num_leaves'],
     max_depth=best_model_params['max_depth'],
     colsample_bytree=best_model_params['colsample_bytree'],
     reg_alpha=best_model_params['reg_alpha'],
+    reg_lambda=best_model_params['reg_lambda'],
     subsample_freq=5,
     n_jobs=multiprocessing.cpu_count() - 2,
     objective='binary',

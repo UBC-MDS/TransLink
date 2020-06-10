@@ -335,9 +335,7 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
       city = city_of_incident,
       incident = target
     ) %>%
-    select(-time_of_loss) %>%
-    mutate(bus_age = as.numeric(bus_age),
-           bus_carry_capacity = as.numeric(bus_carry_capacity))
+    select(-time_of_loss) 
     
   write_csv(all_samples_combined, paste0(path_out, "/final_data_combined.csv"))
   
