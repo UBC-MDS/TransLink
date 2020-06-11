@@ -1,0 +1,165 @@
+---
+  title: "interactive-report"
+author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
+date: "24/05/2020"
+output: html_document
+runtime: shiny
+---
+
+  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = here::here())
+library(brms)
+library(shiny)
+library(tidyverse)
+library(plotly)
+library(ggthemes)
+library(leaflet)
+library(mapview)
+library(tidyverse)
+library(lubridate)
+library(htmlwidgets)
+```
+
+# Spatial Analysis of Incidents
+  
+```{r include=FALSE}
+my_data <- read_csv("results/processed_data/collision_locations_with_coordinates.csv")
+my_data$years <- year(my_data$loss_date)
+my_data <- my_data %>% mutate(apta_desc = ifelse(apta_desc == "Collisions With Other Vehicles (At G/C)", "Collisions With Other Vehicles", 
+                                                 ifelse(apta_desc == "Collisions With Objects (At G/C)", "Collisions With Objects",  apta_desc)))
+my_data$bus_age <- my_data$years - my_data$asset_vehicle_year
+my_data$cost_range <- cut(my_data$`paid_cost$`, breaks = c(-Inf, 200, 1000, 10000, Inf),
+                          labels=c("Level1 (<$200)","Level2 ($200-$1.000)","Level3 ($1.000-$10.000)", "Level4 (>$10.000)")) 
+```
+
+
+```{r include= FALSE}
+ui <-  fluidPage(
+  # Give the page a title
+  titlePanel("Spatial Analysis for TransLink Incidents"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("year", "Years", min(my_data$years), max(my_data$years),
+                  value = range(my_data$years), step= 1, sep = ""),
+      br(),
+      selectInput("experience", "Experience level of the operators",
+                  choices = unique(na.omit(my_data$experience_levels))),
+      br(),
+      htmlOutput("summary"), 
+      br(),
+      tableOutput("table1")
+      
+      
+    ),
+    mainPanel(
+      fluidRow(column(5, plotOutput("plot1", width = "100%", height = "200px") ),
+               column(7, plotOutput("plot2", width = "100%", height = "200px") ) ),
+      
+      
+      br(),
+      leafletOutput("map")
+    ), 
+  ))
+
+server <- function (input, output) {
+  
+  year_data <- reactive({
+    my_data %>% filter(years > input$year[1] & years < input$year[2])
+  })
+  
+  output$map <- renderLeaflet({
+    year_data() %>% 
+      leaflet()  %>%
+      addProviderTiles("CartoDB.Positron", group = "Streets") %>% 
+      addProviderTiles("Esri.WorldImagery", group = "Detailed") %>% 
+      addProviderTiles("CartoDB.DarkMatter", group = "Dark")   %>%
+      setView(lng = -123.1171, lat = 49.2820, zoom = 12)
+    
+  })
+  
+  
+  
+  observe({
+    
+    experience <- input$experience
+    pal <- colorFactor(palette = c("turquoise2", "steelblue4","sienna1", "violetred1" ), levels = c("Level1 (<$200)", "Level2 ($200-$1.000)", "Level3 ($1.000-$10.000)", "Level4 (>$10.000)"))
+    
+    sub_data <- year_data() %>% 
+      filter(year_data()$experience_levels == experience)
+    
+    leafletProxy("map") %>% clearControls() %>% clearMarkers()%>%
+      addCircleMarkers(lng = jitter(sub_data$long, factor = 0.1),
+                       lat = jitter(sub_data$lat, factor = 0.1),
+                       #stroke = FALSE, fillOpacity = 0.5, radius = 3,
+                       color = pal(sub_data$cost_range),
+                       #clusterOptions = markerClusterOptions(maxClusterRadius = 1),
+                       radius=3, # Total count
+                       stroke=FALSE, # Circle stroke
+                       fillOpacity=0.5,
+                       popup=paste0("<b>", sub_data$apta_desc, "</b> <br>",
+                                    "<b>", "Date: ", "</b> ", sub_data$loss_date, "<br>",
+                                    "<b>", "Cost: ", "</b>$", sub_data$`paid_cost$`, "<br>",
+                                    "<b>", "Employee Id: ", "</b> ", sub_data$employee_id, "<br>",
+                                    "<b>", "Bus Age: ", "</b> ", sub_data$bus_age, "<br>",
+                                    "<b>","Manufacturer: ", "</b> ", sub_data$asset_manufacturer, "<br>" ),
+                       #popupOptions = popupOptions(closeOnClick = TRUE),
+      ) %>% leaflet::addLayersControl(baseGroups = c('Streets','Detailed', "Dark"),
+                                      options = layersControlOptions(collapsed = FALSE)) %>% 
+      addLegend(data = sub_data,"bottomleft", 
+                pal = pal,
+                # colors = colors,
+                values = ~cost_range,
+                title = "Cost Levels", 
+                opacity = .9)
+    
+  })
+  
+  output$summary <- renderText({
+    updated_data <- year_data() %>% 
+      filter(year_data()$experience_levels == input$experience)
+    
+    paste("<b>Summary: </b>", "<br>",
+          "There are " , dim(updated_data)[1], " incidents between these years.")
+  })
+  output$table1 <- renderTable({
+    updated_data <- year_data() %>% 
+      filter(year_data()$experience_levels == input$experience)
+    updated_data %>% group_by(line_no) %>% summarise(total_cost_line = sum(`paid_cost$`)) %>% 
+      data.frame()%>% drop_na() %>% arrange(desc(total_cost_line)) %>% head() 
+  })
+  output$plot2 <- renderPlot({
+    updated_data <- year_data() %>%
+      filter(year_data()$experience_levels == input$experience)
+    n <- dim(updated_data)[1]
+    updated_data %>% group_by(cost_range) %>%
+      summarise(count_cost_range =n()) %>%
+      ggplot(aes(x = cost_range, y = count_cost_range, fill = cost_range)) +
+      geom_bar(stat= "identity", show.legend = FALSE) + 
+      scale_fill_manual(values=c("turquoise2", "steelblue4", "sienna1", "violetred1" )) + 
+      coord_flip() +
+      labs(title =  "The number of incidents by the cost levels", y = "The number of incidents", x= "") + theme_bw()
+    
+  })
+  output$plot1 <- renderPlot({
+    updated_data <- year_data() %>% 
+      filter(year_data()$experience_levels == input$experience)
+    updated_data %>% filter(bus_age > -1  & bus_age < 30 ) %>%
+      ggplot(aes(bus_age,color = cost_range, fill = cost_range), alpha = 0.2) + geom_density() + theme_bw() + 
+      scale_color_manual(values = c("Level1 (<$200)" = "turquoise2", "Level2 ($200-$1.000)"="steelblue4", "Level3 ($1.000-$10.000)"= "sienna1", "Level4 (>$10.000)" = "violetred1" )) + 
+      scale_fill_manual(values = alpha( c("Level1 (<$200)" = "turquoise2", "Level2 ($200-$1.000)"="steelblue4", "Level3 ($1.000-$10.000)"= "sienna1", "Level4 (>$10.000)" = "violetred1" ), 0.2)) + 
+      labs(title = "The distribution of the ages of buses",
+           x = 'The age of the buses when incident happened',
+           y = 'Number of incidents') + theme(legend.position = "none")
+    
+  })
+  
+}
+
+```
+
+```{r , echo = FALSE, warning = FALSE}
+shinyApp(ui, server)
+```
