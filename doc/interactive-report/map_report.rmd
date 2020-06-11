@@ -1,13 +1,13 @@
 ---
-  title: "interactive-report"
-author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
-date: "24/05/2020"
+title: "interactive-report"
+author: "Merve Sahin"
+date: "11/06/2020"
 output: html_document
 runtime: shiny
 ---
 
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = here::here())
 library(brms)
