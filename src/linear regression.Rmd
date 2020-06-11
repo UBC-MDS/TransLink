@@ -35,54 +35,22 @@ df$Loss_Date <- as.Date(df$Loss_Date,"%d/%m/%Y")
 
 # extract day/year/month from date
 df <- df %>%
-  mutate(Loss_day = weekdays(Loss_Date), Loss_year = year(Loss_Date),Loss_month = month(Loss_Date),
-         Time_of_Loss =as.numeric(Time_of_Loss))
+  mutate(Loss_day = as.factor(weekdays(Loss_Date)), 
+         Loss_year = year(Loss_Date),
+         Loss_month = as.factor(month(Loss_Date)),
+         Hour = as.numeric(str_extract(Time_of_Loss, "^.{2}")))
 
 ```
 
 
 ```{r}
-
-#df$Time_of_Loss.padded <- str_pad(df$Time_of_Loss, 4, pad="0")
-
-#df$time.period <- hm(df$Time_of_Loss.padded)
-
-df$Time_of_Loss <- format(strptime(sprintf('%04d', df$Time_of_Loss), format='%H%M'),'%H:%M')
-
-
-
-
-```
-
-
-```{r}
-df$Loss_month <- as.factor(df$Loss_month)
-df$Loss_day <- as.factor(df$Loss_day)
-df$Loss_year <- as.factor(df$Loss_year)
-
 df$Loss_day <- ordered(df$Loss_day, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", 
-"Friday", "Saturday", "Sunday"))
+ "Friday", "Saturday", "Sunday"))
 
 # test function
 expect(TRUE,length(unique(df$Loss_day))==7)
 ```
 
-```{r}
-## group by weekday
-
-df_year <- df %>% 
-  group_by(Loss_year) %>% 
-  count()
-
-df_month <- df %>% 
-  group_by(Loss_month) %>% 
-  count()
-
-df_day <- df %>% 
-  group_by(Loss_day) %>% 
-  count()
-
-```
 
 ```{r}
 df %>% 
@@ -105,7 +73,7 @@ df %>%
 df1 <- df %>% 
   group_by(Loss_year, Loss_month, Loss_day) %>% 
   summarise(count=n())
-df1
+
 df1 %>% 
   ggplot()+
   geom_boxplot(aes(x=Loss_day,y=count))
@@ -113,6 +81,7 @@ df1 %>%
 ```
 
 ```{r echo=FALSE, warning=FALSE}
+
 speed <- readr::read_csv('../data/TransLink Raw Data/Speed performance data.csv')
 speed_up <- speed %>%
   select(operating_date, vehicle_id, line_no, trip_description,
@@ -129,10 +98,16 @@ speed_up <- speed %>%
 
 ```{r}
 
-speed_up$Loss_Date <- as.Date(speed_up$operating_date,"%Y-%m-%d")
-speed_up$Loss_day <- weekdays(speed_up$Loss_Date)
-speed_up$Loss_year <- year(speed_up$Loss_Date)
-speed_up$Loss_month <-month(speed_up$Loss_Date)
+speed_up %>% 
+  mutate(Loss_Date = as.Date(speed_up$operating_date,"%Y-%m-%d"),
+         Loss_day = weekdays(speed_up$Loss_Date),
+         Loss_year = year(speed_up$Loss_Date),
+         Loss_month = month(speed_up$Loss_Date))
+
+# speed_up$Loss_Date <- as.Date(speed_up$operating_date,"%Y-%m-%d")
+# speed_up$Loss_day <- weekdays(speed_up$Loss_Date)
+# speed_up$Loss_year <- year(speed_up$Loss_Date)
+# speed_up$Loss_month <-month(speed_up$Loss_Date)
 
 speed_up %>% 
   group_by(Loss_day) %>% 
@@ -145,6 +120,7 @@ bus_per_rt <- speed_up %>%
 ```
 
 ```{r}
+
 bus_per_rt$date <- as.Date(bus_per_rt$date,"%Y-%m-%d")
 bus_per_rt$Loss_day <- weekdays(bus_per_rt$date)
 
