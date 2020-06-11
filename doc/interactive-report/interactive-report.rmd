@@ -18,65 +18,15 @@ library(leaflet)
 library(mapview)
 library(tidyverse)
 library(lubridate)
+library(htmlwidgets)
 ```
 
 # Introduction {.tabset}
 
 Introductory text on report?
 
-## Spatial Analysis of Incidents
 
-```{r include=FALSE}
-target_location_df = read_csv("results/processed_data/collision_locations_with_coordinates.csv")
-target_location_df <-target_location_df %>% drop_na(lat, long)
-target_location_df$months <- month(as.POSIXlt(target_location_df$date, format="%Y-%m-%d"))
-cwo <- target_location_df %>% filter(desc %in% c("Collisions With Objects", "Collisions With Objects (At G/C)"))
-cwv <- target_location_df %>% filter(desc %in% c("Collisions With Other Vehicles", "Collisions With Vehicles (At G/C)"))
-cwp <- target_location_df %>% filter(desc == "Collisions With People")
 
-```
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-pal <- colorFactor(palette = "viridis", domain = NULL)
-m <- leaflet() %>%
-    addProviderTiles("CartoDB.Positron") %>% 
-    addCircleMarkers(data = cwo,
-                     stroke = FALSE, fillOpacity = 0.5, radius = 3,
-                     color = ~pal(cwo$months),
-                     popup=paste0("<b>", cwo$desc, "</b> <br>", 
-                            "<b>", "Date: ", "</b> ", cwo$date, "<br>", 
-                            "<b>","Bus Year: ", "</b> ", cwo$bus_year, "<br>", 
-                            "<b>","Manufacturer: ", "</b> ", cwo$bus_manufacturer, "<br>" ),
-                     group = 'Collisions With Objects') %>%
-    addCircleMarkers(data = cwv,
-                     stroke = FALSE, fillOpacity = 0.5, radius = 3,
-                     color = ~pal(cwv$months), 
-                     popup=paste0("<b>", cwv$desc, "</b> <br>", 
-                            "<b>", "Date: ", "</b> ", cwv$date, "<br>", 
-                            "<b>","Bus Year: ", "</b> ", cwv$bus_year, "<br>", 
-                            "<b>","Manufacturer: ", "</b> ", cwv$bus_manufacturer, "<br>" ),
-                     group = 'Collisions With Vehicles') %>%
-    addCircleMarkers(data = cwp,
-                     stroke = FALSE, fillOpacity = 0.5, radius = 3,
-                     color = ~pal(cwp$months), 
-                     popup=paste0("<b>", cwp$desc, "</b> <br>", 
-                            "<b>", "Date: ", "</b> ", cwp$date, "<br>", 
-                            "<b>","Bus Year: ", "</b> ", cwp$bus_year, "<br>", 
-                            "<b>","Manufacturer: ", "</b> ", cwp$bus_manufacturer, "<br>" ),
-                     group = 'Collisions With People')%>%
-  leaflet::addLayersControl(overlayGroups = c("Collisions With Objects", "Collisions With Vehicles", "Collisions With People"),
-                   options = layersControlOptions(collapsed = FALSE)) %>%
-  addLegend(
-    data = target_location_df,
-    "bottomleft", 
-    pal = pal,
-    values = ~months,
-    opacity = .9,
-    title = "Months"
-  )
-
-m
-```
 
 ## Operator Analysis
 
