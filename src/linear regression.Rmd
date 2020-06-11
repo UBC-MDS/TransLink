@@ -11,17 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r echo=FALSE}
 library(tidyverse)
-library(readr)
 library(lubridate)
 library(testthat)
-library(dplyr)
 library(broom)
 ```
 
 ```{r}
 # import data
 
-df_origin <- read.delim():("../data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt",sep = "\t")
+df_origin <- read_tsv("../data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt")
 
 # check NAs
 sum(is.na((df_origin$Loss_Date)))
@@ -38,9 +36,9 @@ df <- df_origin[-c(3,6:7,13:16)]
 df$Loss_Date <- as.Date(df$Loss_Date,"%d/%m/%Y")
 
 # extract day/year/month from date
-df$Loss_day <- weekdays(df$Loss_Date)
-df$Loss_year <- year(df$Loss_Date)
-df$Loss_month <-month(df$Loss_Date)
+df <- df %>%
+  mutate(Loss_day = weekdays(Loss_Date), Loss_year = year(Loss_Date),Loss_month = month(Loss_Date))
+
 ```
 
 
