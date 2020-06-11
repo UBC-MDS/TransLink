@@ -24,10 +24,8 @@ df_origin <- read_tsv("../data/TransLink Raw Data/Preventable and Non Preventabl
 # check NAs
 sum(is.na((df_origin$Loss_Date)))
 
-
-# remove columns
-df <- df_origin[-c(3,6:7,13:16)]
-
+df <- df_origin %>% 
+  select(Loss_Date,Time_of_Loss)
 
 ```
 
@@ -37,18 +35,19 @@ df$Loss_Date <- as.Date(df$Loss_Date,"%d/%m/%Y")
 
 # extract day/year/month from date
 df <- df %>%
-  mutate(Loss_day = weekdays(Loss_Date), Loss_year = year(Loss_Date),Loss_month = month(Loss_Date))
+  mutate(Loss_day = weekdays(Loss_Date), Loss_year = year(Loss_Date),Loss_month = month(Loss_Date),
+         Time_of_Loss =as.numeric(Time_of_Loss))
 
 ```
 
 
 ```{r}
 
-# extract incident hour
+#df$Time_of_Loss.padded <- str_pad(df$Time_of_Loss, 4, pad="0")
 
-df$Time_of_Loss <- as.numeric(df$Time_of_Loss)
+#df$time.period <- hm(df$Time_of_Loss.padded)
 
-#format(strptime(sprintf('%04d', df$Time_of_Loss), format='%H%M'),'%H:%M')
+df$Time_of_Loss <- format(strptime(sprintf('%04d', df$Time_of_Loss), format='%H%M'),'%H:%M')
 
 
 
