@@ -111,6 +111,15 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
             line_no == "C76" ~ "310",
             line_no == "C86" ~ "616",
             line_no == "C53" ~ "363",
+            line_no == "43" ~ "R4",
+            line_no == "95" ~ "R5",
+            line_no == "23" ~ "123",
+            line_no == "131" ~ "123",
+            line_no == "239" ~ "R2",
+            line_no == "70" ~ "68",
+            line_no == "96" ~ "R1",
+            line_no == "804" ~ "341",
+            line_no == "807" ~ "562",
             TRUE ~ line_no
           )) %>%
           drop_na(line_no)
@@ -351,6 +360,13 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
   
   }
   
+  all_shuttles = c("23", "31", "42", "68", "103", "105", "109", "131", "132", "146",
+                   "147", "148", "157", "169", "170", "171", "172", "173", "174", "175", "180", "181",
+                   "182", "184", "185", "186", "187", "189", "215", "227", "251", "252", "256", "262",
+                   "280", "281", "282", "310", "322", "360", "361", "362", "363", "370", "371", "372", 
+                   "373", "412", "413", "414", "416", "560", "561", "562", "563", "564", "609", "614",
+                   "616", "617", "618", "619", "719", "722", "733", "741", "743", "744", "745", "746", "748", "749")
+  
   # Combine all of the data and save.
   all_samples_combined <- bind_rows(all_negative_samples) %>%
     bind_rows(all_data %>% mutate(experience_in_months = (as.yearmon(loss_date) - as.yearmon(hire_date)) * 12), .) %>%
@@ -360,8 +376,9 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
       city = city_of_incident,
       incident = target
     ) %>%
-    select(-time_of_loss, -hire_date, -termination_date) 
-    
+    select(-time_of_loss, -hire_date, -termination_date) %>%
+    mutate(is_shuttle = ifelse(line_no %in% all_shuttles, 1, 0))
+  
   write_csv(all_samples_combined, paste0(path_out, "/final_data_combined.csv"))
   
   set.seed(200350623)
