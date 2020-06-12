@@ -17,6 +17,7 @@ Options:
 library(tidyverse)
 library(lubridate)
 library(caret)
+library(zoo)
 library(docopt)
 
 opt <- docopt(doc)
@@ -207,8 +208,9 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
         left_join(all_data %>% transmute(line_no, hour_of_loss, day_of_year, check = "yes")) %>%
         replace_na(list(check = "no")) %>%
         filter(check == "no") %>%
-        mutate(target = rep(0, nrow(.))) %>%
-        select(-var_to_change, -check, -time_of_loss, -row_num)
+        mutate(target = rep(0, nrow(.)),
+               experience_in_months = (as.yearmon(loss_date) - as.yearmon(hire_date)) * 12) %>%
+        select(-var_to_change, -check, -time_of_loss, -row_num, -hire_date, -termination_date)
       
       all_negative_samples[[1]] <- temp
       
@@ -242,8 +244,9 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
         left_join(all_data %>% transmute(line_no, hour_of_loss, day_of_year, check = "yes")) %>%
         replace_na(list(check = "no")) %>%
         filter(check == "no") %>%
-        mutate(target = rep(0, nrow(.))) %>%
-        select(-var_to_change, -check, -time_of_loss, -row_num, -all_of(weather_vars))
+        mutate(target = rep(0, nrow(.)),
+               experience_in_months = (as.yearmon(loss_date) - as.yearmon(hire_date)) * 12) %>%
+        select(-var_to_change, -check, -time_of_loss, -row_num, -all_of(weather_vars), -hire_date, -termination_date)
       
       all_locations <- unique(temp$city_of_incident)
       
@@ -269,19 +272,20 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
       set.seed(200350623)
       temp <- sample_rows_with_var %>%
         filter(var_to_change == 3) %>%
-        mutate(row_num = seq(1, nrow(.))) %>%
+        mutate(row_num = seq(1, nrow(.)),
+               termination_date = ymd(termination_date)) %>%
         left_join(., all_combinations, by = c("line_no", "hour_of_loss" = "start_time_hour")) %>%
         group_by(row_num) %>%
         sample_n(size = 1) %>%
         mutate(block = ifelse(is.na(block), sample(1:4, size = 1), block)) %>%
         select(-day_type_code) %>%
+        ungroup() %>%
         mutate(day_of_year = case_when(
           block == 1 ~ sample(1:111, 1),
           block == 2 ~ sample(112:174, 1),
           block == 3 ~ sample(175:244, 1),
           TRUE ~ sample(176:366, 1)
         )) %>%
-        ungroup() %>%
         mutate(loss_date = as.Date(day_of_year, origin = paste(year(loss_date) - 1, 12, 31, sep = "-"))) %>%
         left_join(all_data %>% transmute(line_no, hour_of_loss, day_of_year, check = "yes")) %>%
         replace_na(list(check = "no")) %>%
@@ -302,8 +306,25 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
       
       temp <- temp %>%
         filter(year(loss_date) != 2020) %>%
-        bind_rows(., all_2020)
-        
+        bind_rows(., all_2020) %>%
+        mutate(experience_in_months = (as.yearmon(loss_date) - as.yearmon(hire_date)) * 12)
+      
+      # There are no 2020 hires so safe to ignore.
+      set.seed(200350623)
+      all_negative_experience <- temp %>%
+        filter(experience_in_months < 0) %>%
+        rowwise() %>%
+        mutate(day_of_year = ifelse(is.na(termination_date), sample(yday(hire_date):366, 1), day_of_year)) %>%
+        mutate(day_of_year = ifelse(!is.na(termination_date) & year(termination_date) > year(hire_date), sample(yday(hire_date):366, 1), day_of_year)) %>%
+        mutate(day_of_year = ifelse(!is.na(termination_date) & year(termination_date) == year(hire_date), sample(yday(hire_date):yday(termination_date), 1), day_of_year),
+                loss_date = as.Date(day_of_year, origin = paste(year(loss_date) - 1, 12, 31, sep = "-")),
+               experience_in_months = (as.yearmon(loss_date)- as.yearmon(hire_date)) * 12)
+      
+      temp <- temp %>%
+        filter(experience_in_months >= 0) %>%
+        bind_rows(., all_negative_experience) %>%
+        select(-hire_date, -termination_date)
+
       all_locations <- unique(temp$city_of_incident)
       
       data_with_weather <- map(.x = all_locations, .f = function(x) {
@@ -324,7 +345,7 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
         select(all_of(weather_vars_day))
       
       all_negative_samples[[3]] <- bind_cols(data_with_weather, data_with_weather_day) %>%
-        mutate(day_of_week = wday(loss_date, label = TRUE))
+        mutate(day_of_week = wday(loss_date, label = TRUE)) 
       
     }
   
@@ -332,14 +353,14 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
   
   # Combine all of the data and save.
   all_samples_combined <- bind_rows(all_negative_samples) %>%
-    bind_rows(all_data, .) %>%
+    bind_rows(all_data %>% mutate(experience_in_months = (as.yearmon(loss_date) - as.yearmon(hire_date)) * 12), .) %>%
     rename(
       date = loss_date,
       hour = hour_of_loss,
       city = city_of_incident,
       incident = target
     ) %>%
-    select(-time_of_loss) 
+    select(-time_of_loss, -hire_date, -termination_date) 
     
   write_csv(all_samples_combined, paste0(path_out, "/final_data_combined.csv"))
   

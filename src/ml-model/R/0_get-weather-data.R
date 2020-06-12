@@ -176,7 +176,9 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
     
     employee_data <- read_csv(path_employee_data) %>%
       janitor::clean_names() %>%
-      select(employee_id, experience_category)
+      select(employee_id, experience_category, hire_date, termination_date) %>%
+      mutate(hire_date = ymd(hire_date), 
+             termination_date = ifelse(termination_date == "NULL", NA_character_, termination_date)) 
       
     claims_line_data <- read_csv(path_claims_data) %>%
         janitor::clean_names() %>%
@@ -185,9 +187,10 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
         inner_join(., employee_data, by = c("empl_id" = "employee_id")) %>%
         select(
           occurrence_id,
-          experience_category,
           claim_id,
           loss_date,
+          hire_date,
+          termination_date,
           time_of_loss,
           contains("bus"),
           day_of_week,
@@ -239,7 +242,7 @@ main <- function(path_claims_data, path_preventables_data, path_employee_data, d
       filter(!is.na(hour_of_loss)) %>%
       mutate(loss_date = as.Date(loss_date)) %>%
       mutate(day_of_week = wday(loss_date, label = TRUE)) %>%
-      select(loss_date, time_of_loss, hour_of_loss, day_of_week, bus_no, bus_age, bus_carry_capacity, empl_id, experience_category, line_no, city_of_incident) %>%
+      select(loss_date, time_of_loss, hour_of_loss, day_of_week, bus_no, bus_age, bus_carry_capacity, empl_id, hire_date, termination_date, line_no, city_of_incident) %>%
       mutate(target = rep(1, nrow(.)))
     
     rm(preventables_data, employee_data)

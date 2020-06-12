@@ -256,7 +256,7 @@ train_with_bus_info %>%
   geom_bar(stat = "identity") +
   theme_economist() +
   coord_flip() + 
-  labs(x = "Bus Carry Capacity", y = "Incident Rate Per Bus Manufacturer", title = "Bus Manufacturer vs. Incident Rate")
+  labs(x = "Bus Manufacturer", y = "Incident Rate Per Bus Manufacturer", title = "Bus Manufacturer vs. Incident Rate")
 
 # Per class
 train_with_bus_info %>%
