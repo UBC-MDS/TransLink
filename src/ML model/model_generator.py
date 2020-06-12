@@ -5,15 +5,16 @@
 This script is to generate machine learning model for predictive analysis
 
 
-Usage: model_generator.py --input_file_path=<input_file_path> --input_file_path=<input_file_path> \
-    --input_file_path=<input_file_path> --output_file_path=<output_file_path> 
+Usage: model_generator.py --train_file_path=<train_file_path> --bus_file_path=<bus_file_path> \
+    --test_file_path=<test_file_path> --output_file_path=<output_file_path> 
 
 Options:
 
 --train_file_path=<train_file_path>     A file path containing train dataset.
 --bus_file_path=<bus_file_path>     A file path containing other bus information.
+--test_file_path=<test_file_path>     A file path containing train dataset.
 --output_file_path=<output_file_path>       A file path to write the results.
---api_key=<api_key>   The google maps API key to make request. 
+
 """
 
 import numpy as np
@@ -49,7 +50,7 @@ opt = docopt(__doc__)
 
 def fit_and_report(model, X, y, Xv, yv):
     """
-    fits a model and returns train and validation errors
+    fits a model and returns train and validation scores
     
     Arguments
     ---------     
@@ -64,10 +65,7 @@ def fit_and_report(model, X, y, Xv, yv):
     yv -- numpy.ndarray
         The y part of the validation set       
     
-    Keyword arguments 
-    -----------------
-    mode -- str 
-        The mode for calculating error (default = 'regression') 
+    
     
    
     
@@ -95,7 +93,7 @@ def add_expt_result(results_dict, model, train_score, test_score):
 
 
 
-def main(train_file_path, bus_file_path, output_file_path):
+def main(train_file_path, bus_file_path, test_file_path, output_file_path):
 
 
 
@@ -110,7 +108,7 @@ def main(train_file_path, bus_file_path, output_file_path):
     train_with_bus = train_with_bus.drop(columns = ["date", "empl_id", 'bus_no', 'day_of_year'])
 
 
-    test = pd.read_csv("test.csv")
+    test = pd.read_csv(test_file_path)
     test_with_bus = test.merge(other_bus_info, on="bus_no", how="left")
     test_with_bus.date= pd.to_datetime(test_with_bus.date, format = '%Y-%m-%d')
     test_with_bus['year'] = pd.DatetimeIndex(test_with_bus.date).year
@@ -127,10 +125,11 @@ def main(train_file_path, bus_file_path, output_file_path):
     y_test = test_with_bus['incident']
 
     #preprocessing
-    categorical_features = ['day_of_week', 'experience_category', 'city', 'line_no', "asset_class", 'asset_manufactmodel', 'month']
+    categorical_features = ['day_of_week', 'city', 'line_no', "asset_class", 'asset_manufactmodel', 'month']
 
     numeric_features = ['hour', 'bus_age', 'bus_carry_capacity', 'pressure', 'rel_hum', 'elev', 'temp', 'visib', 'wind_dir', 
-                        'wind_spd', 'total_precip', 'total_rain', 'total_snow', 'year']
+                    'wind_spd', 'total_precip', 'total_rain', 'total_snow', 'year', 'experience_in_months']
+
 
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
@@ -168,7 +167,6 @@ def main(train_file_path, bus_file_path, output_file_path):
                                             tr_sc,  valid_sc)
         elapsed_time = time.time() - t    
         print("The classifier %s took %.2f s to train" %(model_name, elapsed_time))
-    results_df 
 
 
        
@@ -181,7 +179,7 @@ def main(train_file_path, bus_file_path, output_file_path):
         'classifier__subsample': [0.8, 1], 
         'classifier__learning_rate' : [0.001, 0.1, 1]
     }
-    
+    model_f = LGBMClassifier(random_state= 123, objective= "binary")
     estimator = Pipeline(steps=[
             ('preprocessor', preprocessor),
             ('classifier', model_f)
@@ -202,14 +200,17 @@ def main(train_file_path, bus_file_path, output_file_path):
     t = time.time()
     scores  = fit_and_report(gridSearchCV.best_estimator_, X_train, y_train, X_valid, y_valid)
     elapsed_time = time.time() - t
-    add_expt_result(results_dict, model_name + ' + optimized',  
-                                            scores[0],  scores[1])  
+    results = add_expt_result(results_dict, model_name + ' + optimized',  
+                                            scores[0],  scores[1]) 
+
+
+    results.to_csv(output_file_path, index=False)                                         
 
     #look at the most important features with shap and the original data
     for c in X.columns:
-    col_type = X[c].dtype
-    if col_type == 'object' or col_type.name == 'category':
-        X[c] = X[c].astype('category')
+        col_type = X[c].dtype
+        if col_type == 'object' or col_type.name == 'category':
+            X[c] = X[c].astype('category')
         
     model_lgb = LGBMClassifier(
         learning_rate=gridSearchCV.best_params_['classifier__learning_rate'],
@@ -223,10 +224,12 @@ def main(train_file_path, bus_file_path, output_file_path):
 
     summary_plot(feat_import, X)
 
-    pd.DataFrame({
-        'var': X.columns.tolist(),
-        'imp': model_lgb.feature_importances_
-    }).sort_values(by='imp', ascending=False)
+    original_features_importance = pd.DataFrame({
+        'variables': X.columns.tolist(),
+        'importance': model_lgb.feature_importances_
+    }).sort_values(by='importance', ascending=False)
+
+    original_features_importance.to_csv(output_file_path, index=False)
 
     # the same thing with preprocessing
     train_process = preprocessor.fit_transform(train_with_bus)
@@ -235,13 +238,13 @@ def main(train_file_path, bus_file_path, output_file_path):
     summary_plot(feat_import, train_process)
 
     features_with_importance = pd.DataFrame({
-        'var': numeric_features + gridSearchCV.best_estimator_.named_steps['preprocessor'].transformers_[1][1]\
+        'variables': numeric_features + gridSearchCV.best_estimator_.named_steps['preprocessor'].transformers_[1][1]\
     .named_steps['onehot'].get_feature_names(categorical_features).tolist(),
-        'imp': gridSearchCV.best_estimator_.named_steps['classifier'].feature_importances_
-    }).sort_values(by='imp', ascending=False)
+        'importance': gridSearchCV.best_estimator_.named_steps['classifier'].feature_importances_
+    }).sort_values(by='importance', ascending=False)
 
-    features_with_importance.to_csv(output_file_path, index=False)
+    features_importance_with_onehot_encoding.to_csv(output_file_path, index=False)
 
 if __name__ == "__main__":
-    main(opt["--train_file_path"], opt["--bus_file_path"]opt["--output_file_path"])
+    main(opt["--train_file_path"], opt["--bus_file_path"], opt["----test_file_path"], opt["--output_file_path"])
 
