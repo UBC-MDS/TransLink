@@ -34,6 +34,33 @@ import pandas as pd
 opt = docopt(__doc__)
 
 def main(input_speed_path, input_prev_path, input_nonprev_path, input_incident_path, output_speed_path, output_prev_path, output_nonprev_path, output_incident_path):
+    """ 
+    This function removes unwanted rows from the row data and stores the clean data at the specified place
+    
+    Parameters
+    ----------
+    input_speed_path
+	 A file path for speed data
+    input_prev_path
+	A file path for data of preventable incidents
+    input_nonprev_path
+	A file path for data of non preventable incidents
+    input_incident_path
+	A file path for incident data
+    output_speed_path
+	   A file path to store the speed data
+    output_prev_path
+	   A file path to store the data of preventable incidents
+    output_nonprev_path
+	   A file path to store the data of non preventable incidents
+    output_incident_path
+	   A file path to store the incident data
+    
+    Returns
+    ---------
+    None
+
+    """
 	Speed_performance = pd.read_csv(input_speed_path, low_memory=False)
 
 	Collision_preventable = pd.read_excel(input_prev_path, skiprows=  3)
