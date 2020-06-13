@@ -56,7 +56,7 @@ marginal_plot <- conditional_effects(best_bayes_model, probs = c(0.05, 0.95))[[1
   mutate(Effect = fct_relevel(Effect, c("<6 Months", ">6 & <18 Months", ">18 & <60 Months", ">60 Months")))
 
 random_effects <- ranef(best_bayes_model, summary = FALSE)$cost_centre
-  pop_effect <- fixef(best_bayes_model, summary = FALSE) 
+pop_effect <- fixef(best_bayes_model, summary = FALSE) 
 
 calculate_plotting_stats <- function(col_num) {
 
