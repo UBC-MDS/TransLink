@@ -21,13 +21,11 @@ import numpy as np
 import time
 import pandas as pd
 import datetime
-import multiprocessing
 # classifiers / models
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import ShuffleSplit
 from sklearn.ensemble import RandomForestClassifier
 from lightgbm import LGBMClassifier
-from xgboost import XGBClassifier
 from shap import TreeExplainer, summary_plot
 # Preprocessors 
 from sklearn.preprocessing import StandardScaler
@@ -39,10 +37,8 @@ from sklearn.impute import SimpleImputer
 # other
 from sklearn.preprocessing import normalize
 from sklearn.metrics import log_loss, accuracy_score, classification_report
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import plot_confusion_matrix
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV, cross_val_score, StratifiedKFold, KFold
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, StratifiedKFold, KFold
 from docopt import docopt
 
 
@@ -50,7 +46,7 @@ opt = docopt(__doc__)
 
 def fit_and_report(model, X, y, Xv, yv):
     """
-    fits a model and returns train and validation scores
+    It fits a model and returns train and validation scores
     
     Arguments
     ---------     
@@ -64,10 +60,6 @@ def fit_and_report(model, X, y, Xv, yv):
         The X part of the validation set
     yv -- numpy.ndarray
         The y part of the validation set       
-    
-    
-    
-   
     
     """
     model.fit(X, y)
@@ -83,6 +75,9 @@ def fit_and_report(model, X, y, Xv, yv):
 
 def add_expt_result(results_dict, model, train_score, test_score):
     '''
+
+    It creates a dataframe that show the model scores.
+
     '''
     results_dict.setdefault('model', []).append(model)
     results_dict.setdefault('train score', []).append(train_score)
@@ -95,52 +90,56 @@ def add_expt_result(results_dict, model, train_score, test_score):
 
 def main(train_file_path, bus_file_path, test_file_path, output_file_path):
 
-
-
-    train = pd.read_csv(train_file_path)
-    other_bus_info = pd.read_csv(bus_file_path)
+    # load training dataset and combine some more bus information 
+    train = pd.read_csv('train.csv')
+    other_bus_info = pd.read_csv("Bus_spec.csv")
     columns_bus_info = ["bus_no", "asset_class", "asset_manufactmodel"]
     other_bus_info = other_bus_info.loc[:, columns_bus_info]
     train_with_bus = train.merge(other_bus_info, on="bus_no", how="left")
+
+    #get year and month
     train_with_bus.date= pd.to_datetime(train_with_bus.date, format = '%Y-%m-%d')
     train_with_bus['year'] = pd.DatetimeIndex(train_with_bus.date).year
     train_with_bus['month'] = pd.DatetimeIndex(train_with_bus.date).month
+
+    #drop unnecessary columns
     train_with_bus = train_with_bus.drop(columns = ["date", "empl_id", 'bus_no', 'day_of_year'])
 
-
-    test = pd.read_csv(test_file_path)
+    #load test dataset and apply the same procedure
+    test = pd.read_csv("test.csv")
     test_with_bus = test.merge(other_bus_info, on="bus_no", how="left")
     test_with_bus.date= pd.to_datetime(test_with_bus.date, format = '%Y-%m-%d')
     test_with_bus['year'] = pd.DatetimeIndex(test_with_bus.date).year
     test_with_bus['month'] = pd.DatetimeIndex(test_with_bus.date).month
     test_with_bus = test_with_bus.drop(columns = ["date", "empl_id", 'bus_no', 'day_of_year'])
-
+    
     X = train_with_bus.drop(columns = 'incident')
     y = train_with_bus['incident']
 
+    #split the train dataset to get validation dataset
     X_train, X_valid, y_train, y_valid = train_test_split(X, y,train_size=0.8, random_state=22)
 
 
     X_test = test_with_bus.drop(columns = 'incident')
     y_test = test_with_bus['incident']
 
-    #preprocessing
-    categorical_features = ['day_of_week', 'city', 'line_no', "asset_class", 'asset_manufactmodel', 'month']
+    # apply onehot encoding for categorical features and standart scalimg for numerical feature
+    # impute to the missing values
+    categorical_features = ['day_of_week', 'city', 'line_no', "asset_class", 'asset_manufactmodel', 'month', 'is_shuttle']
 
     numeric_features = ['hour', 'bus_age', 'bus_carry_capacity', 'pressure', 'rel_hum', 'elev', 'temp', 'visib', 'wind_dir', 
-                    'wind_spd', 'total_precip', 'total_rain', 'total_snow', 'year', 'experience_in_months']
-
+                        'wind_spd', 'total_precip', 'total_rain', 'total_snow', 'year', 'experience_in_months']
 
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler()) ])
 
-
+    #create a pipeline for the model
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy="most_frequent", fill_value='missing')),
         ('onehot', OneHotEncoder(sparse=False, handle_unknown='ignore')) ])
     preprocessor = ColumnTransformer(
-                                    transformers=[
+                                 transformers=[
                                     ('num', numeric_transformer, numeric_features),
                                     ('cat', categorical_transformer, categorical_features)
                                 ])
@@ -170,7 +169,7 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
 
 
        
-
+    #lightgbm optimization procedure
     param_opt = {
         'classifier__max_depth': [10, 20, 40],
         'classifier__num_leaves': [5, 15, 30],
@@ -179,12 +178,15 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
         'classifier__subsample': [0.8, 1], 
         'classifier__learning_rate' : [0.001, 0.1, 1]
     }
+
+    #apply the pipeline
     model_f = LGBMClassifier(random_state= 123, objective= "binary")
     estimator = Pipeline(steps=[
             ('preprocessor', preprocessor),
             ('classifier', model_f)
         ])
 
+    #to get the best parameters apply grid search
     cv_folds = StratifiedKFold(n_splits=10, shuffle=True, random_state = 123)
     gridSearchCV = GridSearchCV(estimator =estimator , 
         param_grid = param_opt, 
@@ -195,8 +197,8 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
 
     gridSearchCV.fit(X_train,y_train)
 
-    #test with optimized lgbm
 
+    #see the results with optimized lgbm
     t = time.time()
     scores  = fit_and_report(gridSearchCV.best_estimator_, X_train, y_train, X_valid, y_valid)
     elapsed_time = time.time() - t
@@ -204,7 +206,17 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
                                             scores[0],  scores[1]) 
 
 
-    results.to_csv(output_file_path, index=False)                                         
+    results.to_csv(output_file_path, index=False) 
+
+    #see the test scores 
+    X_train_combined = pd.concat([X_train, X_valid])
+    y_train_combined = pd.concat([y_train, y_valid])
+    elapsed_time = time.time() - t
+    scores  = fit_and_report(gridSearchCV.best_estimator_, X_train_combined, y_train_combined, X_test, y_test)
+    elapsed_time = time.time() - t
+    print("Training score:   %.3f" % scores[0])
+    print("Test score: %.3f" % scores[1]) 
+    print("Elapsed time: %.3fs" %elapsed_time)                                         
 
     #look at the most important features with shap and the original data
     for c in X.columns:
@@ -233,13 +245,16 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
 
     # the same thing with preprocessing
     train_process = preprocessor.fit_transform(train_with_bus)
+
+    features = numeric_features + gridSearchCV.best_estimator_.named_steps['preprocessor'].transformers_[1][1]\
+    .named_steps['onehot'].get_feature_names(categorical_features).tolist()
+
     feat_import = TreeExplainer(gridSearchCV.best_estimator_.named_steps['classifier']).shap_values(X=train_process )
 
-    summary_plot(feat_import, train_process)
+    summary_plot(feat_import, train_process, feature_names=features)
 
-    features_with_importance = pd.DataFrame({
-        'variables': numeric_features + gridSearchCV.best_estimator_.named_steps['preprocessor'].transformers_[1][1]\
-    .named_steps['onehot'].get_feature_names(categorical_features).tolist(),
+    features_importance_with_onehot_encoding = pd.DataFrame({
+        'variables': features,
         'importance': gridSearchCV.best_estimator_.named_steps['classifier'].feature_importances_
     }).sort_values(by='importance', ascending=False)
 
