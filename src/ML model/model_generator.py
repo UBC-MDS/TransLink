@@ -180,7 +180,7 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
     }
 
     #apply the pipeline
-    model_f = LGBMClassifier(random_state= 123, objective= "binary")
+    model_f = LGBMClassifier(random_state=123, objective="binary")
     estimator = Pipeline(steps=[
             ('preprocessor', preprocessor),
             ('classifier', model_f)
