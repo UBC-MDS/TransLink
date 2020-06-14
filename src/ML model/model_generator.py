@@ -195,7 +195,7 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
         cv=cv_folds,
         verbose=2)
 
-    gridSearchCV.fit(X_train,y_train)
+    gridSearchCV.fit(X_train, y_train)
 
 
     #see the results with optimized lgbm
@@ -262,4 +262,3 @@ def main(train_file_path, bus_file_path, test_file_path, output_file_path):
 
 if __name__ == "__main__":
     main(opt["--train_file_path"], opt["--bus_file_path"], opt["----test_file_path"], opt["--output_file_path"])
-
