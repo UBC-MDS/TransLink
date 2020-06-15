@@ -26,27 +26,29 @@ library(htmlwidgets)
 
 With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a $1 million per occurrence liability policy on each of its revenue vehicles and a $200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%.
 
-In response to soaring insurance costs and road safety concerns, TransLink has asked us to analyze key variables of interest that may be predictive of bus incidents. These variables include an analysis of the operators involved, the impact of bus characteristics (if any), and the effect of weather, time, location, and line number on the likelihood of an incident occurring. Finally, TransLink has also asked us to analyze the types of claims that are occurring - in particular, if there are common types of claims or incidents per location and if particular locations yield large paid costs. 
+In response to soaring insurance costs and road safety concerns, TransLink has asked us to analyze key variables of interest that may be predictive of bus incidents. These variables include an analysis of the operators involved, the impact of bus characteristics (if any), and the effect of weather, time, location, and line number on the likelihood of an incident occurring. Finally, TransLink has also asked us to analyze the types of claims that are occurring - in particular, if there are common types of claims per location and if particular locations yield large paid costs. 
 
 A variety of statistical and machine learning methods are employed in this report to address these questions. As a result, the report is divided into eight sections:
 
 1) Executive Summary
 2) Predictive Power of Time
-3) An Analysis of Operators
-4) Exploratory Data Analysis - Weather, Line, Location
-5) Bringing Everything Together - Machine Learning Model to Assess Relative Risk For All Scenarios
+3) Predictive Power of Location and Operator Experience
+4) Weather and Busses
+5) A Combined Analysis of All Factors Using Machine Learning
 6) Common Types of Claims by Location
 7) Assessment of Claims Costs by Location
-8) Recommendations and Future Analysis
+8) Future Analysis
 
+## Executive Summary
 
-## Operator Analysis
+## Predictive Power of Time
+
+## Predictive Power of Location and Operator Experience
 
 ```{r Operator Analysis: Import, include = FALSE}
 # This is just helper code - do not show in report
 best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
 posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
-results <- readRDS("results/operators/report-tables/validation-results.rds")
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -283,3 +285,11 @@ In the end, we have observed the following points:
 - The speed at which operators "learn" to avoid incidents varies widely depending on the cost centre. Operators in Vancouver, Surrey, and Burnaby appear to exhibit significant improvement as they gain more experience. However, for operators in Richmond there is very little improvement for operators until they hit >60 Months of experience.
 - There is little to no difference in expected incidents per year for operators with <6 Months of experience over all cost centres. However, Burnaby has a notably higher incidents per year than the overall expectation for other operators, and perhaps more training for new operators is needed for those who work in the Burnaby region, or perhaps these operators experience notably different situations compared to others.
 - Shuttle operators clearly exhibit fewer incidents per year than non-shuttle operators, probably due to ease of use.
+
+## Weather and Busses
+
+## A Combined Analysis of All Factors Using Machine Learning
+
+## Common Types of Claims by Location
+## Assessment of Claims Costs by Location
+## Future Analysis
