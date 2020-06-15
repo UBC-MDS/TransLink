@@ -26,7 +26,10 @@ RUN conda install -y -c anaconda docopt \
     conda install -y -c conda-forge googlemaps \
                                    lightgbm \
                                    shap
-                            
+
+# RStudio authentication                            
+CMD ["/bin/bash"] 
+
 # Need this package for leaflet in R  
 RUN apt-get install libudunits2-dev
 
@@ -35,5 +38,3 @@ RUN apt install libgdal-dev -y
 
 # Install R Packages needed 
 RUN Rscript -e "install.packages(c('caret', 'brms', 'zoo', 'shiny', 'leaflet', 'kableExtra', 'plotly', 'ggthemes', 'mapview', 'lubridate', 'htmlwidgets', 'bayesplot', 'janitor', 'VGAM', 'reticulate'))"
-  
-CMD ["/bin/bash"]   
