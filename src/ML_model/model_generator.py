@@ -3,13 +3,14 @@
 
 """
 This script is to fit the final model and generate the results from the the model.
-It takes train, test and bus information datasets and combine them to fir the final model.
+It takes train, test and bus information datasets and combine them to fit the final model.
 It also takes the path for the final model and writes the results to the output file. 
 
 
 Usage: model_generator.py --train_file_path=<train_file_path> --bus_file_path=<bus_file_path> \
-    --test_file_path=<test_file_path> --model_file_path=<model_file_path> \
-    --original_features_file_path=<original_features_file_pathl> --preprocessed_features_file_path=<preprocessed_features_file_path>
+    --test_file_path=<test_file_path> --model_file_path=<model_file_path>
+
+
 
 Options:
 
@@ -17,17 +18,13 @@ Options:
 --bus_file_path=<bus_file_path>     A file path containing other bus information.
 --test_file_path=<test_file_path>     A file path containing train dataset.
 --model_file_path=<model_file_path>     A file path containing the final model.
---original_features_file_path=<original_features_file_path>       A file path to write the feature importance with original features.
---preprocessed_features_file_path=<preprocessed_features_file_path>       A file path to write the feature importance with preprocessed features.
 
 
 Example:
 
 python src/ML_model/model_generator.py --train_file_path "results/ml_model/train.csv"\
      --bus_file_path "results/ml_model/Bus_spec.csv" --test_file_path  "results/ml_model/test.csv"\
-         --model_file_path "results/ml_model/final_model_after_optimization.pickle"\
-             --original_features_file_path "results/ml_model/importance_with_original_features.csv"\
-                  --preprocessed_features_file_path "results/ml_model/importance_with_onehot_encoding.csv"
+         --model_file_path "results/ml_model/final_model_after_optimization.pickle"
 """
 
 import numpy as np
@@ -35,7 +32,6 @@ import time
 import pandas as pd
 import datetime
 import os
-import sys
 from pathlib import Path
 
 # classifiers / models
@@ -61,22 +57,11 @@ import pickle
 
 opt = docopt(__doc__)
 
-def create_dirs_if_not_exists(file_path_list):
-    """
-    It creates directories if they don't already exist. 
-
-    Parameters:
-    file_path_list (list): A list of paths to be created if they don't exist.
-    """
-    for path in file_path_list:
-        Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True) 
 
 
-def main(train_file_path, bus_file_path, test_file_path, model_file_path, original_features_file_path, preprocessed_features_file_path):
+def main(train_file_path, bus_file_path, test_file_path, model_file_path):
 
 
-    # create given output file if it doesn't exist
-    create_dirs_if_not_exists([original_features_file_path, preprocessed_features_file_path])
     # load bus information
     other_bus_info = pd.read_csv(bus_file_path)
     columns_bus_info = ["bus_no", "asset_class", "asset_manufactmodel"]
@@ -127,17 +112,8 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path, origin
     
     feat_import = TreeExplainer(best_estimator).shap_values(X=X )
 
-    summary_plot(feat_import, X)
-
-
-    #create feature importance dataset and put it into a csv file
-
-    original_features_importance = pd.DataFrame({
-        'variables': X.columns.tolist(),
-        'importance': best_estimator.feature_importances_
-    }).sort_values(by='importance', ascending=False)
-
-    original_features_importance.to_csv(original_features_file_path, index=False)
+    summary_plot(feat_import, X, class_inds=[1])
+    plt.savefig("results/ml_model/summary_plot_original_features.png", bbox_inches='tight')
 
 
     # onehot encoding for categorical features and standard scaling for numerical features
@@ -171,17 +147,11 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path, origin
     .named_steps['onehot'].get_feature_names(categorical_features).tolist()
 
     feat_import = TreeExplainer(estimator.named_steps['classifier']).shap_values(X=train_process )
-    feat_import 
-    summary_plot(feat_import, train_process, feature_names=features)
+    summary_plot(feat_import, train_process, feature_names=features, class_inds=[1])
+    plt.savefig("results/ml_model/summary_plot_preprocessed_fetures.png", bbox_inches='tight')
 
-    features_importance_with_onehot_encoding = pd.DataFrame({
-        'variables': features,
-        'importance': estimator.named_steps['classifier'].feature_importances_
-    }).sort_values(by='importance', ascending=False)
-
-    features_importance_with_onehot_encoding.to_csv(preprocessed_features_file_path, index=False)
 
 if __name__ == "__main__":
     main(opt["--train_file_path"], opt["--bus_file_path"], opt["--test_file_path"],
-        opt["--model_file_path"], opt["--original_features_file_path"], opt["--preprocessed_features_file_path"])
+        opt["--model_file_path"])
 
