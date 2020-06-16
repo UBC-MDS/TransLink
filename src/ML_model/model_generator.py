@@ -49,17 +49,14 @@ from pylab import savefig
 import matplotlib.pyplot as plt
 # other
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, StratifiedKFold
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from docopt import docopt
 import pickle
 
 
 opt = docopt(__doc__)
 
-
-
 def main(train_file_path, bus_file_path, test_file_path, model_file_path):
-
 
     # load bus information
     other_bus_info = pd.read_csv(bus_file_path)
