@@ -208,8 +208,8 @@ def main(train_file_path, bus_file_path, test_file_path):
     #to get the best parameters apply grid search
     cv_folds = StratifiedKFold(n_splits=10, shuffle=True, random_state=123)
 
-    gridSearchCV = GridSearchCV(estimator =estimator , 
-        param_grid = param_opt, 
+    gridSearchCV = GridSearchCV(estimator=estimator , 
+        param_grid=param_opt, 
         scoring='roc_auc',
         n_jobs=-1,
         cv=cv_folds,
