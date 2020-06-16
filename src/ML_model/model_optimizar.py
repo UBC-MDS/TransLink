@@ -35,7 +35,7 @@ from sklearn.impute import SimpleImputer
 
 # other
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, StratifiedKFold
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from docopt import docopt
 import pickle
 
