@@ -24,9 +24,7 @@ library(htmlwidgets)
 # Introduction {.tabset}
 
 Introductory text on report?
-
-
-
+  
 
 ## Operator Analysis
 
