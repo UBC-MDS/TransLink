@@ -159,7 +159,7 @@ def main(train_file_path, bus_file_path, test_file_path):
     results_dict = {}
 
     models = {
-    'logistic regression' : LogisticRegression(random_state = 123,  C=1.0),       
+    'logistic regression' : LogisticRegression(random_state=123,  C=1.0),       
     'random forest' : RandomForestClassifier(max_depth = 12, random_state = 123), 
     'lgbm': LGBMClassifier(boosting_type="gbdt",random_state=123, num_leaves=30,
         max_depth=15, reg_lambda = 1.0, reg_alpha =0.0, eval_metric= 'auc', 
