@@ -241,4 +241,4 @@ def main(train_file_path, bus_file_path, test_file_path):
     outfile.close()
 
 if __name__ == "__main__":
-    main(opt["--train_file_path"], opt["--bus_file_path"], opt["--test_file_path"])
+    main(opt["--train_file_path"], opt["--bus_file_path"], opt["----test_file_path"])
