@@ -41,8 +41,7 @@ from sklearn.ensemble import RandomForestClassifier
 from lightgbm import LGBMClassifier
 from shap import TreeExplainer, summary_plot
 # Preprocessors 
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
