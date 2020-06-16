@@ -198,7 +198,7 @@ def main(train_file_path, bus_file_path, test_file_path):
         }
 
     #apply the pipeline
-    model_lgbm = LGBMClassifier(random_state= 123, objective= "binary")
+    model_lgbm = LGBMClassifier(random_state=123, objective= "binary")
 
     estimator = Pipeline(steps=[
         ('preprocessor', preprocessor),
