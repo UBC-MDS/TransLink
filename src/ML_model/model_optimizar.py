@@ -4,8 +4,7 @@
 """
 This script is to prepare the train and test datasets to generate a predictive model. 
 It compares different models to select the best one and then tune the best models' hyperparameters.
-It returns two files; one showing the comparison of different models' train and validation scores 
-and one containing the final model with the best hyperparameters to get the results from the model.
+and it returns the best model as a pickled file.
 
 Usage: model_optimizar.py --train_file_path=<train_file_path> --bus_file_path=<bus_file_path> \
     --test_file_path=<test_file_path>
@@ -42,7 +41,7 @@ import pickle
 
 opt = docopt(__doc__)
 
-def fit_and_report(model, X, y, X_cvalid, y_valid):
+def fit_and_report(model, X, y, X_valid, y_valid):
     """
     It fits a model and returns train and validation scores
     
@@ -185,7 +184,7 @@ def main(train_file_path, bus_file_path, test_file_path):
 
     # write the results for future reference
 
-    results_df.to_csv('model_selection.csv', index=False)
+    print(results_df)
 
 
     #lightgbm optimization procedure
@@ -235,7 +234,7 @@ def main(train_file_path, bus_file_path, test_file_path):
         reg_alpha=gridSearchCV.best_params_['classifier__reg_alpha'],
         subsample=gridSearchCV.best_params_['classifier__subsample']
         )
-    filename = 'final_model_after_optimization'
+    filename = 'results/ml_model/final_model_after_optimization'
     outfile = open(filename,'wb')
     pickle.dump(final_model, outfile)
     outfile.close()
