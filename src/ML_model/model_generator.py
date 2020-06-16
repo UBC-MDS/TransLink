@@ -82,7 +82,7 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
     combined_data_set_v1 = combined_data_set_v1.drop(columns = ["date", "empl_id", 'bus_no', 'day_of_year', 'year'])
 
     # Prepare training and target columns
-    X = combined_data_set_v1.drop(columns = 'incident')
+    X = combined_data_set_v1.drop(columns='incident')
     y = combined_data_set_v1['incident']
 
 
