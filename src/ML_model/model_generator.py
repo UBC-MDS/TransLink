@@ -106,7 +106,7 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
 
     # generate summary plot for interpretability
     
-    feat_import = TreeExplainer(best_estimator).shap_values(X=X )
+    feat_import = TreeExplainer(best_estimator).shap_values(X=X)
 
     summary_plot(feat_import, X, class_inds=[1])
     plt.savefig("results/ml_model/summary_plot_original_features.png", bbox_inches='tight')
