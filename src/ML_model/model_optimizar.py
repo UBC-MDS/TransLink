@@ -192,7 +192,7 @@ def main(train_file_path, bus_file_path, test_file_path):
         'classifier__max_depth': [10, 20, 40],
         'classifier__num_leaves': [5, 15, 30],
         'classifier__reg_alpha': [0, 0.1, 1],
-        'classifier__reg_lambda': [0, 0.1,1],
+        'classifier__reg_lambda': [0, 0.1, 1],
         'classifier__subsample': [0.8, 1], 
         'classifier__learning_rate' : [0.001, 0.01, 0.1, 1]
         }
