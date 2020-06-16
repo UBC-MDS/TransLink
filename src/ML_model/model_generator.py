@@ -3,7 +3,7 @@
 
 """
 This script is to fit the final model and generate the results from the the model.
-It takes train, test and bus information datasets and combine them to fit the final model.
+It takes train, test and bus information datasets and combines them to fit the final model.
 It also takes the path for the final model and writes the results to the output file. 
 
 
@@ -154,4 +154,3 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
 if __name__ == "__main__":
     main(opt["--train_file_path"], opt["--bus_file_path"], opt["--test_file_path"],
         opt["--model_file_path"])
-
