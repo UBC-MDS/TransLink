@@ -78,7 +78,7 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
 
     # common preprocessing
     # 1. get year and month
-    combined_data_set_v1.date= pd.to_datetime(combined_data_set_v1.date, format = '%Y-%m-%d')
+    combined_data_set_v1.date = pd.to_datetime(combined_data_set_v1.date, format='%Y-%m-%d')
     combined_data_set_v1['year'] = pd.DatetimeIndex(combined_data_set_v1.date).year
     combined_data_set_v1['month'] = pd.DatetimeIndex(combined_data_set_v1.date).month
     # 2. drop unnecessary columns
