@@ -129,7 +129,7 @@ Therefore, we decided to fit a Bayesian hierarchical model that allows the user 
 
 ### Analyzing the Effects of Cost Centre and Experience Level
 
-The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as produced by the Bayesian model. These graphs depict the exact same information, but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
+The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as produced by the Bayesian model. These graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
 
 ```{r Operator Analysis: Marginal Effects, echo = FALSE, warning = FALSE}
 
