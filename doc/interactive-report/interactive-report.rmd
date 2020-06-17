@@ -17,7 +17,6 @@ library(plotly)
 library(ggthemes)
 library(leaflet)
 library(mapview)
-library(tidyverse)
 library(lubridate)
 library(htmlwidgets)
 ```
