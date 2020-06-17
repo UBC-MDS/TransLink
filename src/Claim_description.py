@@ -8,12 +8,10 @@ from nltk import word_tokenize
 from nltk.corpus import wordnet
 import time
 from collections import Counter
-collision_data_preventable= pd.read_csv("../data/Clean_data/Collision_preventable.csv")
-claim_data =  pd.read_csv("../data/TransLink Raw Data/claim_vehicle_employee_line.csv")
+collision_data_preventable = pd.read_csv("data/Clean_data/Collision_preventable.csv")
+claim_data =  pd.read_csv("data/TransLink Raw Data/claim_vehicle_employee_line.csv")
 
-Collision_preventable = pd.read_excel('../data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx', skiprows=  3)
-
-count_df =  collision_data_preventable.groupby(["APTA", "Claim Desc."]).size().reset_index().rename(columns={0:"Count"})
+Collision_preventable = pd.read_excel('data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx', skiprows= 3)
 
 
 # ### Checking the count of different events based on broader categories of incidents
@@ -168,4 +166,3 @@ Impacted_object_df = pd.DataFrame(checker.items(), columns= ['Impacted Object','
 Impacted_object_df.to_excel("../data/TransLink Raw Data/Impacted_object_count.xlsx", index=False)
 Verbs_df = pd.DataFrame(checker.items(), columns= ['Verbs','Count']).sort_values(by='Count', ascending=False)
 Verbs_df.to_excel("../data/TransLink Raw Data/Verb_count.xlsx", index= False)
-
