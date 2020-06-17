@@ -2,6 +2,7 @@ data*
 .Rhistory
 .cache
 .DS_Store
+.RData
 .Rproj
 .ipynb_checkpoints
 .Rproj.user
