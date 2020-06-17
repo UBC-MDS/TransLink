@@ -19,7 +19,7 @@ Collision_preventable = pd.read_excel('data/TransLink Raw Data/2020 Collisions- 
 count_df.sort_values(by=['Count'], ascending=False)
 
 # loading model of spacy
-nlp= spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_sm")
 
 # loading all the stopwords
 all_stopwords = nlp.Defaults.stop_words
