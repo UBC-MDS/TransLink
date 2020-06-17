@@ -23,7 +23,7 @@ location_data <- read_excel("../data/TransLink Raw Data/Claim_colour_df.xlsx")
 
     
     
-    wordcloud(final_df$impact, final_df$n, max.words = 100, ordered.colors=TRUE,
+    wordcloud(final_df$impact, final_df$n, max.words = 100, ordered.colors = TRUE,
               colors = final_df$claim_colour)
   } else
     wordcloud(impact_df$impact, impact_df$n, max.words = 100, colors = df$claim_colour)
