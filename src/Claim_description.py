@@ -163,6 +163,6 @@ result_df = pd.concat([collision_data_preventable, pos_df['chosen_verb'],pos_df[
 result_df.to_excel("data/TransLink Raw Data/_df.xlsx", index= False)
 
 Impacted_object_df = pd.DataFrame(checker.items(), columns= ['Impacted Object','Count']).sort_values(by='Count', ascending=False)
-Impacted_object_df.to_excel("../data/TransLink Raw Data/Impacted_object_count.xlsx", index=False)
+Impacted_object_df.to_excel("data/TransLink Raw Data/Impacted_object_count.xlsx", index=False)
 Verbs_df = pd.DataFrame(checker.items(), columns= ['Verbs','Count']).sort_values(by='Count', ascending=False)
 Verbs_df.to_excel("../data/TransLink Raw Data/Verb_count.xlsx", index= False)
