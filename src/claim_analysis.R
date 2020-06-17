@@ -196,7 +196,7 @@ server <- function(input, output) {
         
         leaflet("my_updated_map", data = dat()) %>% 
             addProviderTiles("CartoDB.Positron") %>%
-            addCircleMarkers(lng=dat()$long, lat=dat()$latt, radius=4,fillOpacity=1, 
+            addCircleMarkers(lng = dat()$long, la t= dat()$latt, radius = 4, fillOpacity = 1, 
                              color = dat()$verb_colour,
                              popup = paste0("<b>",  dat()$Claim_Desc, "</b> <br>", "<b>", "Date: ", "</b> ",  dat()$Date, "<br>",
                                             "<b>","Bus Year: ", "</b> ",  dat()$Bus_Route_Code, "<br>",
