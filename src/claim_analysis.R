@@ -218,7 +218,7 @@ server <- function(input, output) {
             
         }
         
-        selectInput("frequent_impacts", "Most frequently Impacted objects:",as.character(sorted_df$impact)[1:5])
+        selectInput("frequent_impacts", "Most frequently Impacted objects:", as.character(sorted_df$impact)[1:5])
     })
     
 }
