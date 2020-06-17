@@ -160,7 +160,7 @@ for i in pos_df['impact']:
             checker[i.lower()]+= 1
 result_df = pd.concat([collision_data_preventable, pos_df['chosen_verb'],pos_df['pos'],pos_df['noun'], pos_df['impact']],axis = 1)
 
-result_df.to_excel("../data/TransLink Raw Data/_df.xlsx", index= False)
+result_df.to_excel("data/TransLink Raw Data/_df.xlsx", index= False)
 
 Impacted_object_df = pd.DataFrame(checker.items(), columns= ['Impacted Object','Count']).sort_values(by='Count', ascending=False)
 Impacted_object_df.to_excel("../data/TransLink Raw Data/Impacted_object_count.xlsx", index=False)
