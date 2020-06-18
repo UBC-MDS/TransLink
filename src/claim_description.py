@@ -332,11 +332,12 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
     result_df = result_df.replace('Blue3', 'chocolate')
     result_df = result_df.replace('Blue1', 'darkorchid')
     result_df = result_df.replace('violetred', 'blue')
-    result_df = result_df.replace('SlateBlue3', 'wheat')
+    result_df = result_df.replace('SlateBlue3', 'limegreen')
     result_df = result_df.replace('burgundy', 'rosybrown')
     result_df = result_df.replace('SkyBlue2', 'sienna')
     result_df = result_df.replace('MediumPurple3', 'seagreen')
     result_df = result_df.replace('DarkOliveGreen3', 'sandybrown')
+    result_df = result_df.replace('White', 'magenta')
     # replacing colours in the verb dataframe
     result_verb_df = result_verb_df.replace('Silver', 'skyblue')
     result_verb_df = result_verb_df.replace('Aqua', 'Pink')
@@ -365,11 +366,12 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
     result_verb_df = result_verb_df.replace('Blue3', 'chocolate')
     result_verb_df = result_verb_df.replace('Blue1', 'darkorchid')
     result_verb_df = result_verb_df.replace('violetred', 'blue')
-    result_verb_df = result_verb_df.replace('SlateBlue3', 'wheat')
+    result_verb_df = result_verb_df.replace('SlateBlue3', 'limegreen')
     result_verb_df = result_verb_df.replace('burgundy', 'rosybrown')
     result_verb_df = result_verb_df.replace('SkyBlue2', 'sienna')
     result_verb_df = result_verb_df.replace('MediumPurple3', 'seagreen')
     result_verb_df = result_verb_df.replace('DarkOliveGreen3', 'sandybrown')
+    result_verb_df = result_verb_df.replace('White', 'magenta')
 
     # saving the data with colours for unique nouns
     result_df.to_excel(output_noun_color_df, index=False)

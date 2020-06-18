@@ -1,15 +1,4 @@
----
-title: "interactive-report"
-author: "Simardeep Kaur"
-date: "13/06/2020"
-output: html_document
-runtime: shiny
----
-  
-```
-{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = here::here())
+
 library(shiny)
 library(shinydashboard)
 library(shinycssloaders)
@@ -24,20 +13,12 @@ library(dplyr)
 library(ggwordcloud)
 library(wordcloud2)
 library(PubMedWordcloud)
-```
 
-
-```
-{r include=FALSE}
 location_data <-
   read_excel("../data/TransLink Raw Data/Claim_colour_df.xlsx")
 verb_data <-
   read_excel("../data/TransLink Raw Data/verb_colour_df.xlsx")
-```
 
-
-```
-{r include= FALSE}
 ui <- dashboardPage(
   dashboardHeader(title = "Reasons for Incidents" , titleWidth = 450),
   dashboardSidebar(sidebarMenu(
@@ -57,32 +38,29 @@ ui <- dashboardPage(
     tabItem(
       tabName = "dashboard",
       fluidRow(box(
-        leafletOutput("mymap", height = 500),
+        leafletOutput("mymap", height = 500)%>% withSpinner(color =  "skyblue", size=2),
         status = "primary",
         width = 12,
         height = 500
       ),),
       fluidRow(
         box(
-          plotOutput("plot", height = 250),
-          title = "NOUN",
+          plotOutput("plot", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+          title = "OBJECTS",
           status = "primary",
           width = 6
         ),
         box(
-          uiOutput("frequent_impacts", height = 250),
+          uiOutput("frequent_impacts", height = 250)%>% withSpinner(color =  "skyblue", size=2),
           status = "primary",
           width = 6
         )
         
       ),
       
-      fluidRow(# box(leafletOutput("my_verb_map", height = 250)),
-        
-        
-        #box(plotOutput("plot_verb", height = 250), title = "VERB")
+      fluidRow(
         box(
-          leafletOutput("my_updated_map", height = 500),
+          leafletOutput("my_updated_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
           status = "primary",
           width = 12,
           height = 500
@@ -93,7 +71,7 @@ ui <- dashboardPage(
     tabItem(tabName = "widgets",
             fluidRow(
               box(
-                leafletOutput("my_verb_map", height = 500),
+                leafletOutput("my_verb_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
                 width = 12,
                 height = 500
               )
@@ -101,34 +79,27 @@ ui <- dashboardPage(
             ),
             fluidRow(
               box(
-                plotOutput("plot_verb", height = 250),
-                title = "NOUN",
+                plotOutput("plot_verb", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+                title = "ACTIONS",
                 width = 6
               ),
-              box(uiOutput("frequent_actions"), width = 6)
+              box(uiOutput("frequent_actions")%>% withSpinner(color =  "skyblue", size=2), width = 6)
             ),
             
             fluidRow(
               box(
-                leafletOutput("my_updated_verb_map", height = 500),
+                leafletOutput("my_updated_verb_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
                 width = 12,
                 height = 500
+                
               )
               
             ))
   ))
 )
 server <- function(input, output) {
-  # read location data
-  location_data <-
-    read_excel("../data/TransLink Raw Data/Claim_colour_df.xlsx")
-  verb_data <-
-    read_excel("../data/TransLink Raw Data/verb_colour_df.xlsx")
-  
-  
   # leaflet map for Impacts
   output$mymap <- renderLeaflet({
-    # Show first 20 rows from the `quakes` dataset
     leaflet() %>%
       addProviderTiles("CartoDB.Positron") %>%
       setView(lng = -123.1171,
@@ -143,22 +114,23 @@ server <- function(input, output) {
         popup =
           paste0(
             "<b>",
-            location_data$Claim_Desc,
+            "Description",
+            location_data$Description,
             "</b> <br>",
             "<b>",
             "Date: ",
             "</b> ",
-            location_data$Date,
+            location_data$loss_date_x,
             "<br>",
             "<b>",
-            "Bus Year: ",
+            "Bus Number: ",
             "</b> ",
-            location_data$Bus_Route_Code,
+            location_data$bus_no_x,
             "<br>",
             "<b>",
             "Manufacturer: ",
             "</b> ",
-            location_data$Vehicle_Number,
+            location_data$asset_manufacturer,
             "<br>"
           )
       )
@@ -166,7 +138,6 @@ server <- function(input, output) {
   
   # leaflet map for Verbs
   output$my_verb_map <- renderLeaflet({
-    # Show first 20 rows from the `quakes` dataset
     leaflet() %>%
       addProviderTiles("CartoDB.Positron") %>%
       setView(lng = -123.1171,
@@ -180,7 +151,8 @@ server <- function(input, output) {
         color = verb_data$verb_colour,
         popup = paste0(
           "<b>",
-          location_data$Claim_Desc,
+          "Description",
+          location_data$Description,
           "</b> <br>",
           "<b>",
           "Date: ",
@@ -188,9 +160,14 @@ server <- function(input, output) {
           location_data$loss_date_x,
           "<br>",
           "<b>",
-          "Vehicle Number: ",
+          "Bus Number: ",
           "</b> ",
           location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
           "<br>"
         )
       )
@@ -333,22 +310,23 @@ server <- function(input, output) {
         color = dat()$impact_colour,
         popup = paste0(
           "<b>",
-          dat()$Claim_Desc,
+          "Description",
+          location_data$Description,
           "</b> <br>",
           "<b>",
           "Date: ",
           "</b> ",
-          dat()$Date,
+          location_data$loss_date_x,
           "<br>",
           "<b>",
-          "Bus Year: ",
+          "Bus Number: ",
           "</b> ",
-          dat()$Bus_Route_Code,
+          location_data$bus_no_x,
           "<br>",
           "<b>",
           "Manufacturer: ",
           "</b> ",
-          dat()$Vehicle_Number,
+          location_data$asset_manufacturer,
           "<br>"
         )
       )
@@ -368,22 +346,23 @@ server <- function(input, output) {
         color = dat_verb()$verb_colour,
         popup = paste0(
           "<b>",
-          dat_verb()$Claim_Desc,
+          "Description",
+          location_data$Description,
           "</b> <br>",
           "<b>",
           "Date: ",
           "</b> ",
-          dat_verb()$Date,
+          location_data$loss_date_x,
           "<br>",
           "<b>",
-          "Bus Year: ",
+          "Bus Number: ",
           "</b> ",
-          dat_verb()$Bus_Route_Code,
+          location_data$bus_no_x,
           "<br>",
           "<b>",
           "Manufacturer: ",
           "</b> ",
-          dat_verb()$Vehicle_Number,
+          location_data$asset_manufacturer,
           "<br>"
         )
       )
@@ -438,9 +417,6 @@ server <- function(input, output) {
 
   
 }
-```
 
-```
-{r , echo = FALSE}
 shinyApp(ui = ui, server = server)
-```
+
