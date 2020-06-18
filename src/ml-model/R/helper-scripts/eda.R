@@ -287,3 +287,4 @@ train_with_bus_info %>%
 per_line <- train_with_bus_info %>%
   group_by(line_no) %>%
   summarize(count_incident = sum(incident) / n()) 
+
