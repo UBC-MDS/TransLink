@@ -50,7 +50,7 @@ ui <- dashboardPage(
           width = 6
         ),
         box(
-          uiOutput("frequent_impacts", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+          uiOutput("frequent_impacts", height = 250) %>% withSpinner(color = "skyblue", size = 2),
           status = "primary",
           width = 6
         )
