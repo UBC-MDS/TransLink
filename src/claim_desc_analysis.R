@@ -44,7 +44,7 @@ ui <- dashboardPage(
       ),),
       fluidRow(
         box(
-          plotOutput("plot", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+          plotOutput("plot", height = 250) %>% withSpinner(color = "skyblue", size = 2),
           title = "OBJECTS",
           status = "primary",
           width = 6
