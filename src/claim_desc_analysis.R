@@ -9,7 +9,6 @@ library(readxl)
 library(wordcloud)
 library(leaflet)
 library(DT)
-library(dplyr)
 library(ggwordcloud)
 library(wordcloud2)
 library(PubMedWordcloud)
@@ -419,4 +418,3 @@ server <- function(input, output) {
 }
 
 shinyApp(ui = ui, server = server)
-
