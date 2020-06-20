@@ -70,7 +70,7 @@ ui <- dashboardPage(
     tabItem(tabName = "widgets",
             fluidRow(
               box(
-                leafletOutput("my_verb_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+                leafletOutput("my_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
                 width = 12,
                 height = 500
               )
