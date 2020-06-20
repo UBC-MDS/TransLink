@@ -82,7 +82,7 @@ ui <- dashboardPage(
                 title = "ACTIONS",
                 width = 6
               ),
-              box(uiOutput("frequent_actions")%>% withSpinner(color =  "skyblue", size=2), width = 6)
+              box(uiOutput("frequent_actions") %>% withSpinner(color = "skyblue", size = 2), width = 6)
             ),
             
             fluidRow(
