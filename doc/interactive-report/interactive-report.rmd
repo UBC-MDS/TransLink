@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = here::here())
 library(brms)
 library(shiny)
+library(reticulate)
 library(kableExtra)
 library(tidyverse)
 library(plotly)
@@ -27,20 +28,16 @@ With the largest transit service area in Canada, TransLink is operating more tha
 
 In response to soaring insurance costs and road safety concerns, TransLink has asked us to analyze key variables of interest that may be predictive of bus incidents. These variables include an analysis of the operators involved, the impact of bus characteristics (if any), and the effect of weather, time, location, and line number on the likelihood of an incident occurring. Finally, TransLink has also asked us to analyze the types of claims that are occurring - in particular, if there are common types of claims per location and if particular locations yield large paid costs. 
 
-A variety of statistical and machine learning methods are employed in this report to address these questions. As a result, the report is divided into eight sections:
+A variety of statistical and machine learning methods are employed in this report to address these questions. As a result, the report is divided into six sections:
 
 1) Executive Summary
-2) Predictive Power of Time
-3) Predictive Power of Location and Operator Experience
-4) Weather and Busses
-5) A Combined Analysis of All Factors Using Machine Learning
-6) Common Types of Claims by Location
-7) Assessment of Claims Costs by Location
-8) Future Analysis
+2) Predictive Power of Location and Operator Experience
+3) A Combined Analysis of All Factors Using Machine Learning
+4) Common Types of Claims by Location
+5) Assessment of Claims Costs by Location
+6) Future Analysis
 
 ## Executive Summary
-
-## Predictive Power of Time
 
 ## Predictive Power of Location and Operator Experience
 
@@ -48,6 +45,7 @@ A variety of statistical and machine learning methods are employed in this repor
 # This is just helper code - do not show in report
 best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
 posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
+results <- readRDS("results/operators/report-tables/validation-results.rds")
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -55,28 +53,22 @@ predictor_combinations <- posterior_predictions$variables %>%
     experience = as.character(experience),
     cost_centre = as.character(cost_centre)
     )
-
 predictor_combinations$experience <- ifelse(predictor_combinations$experience == ">6 & 18 Months", ">6 & <18 Months", predictor_combinations$experience)
 rm(posterior_predictions)
-
 marginal_plot <- conditional_effects(best_bayes_model, probs = c(0.05, 0.95))[[1]] %>%
   select(effect1__, estimate__, lower__, upper__) %>%
   set_names(c("Effect", "Estimate", "Lower", "Upper")) %>%
   mutate(Effect = as.character(Effect)) %>%
   mutate(Effect = as.factor(ifelse(Effect == ">6 & 18 Months", ">6 & <18 Months", Effect))) %>%
   mutate(Effect = fct_relevel(Effect, c("<6 Months", ">6 & <18 Months", ">18 & <60 Months", ">60 Months")))
-
 random_effects <- ranef(best_bayes_model, summary = FALSE)$cost_centre
 pop_effect <- fixef(best_bayes_model, summary = FALSE) 
-
 calculate_plotting_stats <- function(col_num) {
-
   if (col_num == 1) {
     data_re <- as_tibble(pop_effect[, 1] + random_effects[, , 1])
   } else {
     data_re <- as_tibble(pop_effect[, 1] + random_effects[, , 1] + pop_effect[, col_num] + random_effects[, , col_num])
   }
-
   plotting_data <- tibble(
       `Cost Centre` = colnames(random_effects[, , col_num]),
       Estimate = round(exp(apply(data_re, 2,  FUN = median)), 3),
@@ -92,10 +84,9 @@ calculate_plotting_stats <- function(col_num) {
   }
   list(plot_data = plotting_data, vline = pop_effect_opt)
 }
-
 ```
 
-### TransLink Hypotheses
+<center> <h3>TransLink Hypotheses</h3> </center>
 
 TransLink have proposed two specific hypotheses regarding a possible link between the operators' experience level and how many incidents they are involved in within a year. Intuitively, it makes a lot of sense that new drivers have a higher tendency to get into more accidents.
 
@@ -103,7 +94,7 @@ A further hypothesis was proposed regarding potential complacency for the more e
 
 Finally, we provide a predictive model that provides the probability of a particular operator having K incidents in a year (given that they have at least one incident).
 
-### The Dataset and Overall Model
+<center> <h3>The Dataset and Overall Model</h3> </center>
 
 A random sample of the first five rows of the analyzed dataset is given below.
 
@@ -127,12 +118,11 @@ Second, the data is hierarchical in nature. That is, an operator in one specific
 
 Therefore, we decided to fit a Bayesian hierarchical model that allows the user to control for the two problems above. The performance of this model ended up being much superior to a rather simple linear model, where the Bayesian model outpeforms the simple linear model by roughly `r round(((results$MAE[1] - results$MAE[2]) / results$MAE[1]) * 100, 0)`%. Note that we did not include "In Probation" as a variable in the model since this variable carries the exact same information as the experience level. Finally, "Incidents Per Year" is adjusted to take into consideration how many hours a particular operator actually worked.
 
-### Analyzing the Effects of Cost Centre and Experience Level
+<center> <h3>Analyzing the Effect of Location and Experience Level</h3> </center>
 
 The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as produced by the Bayesian model. These graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
 
 ```{r Operator Analysis: Marginal Effects, echo = FALSE, warning = FALSE}
-
 tabsetPanel(
   tabPanel("Effect Per Experience Level on Incidents/Yr", selectInput("experience_oa_re", label = "Experience:", 
             choices = unique(predictor_combinations$experience), selected = ">60 Months"), plotlyOutput("re_plot")),
@@ -144,11 +134,9 @@ tabsetPanel(
              selected = "All"),
   plotlyOutput("fe_plot"))
 )
-
 output$fe_plot <- renderPlotly({
   
   cost_centre_sel <- input$cost_centre_oa_re
-
   if (cost_centre_sel != "All Cost Centres") {
       intercept <- pop_effect[, 1] + random_effects[, cost_centre_sel, 1]
       effects_per_centre <- cbind(intercept, intercept + pop_effect[, 2:4] + random_effects[, cost_centre_sel, 2:4])
@@ -169,14 +157,12 @@ output$fe_plot <- renderPlotly({
   ggplotly(ggplot(plot_cost_sel, aes(x = Experience, y = Estimate, ymin = `Lower 5%`, ymax = `Upper 95%`, text = `90% CI`)) +
   geom_point() + 
   geom_errorbar(aes(ymin = `Lower 5%`, ymax = `Upper 95%`)) +
-  theme_economist() +
-  labs(x = "Experience Level", y = "Estimated Incidents/Yr"), width = 800, autosize = TRUE, tooltip = c("Estimate", "90% CI")) %>%
-  layout(title = list(text = paste0("Estimated Incidents/Yr Per Experience", "<br>", "<sup>", "Cost Centre: ", cost_centre_sel, "</sup>"), x = 0)) 
+  theme_bw() +
+  theme(plot.title = element_text(vjust = 5)) + 
+  labs(x = "Experience Level", y = "Estimated Incidents/Yr", title = paste0("Estimated Incidents/Yr Per Experience", "<br>", "<sup>", "Cost Centre: ", cost_centre_sel, "</sup>")), width = 800, autosize = TRUE, tooltip = c("Estimate", "90% CI"))
   
   })
-
 output$re_plot <- renderPlotly({
-
   if (input$experience_oa_re == ">60 Months") {
     
     plotting_data <- calculate_plotting_stats(1)
@@ -200,15 +186,14 @@ output$re_plot <- renderPlotly({
     geom_errorbar(aes(ymin = `Lower 5%`, ymax = `Upper 95%`), width = 0) +
     geom_hline(data = plotting_data[[2]], aes(yintercept = `Overall Estimate Over all Cost Centres`), color = "red") + 
     coord_flip() +
-    labs(y = "Estimated Incidents/Yr") + 
-    theme_economist() +
-    theme(axis.title.y = element_blank()), tooltip = c("Estimate", "90% CI", "Overall Estimate Over all Cost Centres")) %>%
-    layout(title = list(text = paste0("Estimated Cost Centre Effects for: ", input$experience_oa_re, "<br>", "<sup>", "Global Effect in Red", "</sup>"), x = 0)) 
+    labs(y = "Estimated Incidents/Yr", title = paste0("Estimated Cost Centre Effects for: ", input$experience_oa_re, "<br>", "<sup>", "Global Estimate in Red", "</sup>"), x = 0) + 
+    theme_bw() +
+    theme(axis.title.y = element_blank()), tooltip = c("Estimate", "90% CI", "Overall Estimate Over all Cost Centres")) 
   
   })
 ```
 
-The user can hover their mouse over each dot to see a tooltip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior.
+The user can hover their mouse over each dot to see a tooltip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior. Finally, the estimated overall average over all cost centres is represented by the red vertical line.
 
 In terms of the two original hypotheses by TransLink, it is clear that in most cases, those who are more experienced on average are expected to have fewer incidents per year. The effect is very intuitive especially for something like Vancouver in which the effect decreases in a way we would expect as an operator moves through each experience level. However, this trend is not the same for all cost centres. Port Coquitlam (PTC) is a notable exception, in which operators who fall in the range >18 and <60 Months have a noticeably larger expected incidents per year than those >6 Months & <18 Months. Furthermore, these operators with am experience level in the range of >18 and <60 Months have much larger expected incidents per year when compared to the global, overall average (represented as a red vertical bar) but for all other experience levels Port Coquitlam does not exhibit any abnormal behavior when compared to other cost centres. 
 
@@ -220,19 +205,17 @@ As an operator gains more experience, the rate at which they change also varies 
 
 Finally, there is a clear difference between experienced shuttle operators and non-shuttle operators. Shuttle operators overall do not get into as many incidents per year when compared to non-shuttle operators, perhaps because they are in general easier to operate.
 
-### Predictive Analysis
+<center> <h3>Predictive Analyses</h3> </center>
 
 The following interactive graph below gives the actual probability of a specific operator having K incidents in a year, given that the operator has at least one incident (this is due to the aforementioned problem with the dataset). This differs from the above since it provides predictions not for the average incidents per year of all operators in a specific cost centre with a particular experience level, but for the actual observed number of incidents per year for any **single** operator.
 
 Therefore, this graph can be used for predicting the number of incidents per year for any operator with a known experience level and cost centre (given that they have at least one incident). The highlighted red bar gives a "best guess" for how many incidents per year an operator will have. For instance, an operator in Vancouver with >60 Months of experience be expected to have three incidents in a year. However, this is just a single number and indeed, the 90% credible interval gives the entire range of most likely outcomes taking into consideration uncertainty. For example, the model estimates that there is a 90% chance that an operator in Vancouver with >60 Months of experience will have exactly one to six incidents in a year.
 
 ```{r Operator Analysis: Plot, echo = FALSE, warning = FALSE}
-
 selectInput("cost_centre_oa", label = "Cost Centre:", 
             choices = unique(predictor_combinations$cost_centre), selected = "VTC")
 selectInput("experience_oa", label = "Experience Level:",
             choices = unique(predictor_combinations$experience), selected = ">60 Months")
-
  
 renderPlotly({
   
@@ -259,24 +242,23 @@ renderPlotly({
   
   ggplotly(ggplot(data = plotting_data_oa, aes(x = `Number of Incidents/Yr`, y = `Probability of Occurring`, fill = indicator)) +
   geom_bar(stat = "identity") +
-  labs(x = "Incidents/Year", y = "Probability of Occurring") +
-  theme_economist() +
+  labs(x = "Incidents/Year", y = "Probability of Occurring", 
+       title = paste0("Experience: ", input$experience_oa, ", Cost Centre: ", input$cost_centre_oa, "<br>", "<sup>", "Best Point Prediction in Red, ", "90% Credible Interval: ", "[" , round(lower, 2), ", ", round(upper, 2), "]", "</sup>")) +
+  theme_bw() +
   scale_fill_manual(breaks = c("Median"), values = c("red", "gray"), guide = FALSE) +
   theme(
       legend.position = "none",
       axis.title.y = element_text(vjust = 5),
       axis.title.x = element_text(vjust = -3)) +
-  scale_x_discrete(drop = FALSE), autosize = TRUE, tooltip = c("Number of Incidents/Yr", "Probability of Occurring")) %>%
-    layout(title = list(text = paste0("Experience: ", input$experience_oa, ", Cost Centre: ", input$cost_centre_oa, "<br>", "<sup>", "Best Point Prediction in Red, ", "90% Credible Interval: ", "[" , round(lower, 2), ", ", round(upper, 2), "]", "</sup>"), x = 0))
+  scale_x_discrete(drop = FALSE), autosize = TRUE, tooltip = c("Number of Incidents/Yr", "Probability of Occurring")) 
   
   })
-
 ```
 This tool further emphasizes what was observed in the prior section. If the user switches to cost centre PTC for example, they can see that operators in Port Coquitlam with >6 Months & <18 Months have a lower expected number of incidents per year when compared to operators >18 Months & <60 Months. The number of incidents per year is also much more certain for the **less experienced** operators when compared to the more experienced ones which is very counterintuitive and unique to Port Coquitlam. 
 
-### Conclusions and Recommendations
+<center> <h3>Conclusions and Recommendations</h3> </center>
 
-In the end, we have observed the following points:
+In the end, we have observed the following points based solely on this dataset:
 
 - As operators become more experienced, they are expected to have fewer incidents per year overall. However, in some areas such as Port Coquitlam this is not true.
 - There is little evidence to suggest that operators become complacent as they exit the probationary period (<6 Months), with most cost centres displaying significant reductions in expected incidents/yr as an operator becomes more experienced.
@@ -285,9 +267,521 @@ In the end, we have observed the following points:
 - There is little to no difference in expected incidents per year for operators with <6 Months of experience over all cost centres. However, Burnaby has a notably higher incidents per year than the overall expectation for other operators, and perhaps more training for new operators is needed for those who work in the Burnaby region, or perhaps these operators experience notably different situations compared to others.
 - Shuttle operators clearly exhibit fewer incidents per year than non-shuttle operators, probably due to ease of use.
 
-## Weather and Busses
-
 ## A Combined Analysis of All Factors Using Machine Learning
+
+### TransLink's Overall Business Question
+
+TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents, in order to deploy possible intervention in hopes of reducing insurance costs. The previous section only looked at operator experience levels and operator cost centre (which is approximately the city in which the incidents for the operator occurred) but this ignores multiple other factors that potentially distort the previous analysis. 
+
+For example, while in the previous section it was observed that more experienced operators get into fewer incidents, this potentially is confounded by the fact that more experienced operators may choose to operate less busy bus lines due to senority. Therefore, this analysis seeks to analyze everything simultaneously such that the effects of multiple other possible influencing factors are controlled for. In particular, TransLink has expressed interest in understanding the impact of weather conditions, bus characteristics, location, and time in addition to operator characteristics in order to get a better understanding of what is actually driving bus incidents.
+  
+### Overall Predictive Power of Variables in Model
+
+Overall, we employed a machine learning model to simulatenously assess the overall predictive power of all of these various factors. 
+
+
+```{r ML Model: Helper, echo = FALSE, include = FALSE}
+
+class1 <- read_csv("results/ml_model/class1_shap.csv") %>%
+  select(-X1) 
+
+original_train <- read_csv("results/ml_model/full_data.csv") %>%
+  select(-X1)
+
+filter_for_graph <- function(variable_name) {
+  
+  var_only <- class1 %>%
+    mutate_all(.funs = function(x) exp(x) / (1 + exp(x))) %>%
+    select({{variable_name}}) %>%
+    rename(score = all_of(variable_name))
+
+  graphing <- tibble(original_train %>% select({{variable_name}}), var_only[, 1]) 
+  
+  colnames(graphing) <- c("variable", "score")
+  
+  graphing
+  
+}
+
+line_number_summary <- filter_for_graph("line_no") %>%
+  group_by(variable) %>%
+  summarize(score = median(score))
+
+overall_mean <- tibble(
+    `Global Average Risk` = 0.5
+  )
+
+```
+
+
+The following plot outlines the features that are most associated with incidents. 
+
+```{r ML Model: Summary Plots, echo = FALSE}
+
+summary_plot <- class1 %>%
+  mutate_all(.funs = list(abs)) %>%
+  summarize_all(mean) %>%
+  gather(key = "Predictor", value = "Mean Absolute SHAP Score") %>%
+  mutate(Predictor = case_when(
+    Predictor == "hour" ~ "Hour",
+    Predictor == "day_of_week" ~ "Day Of Week",
+    Predictor == "bus_age" ~ "Bus Age",
+    Predictor == "bus_carry_capacity" ~ "Bus Carry Capacity",
+    Predictor == "line_no" ~ "Bus Line Number",
+    Predictor == "city" ~ "City",
+    Predictor == "pressure" ~ "Atmospheric Pressure",
+    Predictor == "rel_hum" ~ "Relative Humidity",
+    Predictor == "elev" ~ "Elevation",
+    Predictor == "temp" ~ "Temperature",
+    Predictor == "visib" ~ "Visibility",
+    Predictor == "wind_dir" ~ "Wind Direction",
+    Predictor == "wind_spd" ~ "Wind Speed",
+    Predictor == "total_precip" ~ "Total Precipitation",
+    Predictor == "total_rain" ~ "Total Rain",
+    Predictor == "total_snow" ~ "Total Snow",
+    Predictor == "experience_in_months" ~ "Operator Experience in Months",
+    Predictor == "is_shuttle" ~ "Shuttle Y/N",
+    Predictor == "asset_class" ~ "Asset Class",
+    Predictor == "asset_manufactmodel" ~ "Asset Manufacturer Model",
+    Predictor == "month" ~ "Month",
+    TRUE ~ Predictor
+  )) %>%
+  mutate(Predictor = fct_reorder(Predictor, `Mean Absolute SHAP Score`),
+         `Mean Absolute SHAP Score` = round(`Mean Absolute SHAP Score`, 4)) 
+
+ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute SHAP Score`)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Variables Most Correlated With Incidents"), autosize = TRUE)
+
+```
+
+INTERPRETATION
+
+### Marginal Effects
+
+```{r ML Model: Marginal Effects, echo = FALSE}
+
+tabsetPanel(
+  tabPanel("Time", selectInput("time_input", label = "Time Variable of Interest:", 
+            choices = c("Hour", "Month", "Day of Week"), selected = "Hour"), plotlyOutput("time_plot")),
+  tabPanel("Bus Line Number",
+           tabsetPanel(
+             tabPanel("Top Lines Per Risk",
+                    sliderInput("line_no_input", label = "Select Ranking of Lines to View:", value = c(1, 5), min = 1, max =        length(unique(original_train$line_no))),
+                    checkboxInput("line_no_asc", label = "Lowest Risk First", value = FALSE),
+                    plotlyOutput("line_plot_top")
+          ),
+              tabPanel("Individual Line Selector",
+                     selectInput("line_no_input_ind", label = "Select Specific Lines to View:", 
+                                 choices = unique(original_train$line_no), selected = "10", multiple = TRUE),
+                     plotlyOutput("line_no_indiv"))
+          )),
+  tabPanel("Weather",
+           selectInput(
+             "weather_input",
+             label = "Weather Variable of Interest:",
+             choices = c("Temperature", "Total Rain", "Total Snow", "Total Precipitation", "Wind Direction", "Wind Speed", "Pressure", "Relative Humidity", "Elevation", "Visibility"),
+             selected = "Temperature"),
+  plotlyOutput("weather_plot")),
+  tabPanel("Operator and City of Incident",
+           selectInput(
+             "operator_input",
+             label = "Variable of Interest:",
+             choices = c("Operator Experience", "City of Incident"),
+             selected = "Operator Experience"),
+  plotlyOutput("operator_plot")),
+  tabPanel("Bus Characteristics",
+           selectInput(
+             "bus_input",
+             label = "Bus Variable of Interest:",
+             choices = c("Asset Manufacturer Model", "Asset Class", "Shuttle/Regular Bus", "Bus Age", "Bus Carrying Capacity"),
+             selected = "Shuttle/No Shuttle"),
+  plotlyOutput("bus_plot"))
+)
+
+output$time_plot <- renderPlotly({
+  
+  if (input$time_input == "Hour") {
+    
+    all_graphing <- filter_for_graph("hour") %>%
+      mutate(variable = as.factor(variable),
+             variable = fct_relevel(variable, as.character(0:23))) 
+  
+    } else if (input$time_input == "Month") {
+      
+    all_graphing <- filter_for_graph("month") %>%
+      mutate(variable = as.character(variable)) %>%
+      mutate(variable = case_when(
+        variable == "1" ~ "Jan",
+        variable == "2" ~ "Feb",
+        variable == "3" ~ "Mar",
+        variable == "4" ~ "Apr",
+        variable == "5" ~ "May",
+        variable == "6" ~ "Jun",
+        variable == "7" ~ "Jul",
+        variable == "8" ~ "Aug",
+        variable == "9" ~ "Sep",
+        variable == "10" ~ "Oct",
+        variable == "11" ~ "Nov",
+        variable == "12" ~ "Dec",
+        TRUE ~ variable
+      )) %>%
+        mutate(variable = fct_relevel(variable, c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")))
+  
+    } else {
+    
+    all_graphing <- filter_for_graph("day_of_week") %>%
+      mutate(variable = fct_relevel(variable, c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")))
+    
+    }
+
+  colnames(all_graphing) <- c(input$time_input, "Score")
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$time_input), y = Score, group = !!sym(input$time_input))) +
+    geom_boxplot() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) + 
+    theme_bw() + 
+    labs(
+      title = paste(tools::toTitleCase(input$time_input), "Estimated Risk"),
+      x = paste(tools::toTitleCase(input$time_input)),
+      y = "Estimated Risk of Incident"))
+  
+})
+
+output$line_plot_top <- renderPlotly({
+  
+  if (input$line_no_asc == TRUE) {
+    
+  lines_to_show <- line_number_summary %>%
+    arrange(score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+    
+  } else {
+  
+  lines_to_show <- line_number_summary %>%
+    arrange(-score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+  
+  }
+  
+  all_graphing <- filter_for_graph("line_no") %>%
+    rename(line_no = variable) %>%
+    filter(line_no %in% lines_to_show) %>%
+    mutate(line_no = fct_reorder(line_no, .$score, .desc = TRUE))
+  
+  colnames(all_graphing) <- c("Line Number", "Score")
+  
+  ggplotly(ggplot(all_graphing, aes(x = `Line Number`, y = `Score`, group = `Line Number`)) +
+    geom_boxplot() +
+    theme_bw() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    labs(
+      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      x = paste(tools::toTitleCase(input$time_input)),
+      y = "Estimated Risk Score"))
+  
+})
+
+output$line_plot_top <- renderPlotly({
+  
+  if (input$line_no_asc == TRUE) {
+    
+  lines_to_show <- line_number_summary %>%
+    arrange(score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+    
+  } else {
+  
+  lines_to_show <- line_number_summary %>%
+    arrange(-score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+  
+  }
+  
+  all_graphing <- filter_for_graph("line_no") %>%
+    rename(line_no = variable) %>%
+    filter(line_no %in% lines_to_show) %>%
+    mutate(line_no = fct_reorder(line_no, .$score, .desc = TRUE))
+  
+  colnames(all_graphing) <- c("Line Number", "Score")
+  ggplotly(ggplot(all_graphing, aes(x = `Line Number`, y = Score, group = `Line Number`)) +
+    geom_boxplot() +
+    theme_bw() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    labs(
+      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      x = "Line Number",
+      y = "Estimated Risk Score"))
+  
+})
+
+output$line_no_indiv <- renderPlotly({
+  
+  validate(need(!is.null(input$line_no_input_ind), "No line number selected."))
+  
+  all_graphing <- filter_for_graph("line_no") %>%
+    rename(line_no = variable) %>%
+    filter(line_no %in% input$line_no_input_ind) %>%
+    mutate(line_no = fct_reorder(line_no, .$score, .desc = TRUE))
+  
+  ggplotly(ggplot(all_graphing, aes(x = line_no, y = score, group = line_no)) +
+    geom_boxplot() +
+    theme_bw() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    labs(
+      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      x = "Line Number",
+      y = "Estimated Risk Score"))
+  
+})
+
+output$weather_plot <- renderPlotly({
+  
+  lookup <- tibble(
+    choices = c("Temperature", "Total Rain", "Total Snow", "Total Precipitation", "Wind Direction", "Wind Speed", "Pressure", "Relative Humidity", "Elevation", "Visibility"),
+    var_name = c("temp", "total_rain", "total_snow", "total_precip", "wind_dir", "wind_spd", "pressure", "rel_hum", "elev", "visib"),
+    units = c("°C", "mm", "cm", "mm", "10's of degree", "km/h", "kPa", "%", "m", "km"))
+  
+  all_graphing <- filter_for_graph(lookup$var_name[which(lookup$choices == input$weather_input)]) 
+  
+  colnames(all_graphing) <- c(input$weather_input, "Score")
+
+  if (input$weather_input == "Elevation") {
+  
+  all_graphing <- all_graphing %>%
+    mutate(`Elevation` = as.factor(`Elevation`)) %>%
+    mutate(`Elevation` = fct_relevel(`Elevation`, c("2.5", "3.1", "4.3", "5", "13", "170.2")))
+
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$weather_input), y = Score, group = !!sym(input$weather_input))) +
+    geom_boxplot() +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    labs(
+      title = "Estimated Risk Per Elevation Level",
+      x = paste0("Elevation Level ", "(", lookup$units[which(lookup$choices == input$weather_input)], ")"),
+      y = "Estimated Risk Score"))
+    
+  } else {
+  
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$weather_input), y = Score)) +
+    geom_smooth(method = "gam") +
+    theme_bw() + 
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    labs(
+      title = paste("Estimated Risk For Changing Values of:", input$weather_input),
+      x = paste0(input$weather_input, " ", "(", lookup$units[which(lookup$choices == input$weather_input)], ")"),
+      y = "Estimated Risk Score"))
+  }
+})
+
+output$operator_plot <- renderPlotly({
+  
+  if (input$operator_input == "City of Incident") {
+    
+    all_graphing <- filter_for_graph("city") %>%
+      rename("City of Incident" = variable, Score = score) %>%
+      mutate(`City of Incident` = ifelse(is.na(`City of Incident`), "N/A", `City of Incident`))
+    
+    ggplotly(ggplot(all_graphing, aes(x = `City of Incident`, y = Score, group = `City of Incident`)) +
+      geom_boxplot() +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45)) + 
+      geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+      labs(
+        title = paste("Estimated Risk Per", input$operator_input),
+        x = paste(input$operator_input),
+        y = "Estimated Risk Score"))
+  
+    } else {
+    
+    all_graphing <- filter_for_graph("experience_in_months") %>%
+        rename("Operator Experience in Months" = variable)
+      
+    ggplotly(ggplot(all_graphing, aes(x = `Operator Experience in Months`, y = score)) +
+      geom_smooth(method = "gam") +
+      theme_bw() + 
+      geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+      labs(
+        title = paste("Estimated Risk For Changing Values of:", input$operator_input),
+        x = paste0(input$operator_input, " ", "(", "months", ")"),
+        y = "Estimated Risk Score"))
+      
+  }
+})
+
+output$bus_plot <- renderPlotly({
+  
+  lookup <- tibble(
+    choices = c("Asset Manufacturer Model", "Asset Class", "Shuttle/Regular Bus", "Bus Age", "Bus Carrying Capacity"),
+    var_name = c("asset_manufactmodel", "asset_class", "is_shuttle", "bus_age", "bus_carry_capacity")
+  )
+  
+  all_graphing <- filter_for_graph(lookup$var_name[which(lookup$choices == input$bus_input)])
+  
+  if (input$bus_input == "Bus Age") {
+  
+  colnames(all_graphing) <- c(input$bus_input, "Score")
+    
+  ggplotly(ggplot(all_graphing, aes(x = `Bus Age`, y = Score)) +
+      geom_smooth(method = "gam") +
+      theme_bw() + 
+      geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+      labs(
+        title = paste("Estimated Risk For Changing Values of:", input$bus_input),
+        x = paste0(input$bus_input, " ", "(", "years", ")"),
+        y = "Estimated Risk Score"))
+    
+  } else {
+    
+  all_graphing <- all_graphing %>%
+      mutate(variable = as.character(variable))
+    
+    if (input$bus_input == "Bus Carrying Capacity") {
+      
+      all_graphing <- all_graphing %>%
+        mutate(variable = if_else(is.na(variable), "N/A", variable)) %>%
+        mutate(variable = fct_relevel(variable, as.character(sort(unique(original_train$bus_carry_capacity)))))
+      
+    } else if (input$bus_input == "Shuttle/Regular Bus") {
+      
+      all_graphing <- all_graphing %>%
+        mutate(variable = ifelse(variable == 1, "Shuttle", "Regular"), 
+               variable = fct_relevel(variable, c("Shuttle", "Regular")))
+    } else {
+      
+      all_graphing <- all_graphing %>%
+        mutate(variable = ifelse(is.na(variable), "N/A", variable),
+               variable = fct_reorder(variable, .$score))
+      
+    }
+  
+  colnames(all_graphing) <- c(input$bus_input, "Score")
+  
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$bus_input), y = Score, group = !!sym(input$bus_input))) +
+    geom_boxplot() +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    labs(
+      title = paste("Estimated Risk Per", input$bus_input),
+      x = paste(input$bus_input),
+      y = "Estimated Risk Score"))
+
+  }
+  
+})
+  
+  
+
+```
+
+INTERPRETATION
+
+### Risk for Any Combination Of Variables
+
+Finally, the following tool allows the user to query the final predicted model to get the predicted risk for any combination of variables. Note for brevity that we let the user change variables that they could easily have on hand. Furthermore, variables that have little impact on predictions in general (from the analysis above) are kept constant.
+
+```{r Predicted Risk: Combination of Variables, echo = FALSE}
+
+source_python("doc/interactive-report/predict.py")
+
+sidebarLayout(
+  sidebarPanel(style = "overflow-y:scroll; max-height: 600px; position:relative;",
+  selectInput("bus_line_custom", label = "Bus Line:", choices = unique(original_train$line_no), selected = "10"),
+  sliderInput("hour_custom", label = "Hour:", min = 0, max = 23, value = 17, step = 1),
+  selectInput("day_of_week_custom", label = "Day Of Week:", choices = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"), selected = "Fri"),
+  selectInput("month_custom", label = "Month:", choices = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), selected = "Jan"),
+  selectInput("bus_carry_capacity_custom", label = "Bus Carry Capacity:", choices = unique(original_train$bus_carry_capacity), selected = 120),
+  selectInput("city_custom", label = "City:", choices = unique(original_train$city), selected = "Vancouver"),
+  sliderInput("temp_custom", label = "Temperature (°C):", min = -30, max = 50, value = 10, step = 0.5),
+  sliderInput("pressure_custom", label = "Atmospheric Pressure (kPa):", min = 90, max = 130, value = 102.5, step = 0.1),
+  sliderInput("rain_custom", label = "Total Rain (mm):", min = 0, max = 500, value = 0, step = 0.5)),
+  mainPanel(
+    renderPlotly({
+      
+      lookup <- tibble(
+        month_num = 1:12,
+        month_name = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+      )
+      
+      # There should be no city. The city should autoomatically be inferred from bus line.
+      # Or the city selection should change per bus line so that the user can't select illegitimate options
+      shap_scores <- get_new_prediction(
+        bus_line = input$bus_line_custom,
+        hour = input$hour_custom,
+        day = input$day_of_week_custom,
+        month = lookup$month_num[which(lookup$month_name == input$month_custom)],
+        bus_carrying_cap = na.omit(input$bus_carry_capacity_custom),
+        city = input$city_custom,
+        temp = input$temp_custom,
+        pressure = input$pressure_custom,
+        total_rain = input$rain_custom
+        )
+      
+      graphing <- as_tibble(shap_scores$shap, .name_repair = "unique") 
+      colnames(graphing) <- shap_scores$column_names
+      
+      graphing <- graphing %>%
+        select(line_no, hour, day_of_week, month, bus_carry_capacity, city, temp, pressure, total_rain) %>%
+        gather(key = "Predictor", value = "Score") %>%
+        mutate(Score = round(Score, 4)) %>%
+        mutate(
+          Predictor = case_when(
+          Predictor == "hour" ~ "Hour",
+          Predictor == "day_of_week" ~ "Day Of Week",
+          Predictor == "bus_carry_capacity" ~ "Bus Carry Capacity",
+          Predictor == "line_no" ~ "Bus Line Number",
+          Predictor == "city" ~ "City",
+          Predictor == "pressure" ~ "Atmospheric Pressure",
+          Predictor == "temp" ~ "Temperature",
+          Predictor == "total_rain" ~ "Total Rain",
+          Predictor == "experience_in_months" ~ "Operator Experience in Months",
+          Predictor == "month" ~ "Month",
+          TRUE ~ Predictor
+     )) %>%
+        mutate(`Risk Direction` = ifelse(Score < 0, "Induces Lower Risk", "Induces Higher Risk"))
+      
+      ggplotly(ggplot(graphing, aes(x = Predictor, y = Score, fill = `Risk Direction`)) +
+        geom_bar(stat = "identity") +
+        theme_bw() + 
+        coord_flip() +
+        labs(title = paste0("Risk Breakdown Per Chosen Variables", "<br>", "<sup>", "Predicted Overall Risk: ", round(shap_scores$predicted[2], 3), "</sup>")) +
+        scale_fill_manual(values = c(`Induces Higher Risk` = "firebrick1", `Induces Lower Risk` = "steelblue4")), 
+        tooltip = c("Predictor", "Score"), height = 600, width = 700)
+      
+      
+    })
+  )
+)
+
+observeEvent(input$bus_line_custom, {
+  
+        find_cities_per_line <- original_train %>%
+          filter(line_no == input$bus_line_custom) %>%
+          select(city) %>%
+          pull() %>%
+          unique(.)
+        
+        updateSelectInput(session = session, inputId = "city_custom", choices = find_cities_per_line)
+})
+
+
+```
+
+
 
 ## Common Types of Claims by Location
 ## Assessment of Claims Costs by Location
