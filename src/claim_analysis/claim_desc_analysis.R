@@ -1,0 +1,424 @@
+
+library(shiny)
+library(shinydashboard)
+library(shinycssloaders)
+library(RColorBrewer)
+library(tidyverse)
+library(sjmisc)
+library(readxl)
+library(wordcloud)
+library(leaflet)
+library(DT)
+library(ggwordcloud)
+library(wordcloud2)
+library(PubMedWordcloud)
+
+location_data <-
+  read_excel("../data/TransLink Raw Data/Claim_colour_df.xlsx")
+verb_data <-
+  read_excel("../data/TransLink Raw Data/verb_colour_df.xlsx")
+
+ui <- dashboardPage(
+  dashboardHeader(title = "Reasons for Incidents" , titleWidth = 450),
+  dashboardSidebar(sidebarMenu(
+    menuItem(
+      "Impacted Objects",
+      tabName = "dashboard",
+      icon = icon("bus-alt")
+    ),
+    menuItem(
+      "Impact Actions",
+      icon = icon("car-crash"),
+      tabName = "widgets",
+      badgeColor = "green"
+    )
+  )),
+  dashboardBody(tabItems(
+    tabItem(
+      tabName = "dashboard",
+      fluidRow(box(
+        leafletOutput("mymap", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+        status = "primary",
+        width = 12,
+        height = 500
+      ),),
+      fluidRow(
+        box(
+          plotOutput("plot", height = 250) %>% withSpinner(color = "skyblue", size = 2),
+          title = "OBJECTS",
+          status = "primary",
+          width = 6
+        ),
+        box(
+          uiOutput("frequent_impacts", height = 250) %>% withSpinner(color = "skyblue", size = 2),
+          status = "primary",
+          width = 6
+        )
+        
+      ),
+      
+      fluidRow(
+        box(
+          leafletOutput("my_updated_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+          status = "primary",
+          width = 12,
+          height = 500
+        ))
+      
+    ),
+    
+    tabItem(tabName = "widgets",
+            fluidRow(
+              box(
+                leafletOutput("my_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+                width = 12,
+                height = 500
+              )
+              
+            ),
+            fluidRow(
+              box(
+                plotOutput("plot_verb", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+                title = "ACTIONS",
+                width = 6
+              ),
+              box(uiOutput("frequent_actions") %>% withSpinner(color = "skyblue", size = 2), width = 6)
+            ),
+            
+            fluidRow(
+              box(
+                leafletOutput("my_updated_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+                width = 12,
+                height = 500
+                
+              )
+              
+            ))
+  ))
+)
+server <- function(input, output) {
+  # leaflet map for Impacts
+  output$mymap <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(lng = -123.1171,
+              lat = 49.2820,
+              zoom = 12) %>%
+      addCircleMarkers(
+        lng = location_data$long,
+        lat = location_data$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = location_data$impact_colour,
+        popup =
+          paste0(
+            "<b>",
+            "Description",
+            "</b> ",
+            location_data$Description,
+            "</b> <br>",
+            "<b>",
+            "Date: ",
+            "</b> ",
+            location_data$loss_date_x,
+            "<br>",
+            "<b>",
+            "Bus Number: ",
+            "</b> ",
+            location_data$bus_no_x,
+            "<br>",
+            "<b>",
+            "Manufacturer: ",
+            "</b> ",
+            location_data$asset_manufacturer,
+            "<br>"
+          )
+      )
+  })
+  
+  # leaflet map for Verbs
+  output$my_verb_map <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(lng = -123.1171,
+              lat = 49.2820,
+              zoom = 12) %>%
+      addCircleMarkers(
+        lng = verb_data$long,
+        lat = verb_data$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = verb_data$verb_colour,
+        popup = paste0(
+          "<b>",
+          "Description",
+          "</b> ",
+          location_data$Description,
+          "</b> <br>",
+          "<b>",
+          "Date: ",
+          "</b> ",
+          location_data$loss_date_x,
+          "<br>",
+          "<b>",
+          "Bus Number: ",
+          "</b> ",
+          location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
+          "<br>"
+        )
+      )
+  })
+  
+  # wordcloud for Impacts
+  
+  output$plot = renderPlot({
+    if (isTruthy(input$mymap_bounds)) {
+      bounds = input$mymap_bounds
+      df <- location_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      
+      wc_df_impact <- df %>% select(impact, impact_colour)
+      impact_df <- count(wc_df_impact, impact, impact_colour)
+      #view(impact_df)
+      
+      ggplot(impact_df,
+             aes(
+               label = impact,
+               size = n,
+               color = as.character(impact_colour)
+             )) +
+        geom_text_wordcloud_area() +
+        scale_colour_identity() +
+        scale_size_area(max_size = 24) +
+        theme_minimal()
+      
+      
+      
+    } else
+      
+      ggplot(impact_df,
+             aes(
+               label = impact,
+               size = n,
+               color = as.character(impact_colour)
+               
+             )) +
+      geom_text_wordcloud_area() +
+      scale_colour_identity() +
+      scale_size_area(max_size = 24) +
+      theme_minimal()
+  })
+  
+  dataInput <- reactive(if (isTruthy(input$my_verb_map_bounds)) {
+    bounds = input$my_verb_map_bounds
+    verb_data %>% filter(
+      between(long, bounds$west, bounds$east),
+      between(latt, bounds$south, bounds$north)
+    )
+  })
+  
+  # wordcloud for Verbs
+  output$plot_verb = renderPlot({
+    if (isTruthy(input$my_verb_map_bounds)) {
+      bounds = input$my_verb_map_bounds
+      df <- verb_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      
+      
+      wc_verb_df = dataInput() %>% select(chosen_verb_x, verb_colour)
+     
+      verb_df <- count(wc_verb_df, chosen_verb_x, verb_colour)
+      ggplot(verb_df,
+             aes(
+               label = chosen_verb_x,
+               size = n,
+               color = as.character(verb_colour)
+               
+             )) +
+        geom_text_wordcloud_area() +
+        scale_colour_identity() +
+        scale_size_area(max_size = 24) +
+        theme_minimal()
+      
+      
+    } else
+      
+      
+      verb_df <- count(wc_verb_df, chosen_verb_x, verb_colour)
+    ggplot(verb_df,
+           aes(
+             label = chosen_verb_x,
+             size = n,
+             color = as.character(verb_colour)
+             
+           )) +
+      geom_text_wordcloud_area() +
+      scale_colour_identity() +
+      scale_size_area(max_size = 24) +
+      theme_minimal()
+    
+  })
+  
+  
+  # changing the map according to selected impacts
+  dat <- reactive({
+    selected_impact <- input$frequent_impacts
+    if (isTruthy(input$mymap_bounds)) {
+      bounds = input$mymap_bounds
+      df <- location_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+    }
+    
+    df %>% filter(df$impact == selected_impact)
+  })
+  
+  # changing the map according to selected verbs
+  
+  dat_verb <- reactive({
+    selected_verb <- input$frequent_actions
+    if (isTruthy(input$my_verb_map_bounds)) {
+      bounds = input$my_verb_map_bounds
+      df <- verb_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+    }
+
+    df %>% filter(df$chosen_verb_x == selected_verb)
+  })
+
+  # Updating the new maps with selected impacts
+  
+  output$my_updated_map <- renderLeaflet({
+    leaflet("my_updated_map", data = dat()) %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      addCircleMarkers(
+        lng = dat()$long,
+        lat = dat()$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = dat()$impact_colour,
+        popup = paste0(
+          "<b>",
+          "Description",
+          "</b> ",
+          location_data$Description,
+          "</b> <br>",
+          "<b>",
+          "Date: ",
+          "</b> ",
+          location_data$loss_date_x,
+          "<br>",
+          "<b>",
+          "Bus Number: ",
+          "</b> ",
+          location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
+          "<br>"
+        )
+      )
+    
+  })
+  
+  # Updating the new maps with selected verbs
+  
+  output$my_updated_verb_map <- renderLeaflet({
+    leaflet("my_updated_verb_map", data = dat_verb()) %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      addCircleMarkers(
+        lng = dat_verb()$long,
+        lat = dat_verb()$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = dat_verb()$verb_colour,
+        popup = paste0(
+          "<b>",
+          "Description",
+          "</b> ",
+          location_data$Description,
+          "</b> <br>",
+          "<b>",
+          "Date: ",
+          "</b> ",
+          location_data$loss_date_x,
+          "<br>",
+          "<b>",
+          "Bus Number: ",
+          "</b> ",
+          location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
+          "<br>"
+        )
+      )
+    
+  })
+  
+  # dropdown for Impacts
+  output$frequent_impacts <- renderUI({
+    if (isTruthy(input$mymap_bounds)) {
+      bounds = input$mymap_bounds
+      df <- location_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      view(df)
+      wc_df_impact <- df %>% select(impact, impact_colour)
+      impact_df <- count(wc_df_impact, impact, impact_colour)
+      sorted_df <- impact_df[order(-impact_df$n),]
+      
+      
+    }
+    
+    selectInput(
+      "frequent_impacts",
+      "Most frequently Impacted objects:",
+      as.character(sorted_df$impact)[1:5]
+    )
+  })
+  
+  # dropdown for verbs
+  output$frequent_actions <- renderUI({
+    if (isTruthy(input$my_verb_map_bounds)) {
+      bounds = input$my_verb_map_bounds
+      df <- verb_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      view(df)
+      wc_verb_df = dataInput() %>% select(chosen_verb_x, verb_colour)
+      verb_df <- count(wc_verb_df, chosen_verb_x, verb_colour)
+      sorted_verb_df <- verb_df[order(-verb_df$n),]
+      
+      
+    }
+    
+    selectInput(
+      "frequent_actions",
+      "Most frequent Actions:",
+      as.character(sorted_verb_df$chosen_verb_x)[1:5]
+    )
+  })
+
+  
+}
+
+shinyApp(ui = ui, server = server)
