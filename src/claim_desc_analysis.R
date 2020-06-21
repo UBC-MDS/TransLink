@@ -15,9 +15,9 @@ library(wordcloud2)
 library(PubMedWordcloud)
 
 location_data <-
-  read_excel("data/TransLink Raw Data/Claim_colour_df.xlsx")
+  read_excel("../data/TransLink Raw Data/Claim_colour_df.xlsx")
 verb_data <-
-  read_excel("data/TransLink Raw Data/verb_colour_df.xlsx")
+  read_excel("../data/TransLink Raw Data/verb_colour_df.xlsx")
 
 ui <- dashboardPage(
   dashboardHeader(title = "Reasons for Incidents" , titleWidth = 450),
@@ -115,6 +115,7 @@ server <- function(input, output) {
           paste0(
             "<b>",
             "Description",
+            "</b> ",
             location_data$Description,
             "</b> <br>",
             "<b>",
@@ -152,6 +153,7 @@ server <- function(input, output) {
         popup = paste0(
           "<b>",
           "Description",
+          "</b> ",
           location_data$Description,
           "</b> <br>",
           "<b>",
@@ -311,6 +313,7 @@ server <- function(input, output) {
         popup = paste0(
           "<b>",
           "Description",
+          "</b> ",
           location_data$Description,
           "</b> <br>",
           "<b>",
@@ -347,6 +350,7 @@ server <- function(input, output) {
         popup = paste0(
           "<b>",
           "Description",
+          "</b> ",
           location_data$Description,
           "</b> <br>",
           "<b>",
