@@ -52,15 +52,15 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
   } else if (!str_detect(path_weather_stations_data_hour, ".rds")) {
     stop("path_weather_stations_data_hour should be a specific .rds file.")
   } else if (!str_detect(path_weather_stations_data_day, ".rds")) {
-            stop("path_weather_stations_data_day should be a specific .rds file.")
-          } else if (str_detect(path_out, "\\.xlsx$|\\.csv$|\\.rds$|//.txt$")) {
-            stop("The output path must be a general path, not a 
-                     path to a specific file. Remove the file extension.")
-          } else if (endsWith(path_out, "/")) {
-            stop("path_out should not end with /")
-          } else if (!str_detect(path_sheet_data, ".csv")) {
-            stop("path_sheet_data should be a specific .csv file.")
-          }
+    stop("path_weather_stations_data_day should be a specific .rds file.")
+  } else if (str_detect(path_out, "\\.xlsx$|\\.csv$|\\.rds$|//.txt$")) {
+    stop("The output path must be a general path, not a 
+          path to a specific file. Remove the file extension.")
+  } else if (endsWith(path_out, "/")) {
+    stop("path_out should not end with /")
+  } else if (!str_detect(path_sheet_data, ".csv")) {
+    stop("path_sheet_data should be a specific .csv file.")
+  }
           
           # Read in data produced by 0_get-weather-data.R and group old lines with their replacement if any/remove
           # lines not in service anymore/Skytrains
@@ -395,7 +395,11 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
       ) %>%
       select(-time_of_loss, -hire_date, -termination_date) %>%
       mutate(is_shuttle = ifelse(line_no %in% all_shuttles, 1, 0))
-    
+  
+    if (!dir.exists(path_out)) {
+      dir.create(path_out)
+    }
+      
   write_csv(all_samples_combined, paste0(path_out, "/final_data_combined.csv"))
   
   set.seed(200350623)

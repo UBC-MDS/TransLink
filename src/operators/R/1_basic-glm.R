@@ -65,7 +65,7 @@ fit_model <- function(predictors, data) {
 #' This function selects the best predictive GLM model by selecting the best feature
 #' combination amongst all possible combinations.
 #'
-#' @param train_path_data A file path to the training data set.
+#' @param train_path_data A file path to the training data set. Should be a specific .csv file.
 #' @param aic_table_out A file path that describes where the AIC results table 
 #' should be stored.
 #' @param model_out A file path that describes where the best predictive GLM model 
@@ -76,19 +76,23 @@ fit_model <- function(predictors, data) {
 #' @examples
 #' main(
 #' train_path_data = "data/operators/train.csv",
-#' aic_table_out = "results/operators/report-tables/basic-glm-aic_table.rds,
-#' model_out = "results/operators/models/basic-glm.rds"
+#' aic_table_out = "results/operators/report-tables,
+#' model_out = "results/operators/models"
 #' )
 main <- function(train_data_path, aic_table_out, model_out) {
 
   # Check that the paths specified are correct.
   if (!str_detect(train_data_path, ".csv")) {
     stop("Train path must be a specific .csv file.")
-  } else if (!str_detect(aic_table_out, ".rds")) {
-    stop("Path to store output table of AIC scores must be a specific .rds file.")
-  } else if (!str_detect(model_out, ".rds")) {
-    stop("Path to store the model object must be a specific .rds file.")
-  }
+  } else if (str_detect(aic_table_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+    stop("Path to store output table of AIC scores should just be a general path. Remove file extension.")
+  } else if (str_detect(model_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+    stop("Path to store the model object should just be a general path. Remove file extension.")
+  } else if (endsWith(aic_table_out, "/")) {
+		stop("File path for aic_table_out should not end with /")
+	} else if (endsWith(model_out, "/")) {
+		stop("File path for model_out should not end with /")
+	}
   
   # Read in data, preprocess
   # If cost centre is NA, just fill with the most common value which is VTC.
@@ -124,10 +128,14 @@ main <- function(train_data_path, aic_table_out, model_out) {
     AIC = round(map_dbl(all_models, AIC), 2)
     )
   
+  if (!dir.exists(aic_table_out)) {
+  	dir.create(aic_table_out)
+  }
+  
   # Save AIC table in results
   saveRDS(
     results_basic_glm,
-    aic_table_out
+    paste0(aic_table_out, "/basic-glm-aic_table.rds")
     )
   
   # Fit final best model, and save 
@@ -136,7 +144,11 @@ main <- function(train_data_path, aic_table_out, model_out) {
     data = data
     )
   
-  saveRDS(best_basic_glm, model_out)
+  if (!dir.exists(model_out)) {
+  	dir.create(model_out)
+  }
+  
+  saveRDS(best_basic_glm, paste0(model_out, "/basic-glm.rds"))
 
 }
 

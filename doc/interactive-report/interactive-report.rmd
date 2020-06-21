@@ -4,6 +4,7 @@ author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
 date: "24/05/2020"
 output: html_document
 runtime: shiny
+reference: ref.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -112,15 +113,15 @@ operators_dataset %>%
   kable_styling()
 ```
 
-There are some issues with this dataset that encourages the use of non-standard statistical methods. For one, there are no operators recorded that have exactly zero incidents in the last three years - in order for an operator to appear in this dataset, they must have had at least one preventable or non-preventable incident. Therefore, using standard techniques that do not take this into consideration will lead to a substantial bias in any estimated effects.
+There are some issues with this dataset that encourages the use of non-standard statistical methods. For one, there are no operators recorded that have exactly zero incidents in the last three years - in order for an operator to appear in this dataset, they must have had at least one preventable or non-preventable incident. Therefore, using standard techniques that do not take this into consideration will lead to possibly incorrect conclusions.
 
-Second, the data is hierarchical in nature. That is, an operator in one specific cost centre is not completely independent of an operator in another cost centre, especially if they are close geographically. Naively fitting a model that does not consider this will likely lead to degraded model performance.
+Second, the data is hierarchical in nature. That is, there are natural groupings in the data, namely by cost centre which can be exploited to improve any sort of statistical model.
 
 Therefore, we decided to fit a Bayesian hierarchical model that allows the user to control for the two problems above. The performance of this model ended up being much superior to a rather simple linear model, where the Bayesian model outpeforms the simple linear model by roughly `r round(((results$MAE[1] - results$MAE[2]) / results$MAE[1]) * 100, 0)`%. Note that we did not include "In Probation" as a variable in the model since this variable carries the exact same information as the experience level. Finally, "Incidents Per Year" is adjusted to take into consideration how many hours a particular operator actually worked.
 
 <center> <h3>Analyzing the Effect of Location and Experience Level</h3> </center>
 
-The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as produced by the Bayesian model. These graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
+The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as given by the Bayesian model. These graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
 
 ```{r Operator Analysis: Marginal Effects, echo = FALSE, warning = FALSE}
 tabsetPanel(
@@ -193,7 +194,7 @@ output$re_plot <- renderPlotly({
   })
 ```
 
-The user can hover their mouse over each dot to see a tooltip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior. Finally, the estimated overall average over all cost centres is represented by the red vertical line.
+The user can hover their mouse over each dot to see a tooltip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is **exactly** a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior. Finally, the estimated overall average over all cost centres is represented by the red vertical line.
 
 In terms of the two original hypotheses by TransLink, it is clear that in most cases, those who are more experienced on average are expected to have fewer incidents per year. The effect is very intuitive especially for something like Vancouver in which the effect decreases in a way we would expect as an operator moves through each experience level. However, this trend is not the same for all cost centres. Port Coquitlam (PTC) is a notable exception, in which operators who fall in the range >18 and <60 Months have a noticeably larger expected incidents per year than those >6 Months & <18 Months. Furthermore, these operators with am experience level in the range of >18 and <60 Months have much larger expected incidents per year when compared to the global, overall average (represented as a red vertical bar) but for all other experience levels Port Coquitlam does not exhibit any abnormal behavior when compared to other cost centres. 
 
@@ -271,14 +272,13 @@ In the end, we have observed the following points based solely on this dataset:
 
 ### TransLink's Overall Business Question
 
-TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents, in order to deploy possible intervention in hopes of reducing insurance costs. The previous section only looked at operator experience levels and operator cost centre (which is approximately the city in which the incidents for the operator occurred) but this ignores multiple other factors that potentially distort the previous analysis. 
+TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents. Through this identification, TransLink hopes that through the identification of specific factors, certain preventable measuress can be taken to help reduce insurance costs. The previous section only looked at operator experience levels and operator cost centre/location but this ignores multiple other factors that potentially distort the previous analysis. 
 
-For example, while in the previous section it was observed that more experienced operators get into fewer incidents, this potentially is confounded by the fact that more experienced operators may choose to operate less busy bus lines due to senority. Therefore, this analysis seeks to analyze everything simultaneously such that the effects of multiple other possible influencing factors are controlled for. In particular, TransLink has expressed interest in understanding the impact of weather conditions, bus characteristics, location, and time in addition to operator characteristics in order to get a better understanding of what is actually driving bus incidents.
+For example, while in the previous section it was observed that more experienced operators get into fewer incidents, this potentially is distorted by the fact that more experienced operators may choose to operate less busy bus lines due to senority. Therefore, this analysis seeks to analyze everything simultaneously such that the effects of multiple other possible influencing factors are controlled for. In particular, TransLink has expressed interest in understanding the impact of weather conditions, bus characteristics, location, and time in addition to operator characteristics in order to get a better understanding of what is actually driving bus incidents.
   
 ### Overall Predictive Power of Variables in Model
 
-Overall, we employed a machine learning model to simulatenously assess the overall predictive power of all of these various factors. 
-
+We employed a machine learning model to simulatenously assess the overall predictive power of all of these various factors using a very similar methodology to that of [@Montreal] and [@WilsonML]. Full details are described in the final written report that is also submitted with this one. On average, the model shown here is expected to correctly rank a scenario with an actual incident to be of higher risk than a scenario without, 85% of the time. This is is line with the papers in which this model is based on.
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
@@ -313,15 +313,14 @@ overall_mean <- tibble(
 
 ```
 
-
-The following plot outlines the features that are most associated with incidents. 
+In answering the business question, the graph below summarizes the factors that yield the largest risk of a bus incident occurring, as estimated by the model.
 
 ```{r ML Model: Summary Plots, echo = FALSE}
 
 summary_plot <- class1 %>%
   mutate_all(.funs = list(abs)) %>%
   summarize_all(mean) %>%
-  gather(key = "Predictor", value = "Mean Absolute SHAP Score") %>%
+  gather(key = "Predictor", value = "Mean Absolute Score") %>%
   mutate(Predictor = case_when(
     Predictor == "hour" ~ "Hour",
     Predictor == "day_of_week" ~ "Day Of Week",
@@ -357,9 +356,9 @@ ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute SHAP 
 
 ```
 
-INTERPRETATION
+The "scores" shown on the graph above represent the amount of overall importance a factor has in determing whether an incident is more or less likely to occur. The larger the score, the more important the factor is in determining how risky any given scenario is.
 
-### Marginal Effects
+As we can see, it is quite obvious that the bus line number is by far the most important factor in determining whether an incident is likely to occur or not. This is not too surprising considering that some bus lines naturally move through more populated areas. To test this hypothesis and many others, we can use the following tool below to actually see the estimated risk per each line. In addition, we can see how the risk changes for all of the other variables used in this model as well. 
 
 ```{r ML Model: Marginal Effects, echo = FALSE}
 
@@ -688,8 +687,12 @@ output$bus_plot <- renderPlotly({
 
 ```
 
-INTERPRETATION
+Estimated "risk scores" shown above are normalized to be between zero and one. A risk score of one means that it is very likely an incident will occur - a risk score closer to zero means it is quite unlikely. A risk score of 0.5 (the red horizontal lines shown above) is the average risk over all values of the variable being viewed.
 
+It is important to stress that these risk scores are **not** probabilities of an incident occurring under a specific scenario despite it appearing as such. Indeed, some of these scores have values as high as 0.75 which cannot realistically be the probability of an incident occurring under any scenario (incidents are much rarer than that). The reasons for why we cannot interpret these scores as probabilities is related to how this model is actually created, but regardless, these scores are purely to be interpreted as relative measures. That is, these scores have no meaning by themselves but do have proper meaning in relation to each other.
+
+As an example, we see that line  
+	
 ### Risk for Any Combination Of Variables
 
 Finally, the following tool allows the user to query the final predicted model to get the predicted risk for any combination of variables. Note for brevity that we let the user change variables that they could easily have on hand. Furthermore, variables that have little impact on predictions in general (from the analysis above) are kept constant.
