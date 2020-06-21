@@ -1,7 +1,7 @@
 ---
-title: "claim_analysis"
+title: "Spatial Analysis - Claim description"
 author: "Simardeep Kaur"
-date: "6/13/2020"
+date: "6/20/2020"
 output: html_document
 runtime: shiny
 ---
@@ -26,10 +26,22 @@ library(PubMedWordcloud)
 library(shinycssloaders)
 ```
 
-This is the final report
+## Introduction
 
+When an incident takes place, it can not be simply called a collision or an accident. An incident involves different objects being impacted in different manners. Different locations in Vancouver have different geography, planning structures(including houses and buildings), road structures, neighbourhood and spatial distribution. This uniqueness in spatial distribution allows us to see if there is any pattern between a certain location with the objects and incidents. Such results can be leveraged by Translink to follow  area specific steps to reduce the numbers of incidents instead of following the same approach over the entire Vancouver. 
 
-#![text](src/wordcloud_packages.png)
+## Explanation of the Dashboard
+
+This dashboard is designed for the user to see which objects were impacted in an incident and what is the action that took place in that incident. The dataset used to create this dashboard combines the information of claim description, latitudes and longitudes of the locations where incidents took place, asset manufacturer, date of the incident and bus number.
+
+Dashboard includes two pages. First page gives the information about the objects impacted in the incident. Each dot on the map of Vancouver corresponds to a particular location where the incident took place. Each colored dot on the map corresponds to a different object which was impacted in that incident. The color of the dot corresponds to different objects that have been impacted in those incidents.
+
+As the user will view an area on the map, it will update the wordcloud which shows what are the impacted objects in those incidents. The color of the words in the wordcloud correspond to the colored dots on the map to show which objects were impacted at which locations. The word cloud changes dynamically according to whatever location the user will view on the map. Size of each word in the word cloud corresponds to how frequent the impacted object has been a part of the incidents viewed on the map. 
+
+Five among the most frequently impacted objects will be viewed in the drop down. Users can select any object from the drop down to view the locations specific to that particular object. Map below the drop down will narrow down the locations specific to the particular impacted object. This will give  a better understanding if the location is related to the objects impacted in the incident.
+
+The second page  shows the most frequent actions involved in the incidents. It is based on similar lines and shows the map of Vancouver with different colours corresponding to different actions associated with those incidents. User can choose one of the most frequently occurring  actions from the drop down to get a detailed view to see which locations experienced incidents because of the selected reason.
+
 
 
 ```{r include=FALSE}
@@ -65,29 +77,25 @@ ui <- dashboardPage(
         status = "primary",
         width = 12,
         height = 500
-      ),
-      ),
+      ),),
       fluidRow(
         box(
-          plotOutput("plot", height = 250),
-          title = "NOUN",
+          plotOutput("plot", height = 250) %>% withSpinner(color = "skyblue", size = 2),
+          title = "OBJECTS",
           status = "primary",
           width = 6
         ),
         box(
-          uiOutput("frequent_impacts", height = 250),
+          uiOutput("frequent_impacts", height = 250) %>% withSpinner(color = "skyblue", size = 2),
           status = "primary",
           width = 6
         )
         
       ),
       
-      fluidRow(# box(leafletOutput("my_verb_map", height = 250)),
-        
-        
-        #box(plotOutput("plot_verb", height = 250), title = "VERB")
+      fluidRow(
         box(
-          leafletOutput("my_updated_map", height = 500),
+          leafletOutput("my_updated_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
           status = "primary",
           width = 12,
           height = 500
@@ -98,42 +106,35 @@ ui <- dashboardPage(
     tabItem(tabName = "widgets",
             fluidRow(
               box(
-                leafletOutput("my_verb_map", height = 500),
+                leafletOutput("my_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+                width = 12,
+                height = 500
+              )
+              
+            ),
+            fluidRow(
+              box(
+                plotOutput("plot_verb", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+                title = "ACTIONS",
+                width = 6
+              ),
+              box(uiOutput("frequent_actions") %>% withSpinner(color = "skyblue", size = 2), width = 6)
+            ),
+            
+            fluidRow(
+              box(
+                leafletOutput("my_updated_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
                 width = 12,
                 height = 500
                 
               )
               
-            ),
-            fluidRow(
-              box(
-                plotOutput("plot_verb", height = 250),
-                title = "NOUN",
-                width = 6
-              ),
-              box(uiOutput("frequent_actions"),
-                  width = 6
-            ),
-            
-            fluidRow(
-              box(
-                leafletOutput("my_updated_verb_map", height = 500),
-                width = 12,
-                height = 500
-              )
-              
             ))
   ))
-  
 )
-)
-
 server <- function(input, output) {
-
-  
   # leaflet map for Impacts
   output$mymap <- renderLeaflet({
-    # Show first 20 rows from the `quakes` dataset
     leaflet() %>%
       addProviderTiles("CartoDB.Positron") %>%
       setView(lng = -123.1171,
@@ -148,22 +149,24 @@ server <- function(input, output) {
         popup =
           paste0(
             "<b>",
-            location_data$Claim_Desc,
+            "Description",
+            "</b> ",
+            location_data$Description,
             "</b> <br>",
             "<b>",
             "Date: ",
             "</b> ",
-            location_data$Date,
+            location_data$loss_date_x,
             "<br>",
             "<b>",
-            "Bus Year: ",
+            "Bus Number: ",
             "</b> ",
-            location_data$Bus_Route_Code,
+            location_data$bus_no_x,
             "<br>",
             "<b>",
             "Manufacturer: ",
             "</b> ",
-            location_data$Vehicle_Number,
+            location_data$asset_manufacturer,
             "<br>"
           )
       )
@@ -171,7 +174,6 @@ server <- function(input, output) {
   
   # leaflet map for Verbs
   output$my_verb_map <- renderLeaflet({
-    # Show first 20 rows from the `quakes` dataset
     leaflet() %>%
       addProviderTiles("CartoDB.Positron") %>%
       setView(lng = -123.1171,
@@ -185,7 +187,9 @@ server <- function(input, output) {
         color = verb_data$verb_colour,
         popup = paste0(
           "<b>",
-          location_data$Claim_Desc,
+          "Description",
+          "</b> ",
+          location_data$Description,
           "</b> <br>",
           "<b>",
           "Date: ",
@@ -193,9 +197,14 @@ server <- function(input, output) {
           location_data$loss_date_x,
           "<br>",
           "<b>",
-          "Vehicle Number: ",
+          "Bus Number: ",
           "</b> ",
           location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
           "<br>"
         )
       )
@@ -338,22 +347,24 @@ server <- function(input, output) {
         color = dat()$impact_colour,
         popup = paste0(
           "<b>",
-          dat()$Claim_Desc,
+          "Description",
+          "</b> ",
+          location_data$Description,
           "</b> <br>",
           "<b>",
           "Date: ",
           "</b> ",
-          dat()$Date,
+          location_data$loss_date_x,
           "<br>",
           "<b>",
-          "Bus Year: ",
+          "Bus Number: ",
           "</b> ",
-          dat()$Bus_Route_Code,
+          location_data$bus_no_x,
           "<br>",
           "<b>",
           "Manufacturer: ",
           "</b> ",
-          dat()$Vehicle_Number,
+          location_data$asset_manufacturer,
           "<br>"
         )
       )
@@ -373,22 +384,24 @@ server <- function(input, output) {
         color = dat_verb()$verb_colour,
         popup = paste0(
           "<b>",
-          dat_verb()$Claim_Desc,
+          "Description",
+          "</b> ",
+          location_data$Description,
           "</b> <br>",
           "<b>",
           "Date: ",
           "</b> ",
-          dat_verb()$Date,
+          location_data$loss_date_x,
           "<br>",
           "<b>",
-          "Bus Year: ",
+          "Bus Number: ",
           "</b> ",
-          dat_verb()$Bus_Route_Code,
+          location_data$bus_no_x,
           "<br>",
           "<b>",
           "Manufacturer: ",
           "</b> ",
-          dat_verb()$Vehicle_Number,
+          location_data$asset_manufacturer,
           "<br>"
         )
       )
@@ -448,3 +461,14 @@ server <- function(input, output) {
 ```{r , echo = FALSE}
 shinyApp(ui = ui, server = server)
 ```
+
+## Cons of the Dashboard
+
+Map of Vancouver in the dashboard is created using the “Leaflet” package in R. Color palette of the leaflet is  limited, so it is impossible to associate different colours to  unique objects and actions involved in the incident. Some of the colours for unique objects and actions will appear black. This is because even though these objects have a separate colour assigned to them, leaflet does not render these colours. However, this will never be a problem for the user  as the impacted objects and actions will have different colours in the word cloud. If the user wants to narrow down to a specific object or action it can be done by selecting that object/action from the provided dropdown menus.
+
+
+## Recommendation
+
+Based on the patterns that can be seen by choosing a particular area on the map, Translink can use different approaches to reduce the number of incidents in a particular place. The dashboard will be experimental in suggesting an area wise approach rather than a holistic approach.
+
+
