@@ -9,7 +9,6 @@ library(readxl)
 library(wordcloud)
 library(leaflet)
 library(DT)
-library(dplyr)
 library(ggwordcloud)
 library(wordcloud2)
 library(PubMedWordcloud)
@@ -45,13 +44,13 @@ ui <- dashboardPage(
       ),),
       fluidRow(
         box(
-          plotOutput("plot", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+          plotOutput("plot", height = 250) %>% withSpinner(color = "skyblue", size = 2),
           title = "OBJECTS",
           status = "primary",
           width = 6
         ),
         box(
-          uiOutput("frequent_impacts", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+          uiOutput("frequent_impacts", height = 250) %>% withSpinner(color = "skyblue", size = 2),
           status = "primary",
           width = 6
         )
@@ -60,7 +59,7 @@ ui <- dashboardPage(
       
       fluidRow(
         box(
-          leafletOutput("my_updated_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+          leafletOutput("my_updated_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
           status = "primary",
           width = 12,
           height = 500
@@ -71,7 +70,7 @@ ui <- dashboardPage(
     tabItem(tabName = "widgets",
             fluidRow(
               box(
-                leafletOutput("my_verb_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+                leafletOutput("my_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
                 width = 12,
                 height = 500
               )
@@ -83,12 +82,12 @@ ui <- dashboardPage(
                 title = "ACTIONS",
                 width = 6
               ),
-              box(uiOutput("frequent_actions")%>% withSpinner(color =  "skyblue", size=2), width = 6)
+              box(uiOutput("frequent_actions") %>% withSpinner(color = "skyblue", size = 2), width = 6)
             ),
             
             fluidRow(
               box(
-                leafletOutput("my_updated_verb_map", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+                leafletOutput("my_updated_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
                 width = 12,
                 height = 500
                 
@@ -423,4 +422,3 @@ server <- function(input, output) {
 }
 
 shinyApp(ui = ui, server = server)
-
