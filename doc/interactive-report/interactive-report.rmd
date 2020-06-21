@@ -1,5 +1,5 @@
 ---
-title: "interactive-report"
+title: "Vision Over Incidents and Claims - An Analysis of Variables for Predictive Power"
 author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
 date: "24/05/2020"
 output: html_document
@@ -11,34 +11,43 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = here::here())
 library(brms)
 library(shiny)
+library(kableExtra)
 library(tidyverse)
 library(plotly)
 library(ggthemes)
 library(leaflet)
 library(mapview)
-library(tidyverse)
 library(lubridate)
 library(htmlwidgets)
 ```
 
 # Introduction {.tabset}
 
-Introductory text on report?
+With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a $1 million per occurrence liability policy on each of its revenue vehicles and a $200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%.
 
+In response to soaring insurance costs and road safety concerns, TransLink has asked us to analyze key variables of interest that may be predictive of bus incidents. These variables include an analysis of the operators involved, the impact of bus characteristics (if any), and the effect of weather, time, location, and line number on the likelihood of an incident occurring. Finally, TransLink has also asked us to analyze the types of claims that are occurring - in particular, if there are common types of claims per location and if particular locations yield large paid costs. 
 
+A variety of statistical and machine learning methods are employed in this report to address these questions. As a result, the report is divided into eight sections:
 
+1) Executive Summary
+2) Predictive Power of Time
+3) Predictive Power of Location and Operator Experience
+4) Weather and Busses
+5) A Combined Analysis of All Factors Using Machine Learning
+6) Common Types of Claims by Location
+7) Assessment of Claims Costs by Location
+8) Future Analysis
 
-## Operator Analysis
+## Executive Summary
 
-METHODOLOGY/More analysis that was carried out (tables probably)
+## Predictive Power of Time
 
-### Predictive Analysis
+## Predictive Power of Location and Operator Experience
 
 ```{r Operator Analysis: Import, include = FALSE}
-
+# This is just helper code - do not show in report
 best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
 posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
-
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -71,78 +80,67 @@ calculate_plotting_stats <- function(col_num) {
   plotting_data <- tibble(
       `Cost Centre` = colnames(random_effects[, , col_num]),
       Estimate = round(exp(apply(data_re, 2,  FUN = median)), 3),
+      `90% CI` = paste0("90% CI: ", '[', round(exp(apply(data_re, 2, FUN = function(x) quantile(x, 0.05))), 3), ', ', round(exp(apply(data_re, 2, FUN = function(x) quantile(x, 0.95))), 3), ']'),
       `Lower 5%` = round(exp(apply(data_re, 2, FUN = function(x) quantile(x, 0.05))), 3),
       `Upper 95%` = round(exp(apply(data_re, 2, FUN = function(x) quantile(x, 0.95))), 3)
     ) %>%
     mutate(`Cost Centre` = fct_reorder(`Cost Centre`, Estimate, min))
   if (col_num == 1) {
-    pop_effect_opt <- tibble(`Global Effect` = round(exp(median(pop_effect[, 1])), 3))
+    pop_effect_opt <- tibble(`Overall Estimate Over all Cost Centres` = round(exp(median(pop_effect[, 1])), 3))
   } else {
-    pop_effect_opt <- tibble(`Global Effect` = round(exp(median(pop_effect[, 1] + pop_effect[, col_num])), 3))
+    pop_effect_opt <- tibble(`Overall Estimate Over all Cost Centres` = round(exp(median(pop_effect[, 1] + pop_effect[, col_num])), 3))
   }
   list(plot_data = plotting_data, vline = pop_effect_opt)
 }
 
 ```
 
-```{r Operator Analysis: Plot, echo = FALSE, warning = FALSE}
+### TransLink Hypotheses
 
-selectInput("cost_centre_oa", label = "Cost Centre:", 
-            choices = unique(predictor_combinations$cost_centre), selected = "VTC")
-selectInput("experience_oa", label = "Experience Level:",
-            choices = unique(predictor_combinations$experience), selected = ">60 Months")
+TransLink have proposed two specific hypotheses regarding a possible link between the operators' experience level and how many incidents they are involved in within a year. Intuitively, it makes a lot of sense that new drivers have a higher tendency to get into more accidents.
 
- 
-renderPlotly({
-  
-  row_val <- which(input$cost_centre_oa == predictor_combinations$cost_centre & input$experience_oa == predictor_combinations$experience)
-  
-  median_samp <- median(posterior_samples[, row_val] %>% pull())
-  lower <- quantile(posterior_samples[, row_val] %>% pull(), 0.05)
-  upper <- quantile(posterior_samples[, row_val] %>% pull(), 0.95)
-  
-  plotting_data_oa <- posterior_samples[, row_val] %>%
-    set_names("Number of Incidents/Yr") %>%
-    mutate(`Number of Incidents/Yr` = as.character(`Number of Incidents/Yr`)) %>%
-    group_by(`Number of Incidents/Yr`) %>%
-    count() %>%
-    ungroup() %>%
-    mutate(`Probability of Occurring` = round(n / sum(n), 2))
-  
-  total_gte8 <- sum(plotting_data_oa$`Probability of Occurring`[plotting_data_oa$`Number of Incidents/Yr` >= 8])
-  
-  plotting_data_oa <- plotting_data_oa %>%
-    filter(`Number of Incidents/Yr` %in% seq(1, 7, 1)) %>%
-    bind_rows(tibble(`Number of Incidents/Yr` = '8+', n = NA, `Probability of Occurring` = total_gte8))
-  
-  ggplotly(ggplot(data = plotting_data_oa, aes(x = `Number of Incidents/Yr`, y = `Probability of Occurring`)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Incidents/Year", y = "Probability of Occurring") +
-  theme_economist() +
-  theme(
-      axis.title.y = element_text(vjust = 5),
-      axis.title.x = element_text(vjust = -3)) +
-  scale_x_discrete(drop = FALSE), autosize = TRUE) %>%
-    layout(title = list(text = paste0("Experience: ", input$experience_oa, ", Cost Centre: ", input$cost_centre_oa, "<br>", "<sup>", "Median: ", round(median_samp, 2), ", 90% Credible Interval: ", "[" , round(lower, 2), ", ", round(upper, 2), "]", "</sup>"), x = 0))
-  
-  })
+A further hypothesis was proposed regarding potential complacency for the more experienced drivers. Those who just exit the probationary period (those who in general have less than six months of driving experience), for example, may become more relaxed with an increased job security and therefore may get into more incidents. 
 
+Finally, we provide a predictive model that provides the probability of a particular operator having K incidents in a year (given that they have at least one incident).
+
+### The Dataset and Overall Model
+
+A random sample of the first five rows of the analyzed dataset is given below.
+
+```{r Operator Analysis: Sample Dataset, echo = FALSE, include = FALSE}
+
+operators_dataset <- read_csv("data/operators/train.csv") %>%
+  sample_n(5) %>%
+  select(experience, in_probation, cost_centre, total_hours_last3yr, number_incidents, number_preventables, incidents_year, preventables_year) %>%
+  rename(Experience = experience, `Cost Centre` = cost_centre, `In Probation` = in_probation, `Total Hours Worked in Last 3 Yr` = total_hours_last3yr, `Incidents/Yr` = incidents_year, `Preventables/Yr` = preventables_year, `Number of Incidents` = number_incidents, `Number of Preventables` = number_preventables)
 ```
 
-DESCRIPTION AND INTERPRETATION
+```{r Operator Analysis: Sample Dataset (show), echo = FALSE}
+operators_dataset %>%  
+  kable() %>%
+  kable_styling()
+```
 
-### Effect Analysis 
+There are some issues with this dataset that encourages the use of non-standard statistical methods. For one, there are no operators recorded that have exactly zero incidents in the last three years - in order for an operator to appear in this dataset, they must have had at least one preventable or non-preventable incident. Therefore, using standard techniques that do not take this into consideration will lead to a substantial bias in any estimated effects.
+
+Second, the data is hierarchical in nature. That is, an operator in one specific cost centre is not completely independent of an operator in another cost centre, especially if they are close geographically. Naively fitting a model that does not consider this will likely lead to degraded model performance.
+
+Therefore, we decided to fit a Bayesian hierarchical model that allows the user to control for the two problems above. The performance of this model ended up being much superior to a rather simple linear model, where the Bayesian model outpeforms the simple linear model by roughly `r round(((results$MAE[1] - results$MAE[2]) / results$MAE[1]) * 100, 0)`%. Note that we did not include "In Probation" as a variable in the model since this variable carries the exact same information as the experience level. Finally, "Incidents Per Year" is adjusted to take into consideration how many hours a particular operator actually worked.
+
+### Analyzing the Effects of Cost Centre and Experience Level
+
+The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as produced by the Bayesian model. These graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
 
 ```{r Operator Analysis: Marginal Effects, echo = FALSE, warning = FALSE}
 
 tabsetPanel(
-  tabPanel("Random Effects", selectInput("experience_oa_re", label = "Experience:", 
+  tabPanel("Effect Per Experience Level on Incidents/Yr", selectInput("experience_oa_re", label = "Experience:", 
             choices = unique(predictor_combinations$experience), selected = ">60 Months"), plotlyOutput("re_plot")),
-  tabPanel("Fixed Effects",
+  tabPanel("Effect Per Cost Centre on Incidents/Yr",
            selectInput(
              "cost_centre_oa_re",
              label = "Cost Centre:",
-             choices = c(unique(predictor_combinations$cost_centre), "All"),
+             choices = c(unique(predictor_combinations$cost_centre), "All Cost Centres"),
              selected = "All"),
   plotlyOutput("fe_plot"))
 )
@@ -151,7 +149,7 @@ output$fe_plot <- renderPlotly({
   
   cost_centre_sel <- input$cost_centre_oa_re
 
-  if (cost_centre_sel != "All") {
+  if (cost_centre_sel != "All Cost Centres") {
       intercept <- pop_effect[, 1] + random_effects[, cost_centre_sel, 1]
       effects_per_centre <- cbind(intercept, intercept + pop_effect[, 2:4] + random_effects[, cost_centre_sel, 2:4])
   } else {
@@ -161,17 +159,18 @@ output$fe_plot <- renderPlotly({
   plot_cost_sel <- tibble(
     Estimate = round(exp(apply(effects_per_centre, 2, median)), 3),
     Experience = as.factor(c(">60 Months", "<6 Months", ">18 & <60 Months", ">6 Months & <18 Months")),
+    `90% CI` = paste0("90% CI: ", '[', round(exp(apply(effects_per_centre, 2, function(x) quantile(x, 0.05))), 3), ', ', round(exp(apply(effects_per_centre, 2, function(x) quantile(x, 0.95))), 3), ']'),
     `Lower 5%` = round(exp(apply(effects_per_centre, 2, function(x) quantile(x, 0.05))), 3),
     `Upper 95%` = round(exp(apply(effects_per_centre, 2, function(x) quantile(x, 0.95))), 3)
   ) %>%
     mutate(Experience = fct_relevel(Experience, c("<6 Months", ">6 Months & <18 Months", ">18 & <60 Months", ">60 Months")))
     
   
-  ggplotly(ggplot(plot_cost_sel, aes(x = Experience, y = Estimate, ymin = `Lower 5%`, ymax = `Upper 95%`)) +
+  ggplotly(ggplot(plot_cost_sel, aes(x = Experience, y = Estimate, ymin = `Lower 5%`, ymax = `Upper 95%`, text = `90% CI`)) +
   geom_point() + 
   geom_errorbar(aes(ymin = `Lower 5%`, ymax = `Upper 95%`)) +
   theme_economist() +
-  labs(x = "Experience Level", y = "Estimated Incidents/Yr"), width = 800, autosize = TRUE) %>%
+  labs(x = "Experience Level", y = "Estimated Incidents/Yr"), width = 800, autosize = TRUE, tooltip = c("Estimate", "90% CI")) %>%
   layout(title = list(text = paste0("Estimated Incidents/Yr Per Experience", "<br>", "<sup>", "Cost Centre: ", cost_centre_sel, "</sup>"), x = 0)) 
   
   })
@@ -196,17 +195,100 @@ output$re_plot <- renderPlotly({
     
   }
   
-  ggplotly(ggplot(plotting_data[[1]], aes(x = `Cost Centre`, y = Estimate, ymin = `Lower 5%`, ymax = `Upper 95%`)) +
+  ggplotly(ggplot(plotting_data[[1]], aes(x = `Cost Centre`, y = Estimate, ymin = `Lower 5%`, ymax = `Upper 95%`, text = `90% CI`)) +
     geom_point() + 
     geom_errorbar(aes(ymin = `Lower 5%`, ymax = `Upper 95%`), width = 0) +
-    geom_hline(data = plotting_data[[2]], aes(yintercept = `Global Effect`), color = "red") + 
+    geom_hline(data = plotting_data[[2]], aes(yintercept = `Overall Estimate Over all Cost Centres`), color = "red") + 
     coord_flip() +
     labs(y = "Estimated Incidents/Yr") + 
     theme_economist() +
-    theme(axis.title.y = element_blank())) %>%
+    theme(axis.title.y = element_blank()), tooltip = c("Estimate", "90% CI", "Overall Estimate Over all Cost Centres")) %>%
     layout(title = list(text = paste0("Estimated Cost Centre Effects for: ", input$experience_oa_re, "<br>", "<sup>", "Global Effect in Red", "</sup>"), x = 0)) 
   
   })
 ```
 
-DESCRIPTION AND INTERPRETATION
+The user can hover their mouse over each dot to see a tooltip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior.
+
+In terms of the two original hypotheses by TransLink, it is clear that in most cases, those who are more experienced on average are expected to have fewer incidents per year. The effect is very intuitive especially for something like Vancouver in which the effect decreases in a way we would expect as an operator moves through each experience level. However, this trend is not the same for all cost centres. Port Coquitlam (PTC) is a notable exception, in which operators who fall in the range >18 and <60 Months have a noticeably larger expected incidents per year than those >6 Months & <18 Months. Furthermore, these operators with am experience level in the range of >18 and <60 Months have much larger expected incidents per year when compared to the global, overall average (represented as a red vertical bar) but for all other experience levels Port Coquitlam does not exhibit any abnormal behavior when compared to other cost centres. 
+
+There does not appear to be any evidence to suggest that operators become less careful as they become more experienced. Port Coquitlam could be a notable exception to this for experience levels that are less than 60 Months, but across the board we can see that the experience level of >60 Months has the lowest expected incidents per year for all of the cost centres.
+
+As an operator gains more experience, the rate at which they change also varies a lot depending on the cost centre. It is clear, for instance, that operators in Richmond do not exhibit much improvement in their expected incidents per year until they reach >60 Months of experience. On the other hand, operators in Vancouver and Burnaby appear to exhibit relatively significant improvement as they move through each experience level, as demonstrated by the non-overlapping 90% credible intervals for VTC.
+
+<6 Months of experience largely seems like "the wildwest". It would appear that nothing meaningful can be said about these operators other than that there is a very large variance in incidents per year no matter the cost centre. Burnaby is a notable exception to this, however. Indeed, Burnaby's operators with <6 Months of experience have a significantly higher expected incidents per year when compared to the overall average for all operators with <6 Months of experience.  
+
+Finally, there is a clear difference between experienced shuttle operators and non-shuttle operators. Shuttle operators overall do not get into as many incidents per year when compared to non-shuttle operators, perhaps because they are in general easier to operate.
+
+### Predictive Analysis
+
+The following interactive graph below gives the actual probability of a specific operator having K incidents in a year, given that the operator has at least one incident (this is due to the aforementioned problem with the dataset). This differs from the above since it provides predictions not for the average incidents per year of all operators in a specific cost centre with a particular experience level, but for the actual observed number of incidents per year for any **single** operator.
+
+Therefore, this graph can be used for predicting the number of incidents per year for any operator with a known experience level and cost centre (given that they have at least one incident). The highlighted red bar gives a "best guess" for how many incidents per year an operator will have. For instance, an operator in Vancouver with >60 Months of experience be expected to have three incidents in a year. However, this is just a single number and indeed, the 90% credible interval gives the entire range of most likely outcomes taking into consideration uncertainty. For example, the model estimates that there is a 90% chance that an operator in Vancouver with >60 Months of experience will have exactly one to six incidents in a year.
+
+```{r Operator Analysis: Plot, echo = FALSE, warning = FALSE}
+
+selectInput("cost_centre_oa", label = "Cost Centre:", 
+            choices = unique(predictor_combinations$cost_centre), selected = "VTC")
+selectInput("experience_oa", label = "Experience Level:",
+            choices = unique(predictor_combinations$experience), selected = ">60 Months")
+
+ 
+renderPlotly({
+  
+  row_val <- which(input$cost_centre_oa == predictor_combinations$cost_centre & input$experience_oa == predictor_combinations$experience)
+  
+  median_samp <- round(median(posterior_samples[, row_val] %>% pull()), 0)
+  lower <- quantile(posterior_samples[, row_val] %>% pull(), 0.05)
+  upper <- quantile(posterior_samples[, row_val] %>% pull(), 0.95)
+  
+  plotting_data_oa <- posterior_samples[, row_val] %>%
+    set_names("Number of Incidents/Yr") %>%
+    mutate(`Number of Incidents/Yr` = as.character(`Number of Incidents/Yr`)) %>%
+    group_by(`Number of Incidents/Yr`) %>%
+    count() %>%
+    ungroup() %>%
+    mutate(`Probability of Occurring` = round(n / sum(n), 2))
+  
+  total_gte8 <- sum(plotting_data_oa$`Probability of Occurring`[plotting_data_oa$`Number of Incidents/Yr` >= 8])
+  
+  plotting_data_oa <- plotting_data_oa %>%
+    filter(`Number of Incidents/Yr` %in% seq(1, 7, 1)) %>%
+    bind_rows(tibble(`Number of Incidents/Yr` = '8+', n = NA, `Probability of Occurring` = total_gte8)) %>%
+    mutate(indicator = as.factor(ifelse(`Number of Incidents/Yr` == median_samp, "Median", "No")))
+  
+  ggplotly(ggplot(data = plotting_data_oa, aes(x = `Number of Incidents/Yr`, y = `Probability of Occurring`, fill = indicator)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Incidents/Year", y = "Probability of Occurring") +
+  theme_economist() +
+  scale_fill_manual(breaks = c("Median"), values = c("red", "gray"), guide = FALSE) +
+  theme(
+      legend.position = "none",
+      axis.title.y = element_text(vjust = 5),
+      axis.title.x = element_text(vjust = -3)) +
+  scale_x_discrete(drop = FALSE), autosize = TRUE, tooltip = c("Number of Incidents/Yr", "Probability of Occurring")) %>%
+    layout(title = list(text = paste0("Experience: ", input$experience_oa, ", Cost Centre: ", input$cost_centre_oa, "<br>", "<sup>", "Best Point Prediction in Red, ", "90% Credible Interval: ", "[" , round(lower, 2), ", ", round(upper, 2), "]", "</sup>"), x = 0))
+  
+  })
+
+```
+This tool further emphasizes what was observed in the prior section. If the user switches to cost centre PTC for example, they can see that operators in Port Coquitlam with >6 Months & <18 Months have a lower expected number of incidents per year when compared to operators >18 Months & <60 Months. The number of incidents per year is also much more certain for the **less experienced** operators when compared to the more experienced ones which is very counterintuitive and unique to Port Coquitlam. 
+
+### Conclusions and Recommendations
+
+In the end, we have observed the following points:
+
+- As operators become more experienced, they are expected to have fewer incidents per year overall. However, in some areas such as Port Coquitlam this is not true.
+- There is little evidence to suggest that operators become complacent as they exit the probationary period (<6 Months), with most cost centres displaying significant reductions in expected incidents/yr as an operator becomes more experienced.
+- Port Coquitlam is a significant outlier to the above two hypotheses. Port Coquitlam operators tend to have their expected incidents per year **increase** with experience until they hit >60 Months in which they fall back in line with other cost centres. This could possibly be due to complacency, but regardless further investigation is needed as to why this is occurring.
+- The speed at which operators "learn" to avoid incidents varies widely depending on the cost centre. Operators in Vancouver, Surrey, and Burnaby appear to exhibit significant improvement as they gain more experience. However, for operators in Richmond there is very little improvement for operators until they hit >60 Months of experience.
+- There is little to no difference in expected incidents per year for operators with <6 Months of experience over all cost centres. However, Burnaby has a notably higher incidents per year than the overall expectation for other operators, and perhaps more training for new operators is needed for those who work in the Burnaby region, or perhaps these operators experience notably different situations compared to others.
+- Shuttle operators clearly exhibit fewer incidents per year than non-shuttle operators, probably due to ease of use.
+
+## Weather and Busses
+
+## A Combined Analysis of All Factors Using Machine Learning
+
+## Common Types of Claims by Location
+## Assessment of Claims Costs by Location
+## Future Analysis
