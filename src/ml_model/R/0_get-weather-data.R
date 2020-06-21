@@ -18,7 +18,7 @@ library(lubridate)
 library(weathercan)
 library(docopt)
 
-source("src/ml-model/R/helper-scripts/build_series.R")
+source("src/ml_model/R/helper-scripts/build_series.R")
 
 opt <- docopt(doc)
 

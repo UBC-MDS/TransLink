@@ -1,14 +1,13 @@
 #`Pull in data from S3. Replace ... with your access key and secret key.
 
 data/TransLink\ Raw\ Data/2020\ Collisions-\ Preventable\ and\ Non\ Preventable\ UBC\ Set\ Without\ Claim\ Number.xlsx data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last\ 3\ Years.xlsx data/TransLink\ Raw\ Data/pedestrain_claims.csv data/TransLink Raw\ Data/preventable_NonPreventable_claims.csv data/TransLink\ Raw\ Data/Speed\ performance\ data.csv: src/get-data.py
-	python src/get-data.py --access_key=AKIATB63UHM3EORBTSUU --secret_key=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
+	python src/get-data.py --access_key=A... --secret_key=...
 
 #--------------Operator Analysis-------------
-# Possibly delete if ML-model works!
 # Wrangle the data, split into train and test
 
 data/operators/train.csv data/operators/test.csv: src/operators/R/0_wrangle.R data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last\ 3\ Years.xlsx
-	Rscript src/operators/R/0_wrangle.R data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last 3\ Years.xlsx data/operators
+	Rscript src/operators/R/0_wrangle.R data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last\ 3\ Years.xlsx data/operators
 
 # Run basic GLM
 
@@ -34,10 +33,10 @@ results/operators/models/final-model.rds results/operators/report-tables/posteri
 
 # Get weather data and wrangle exisiting data
 
-data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds: src/ml-model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv
-	Rscript src/ml-model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv data/ml-model
+data/ml_model/cleaned_accident_data.rds data/ml_model/stations_per_loc_day.rds data/ml_model/stations_per_loc_hour.rds: src/ml_model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv
+	Rscript src/ml_model/R/0_get-weather-data.R data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Preventable\ and\ Non\ Preventable_tabDelimited.txt data/TransLink\ Raw\ Data/employee_experience_V2.csv data/ml_model
 	
 # Get training and testing data sets
 
-data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test.csv: src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds data/TransLink\ Raw\ Data/Scheduled_Actual_services_2019.csv
-	Rscript src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds data/TransLink\ Raw\ Data/Scheduled_Actual_services_2019.csv data/ml-model
+data/ml_model/final_data_combined.csv data/ml_model/train.csv data/ml_model/test.csv: src/ml_model/R/1_sample.R data/ml_model/cleaned_accident_data.rds data/ml_model/stations_per_loc_day.rds data/ml_model/stations_per_loc_hour.rds data/TransLink\ Raw\ Data/Scheduled_Actual_services_2019.csv
+	Rscript src/ml_model/R/1_sample.R data/ml_model/cleaned_accident_data.rds data/ml_model/stations_per_loc_day.rds data/ml_model/stations_per_loc_hour.rds data/TransLink\ Raw\ Data/Scheduled_Actual_services_2019.csv data/ml_model
