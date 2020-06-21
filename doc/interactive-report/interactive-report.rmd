@@ -4,7 +4,7 @@ author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
 date: "24/05/2020"
 output: html_document
 runtime: shiny
-reference: ref.bib
+bibliography: ref.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -278,7 +278,7 @@ For example, while in the previous section it was observed that more experienced
   
 ### Overall Predictive Power of Variables in Model
 
-We employed a machine learning model to simulatenously assess the overall predictive power of all of these various factors using a very similar methodology to that of [@Montreal] and [@WilsonML]. Full details are described in the final written report that is also submitted with this one. On average, the model shown here is expected to correctly rank a scenario with an actual incident to be of higher risk than a scenario without, 85% of the time. This is is line with the papers in which this model is based on.
+We employed a machine learning model to simulatenously assess the overall predictive power of all of these various factors using a very similar methodology to that as described in two papers ([@Montreal] and [@WilsonML]). Full details are described in the final written report that is also submitted with this one. On average, the model shown here is expected to correctly rank a scenario with an actual incident to be of higher risk than a scenario without, 85% of the time. This is is line with the papers in which this model is based on.
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
@@ -345,10 +345,10 @@ summary_plot <- class1 %>%
     Predictor == "month" ~ "Month",
     TRUE ~ Predictor
   )) %>%
-  mutate(Predictor = fct_reorder(Predictor, `Mean Absolute SHAP Score`),
-         `Mean Absolute SHAP Score` = round(`Mean Absolute SHAP Score`, 4)) 
+  mutate(Predictor = fct_reorder(Predictor, `Mean Absolute Score`),
+         `Mean Absolute Score` = round(`Mean Absolute Score`, 4)) 
 
-ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute SHAP Score`)) +
+ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute Score`)) +
   geom_bar(stat = 'identity', position = 'dodge') +
   coord_flip() +
   theme_bw() +
@@ -356,7 +356,7 @@ ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute SHAP 
 
 ```
 
-The "scores" shown on the graph above represent the amount of overall importance a factor has in determing whether an incident is more or less likely to occur. The larger the score, the more important the factor is in determining how risky any given scenario is.
+The scores shown on the graph above represent the amount of overall importance a factor has in determing whether an incident is more or less likely to occur. The larger the score, the more important the factor is in determining how risky any given scenario is.
 
 As we can see, it is quite obvious that the bus line number is by far the most important factor in determining whether an incident is likely to occur or not. This is not too surprising considering that some bus lines naturally move through more populated areas. To test this hypothesis and many others, we can use the following tool below to actually see the estimated risk per each line. In addition, we can see how the risk changes for all of the other variables used in this model as well. 
 
@@ -687,12 +687,43 @@ output$bus_plot <- renderPlotly({
 
 ```
 
-Estimated "risk scores" shown above are normalized to be between zero and one. A risk score of one means that it is very likely an incident will occur - a risk score closer to zero means it is quite unlikely. A risk score of 0.5 (the red horizontal lines shown above) is the average risk over all values of the variable being viewed.
+Estimated risk scores shown above are normalized to be between zero and one. A risk score of one means that it is very likely an incident will occur - a risk score closer to zero means it is quite unlikely. A risk score of 0.5 (the red horizontal lines shown above) is the average risk over all values of the variable being viewed.
 
 It is important to stress that these risk scores are **not** probabilities of an incident occurring under a specific scenario despite it appearing as such. Indeed, some of these scores have values as high as 0.75 which cannot realistically be the probability of an incident occurring under any scenario (incidents are much rarer than that). The reasons for why we cannot interpret these scores as probabilities is related to how this model is actually created, but regardless, these scores are purely to be interpreted as relative measures. That is, these scores have no meaning by themselves but do have proper meaning in relation to each other.
 
-As an example, we see that line  
-	
+As an example, we see that line 22 is estimated to have the highest risk out of all bus lines with a median score of 0.68, holding all other variables constant. Similarily, the new R4 bus line is estimated to have a median risk score of 0.57. None of these scores have any meaning by themselves, but we can make the conclusions that:
+
+1) Line 22 is roughly 0.68/0.57 = 1.20 times (20%) more likely to be involved in an incident than the R4
+2) Both lines are above the overall average of 0.5 risk
+
+The boxplots can be used to gauge how uncertain the overall estimates are, but the medians can be considered our best point estimate. These stats can be viewed by hovering the mouse cursor over specific boxes directly on the plot.
+
+#### Results
+
+Below, we highlight some key observations from the graph above.
+
+- Lines:
+
+Overall, we can see that the lines estimated to be of highest risk for incidence are the 22, 10, 41, 20, 14 and the 4. All of these lines with the exception of line 41 all go through Downtown Vancouver. It is difficult to know exactly why Downtown is such a troublesome area - perhaps more traffic and overall density could play a role. Indeed, we see in the spatial analysis section that Downtown Vancouver overall dominates the number of claims as well. 
+
+Line 41 is the bus line that sticks out quite noticeably from the others in that it is the only line out of the top six that does not actually go to Downtown Vancouver. However, this bus line does cover a very large distance which dramatically increases the amount of exposure this particular line has. In general, the riskiest lines are those that stretch large portions of Metro Vancouver. One notable exception to this is line 5 which covers a fairly small distance but in a very dense area (Robson Square). 
+
+Avoiding the most dense areas of Vancouver in some fashion, perhaps by modifying routes in a more strategic fashion to avoid high traffic areas could possibly be an avenue of interest. Knowing which specific roads are of particular high risk is the next step in this analysis that would give even more granular detail to TransLink to actually plan potentially safer routes. This is more challenging but entirely possible, largely using the same methodology employed in this report.
+
+The safest bus lines all are outside of Vancouver for the most part (640, 104, 562, 119, 103) - all are estimated to have a risk score of around 0.05. Thus, these lines are all ten times less likely to be involved in an incident when compared to the global average and roughly 14 times less likely to be involved in an incident than the worst offending lines.
+
+- Hour:
+
+There are some very interesting results from this analysis regarding the time. It is very clear that there are times that are of notably above average risk as well as some interesting outliers. As one might expect, the highest risk times during the day are between 7 am and and 6 pm, with 3-5 pm being the worst times in the day likely due to traffic congestion. There are clear groups of risk in these time intervals as well. It would appear that the afternoon (especially around 3-5 pm) is 1.1 times more likely of an incident when compared to that of the morning rush hour (7 am to 9 am).
+
+There is one very strange time that is a clear outlier when compared to others - 3 am. For some strange reason, 3 am is estimated to be of higher risk when compared to other off-peak times which is very bizzare in general (though it is still below average). In fact, an incident is roughly twice as likely to occur in the 3 am hour than 12 am and is comparable in risk to that of of 10 pm. This is very strange behavior and is worth exploring further as to why this time is suspiciously higher than other off-peak times.  
+
+- Month
+
+Month is the second most predictive variable in this model, and using the tool above it is easy to see why. There is a clear difference between March, June, July, and September and all of the other months. However, we suspect that the differences between the months may not be for the same reasons. January and February could be explained possibly by the erratic weather 
+
+
+
 ### Risk for Any Combination Of Variables
 
 Finally, the following tool allows the user to query the final predicted model to get the predicted risk for any combination of variables. Note for brevity that we let the user change variables that they could easily have on hand. Furthermore, variables that have little impact on predictions in general (from the analysis above) are kept constant.
@@ -785,7 +816,7 @@ observeEvent(input$bus_line_custom, {
 ```
 
 
-
 ## Common Types of Claims by Location
 ## Assessment of Claims Costs by Location
 ## Future Analysis
+## References
