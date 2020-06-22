@@ -207,7 +207,7 @@ As an operator gains more experience, the rate at which they improve also varies
 
 Finally, there is a clear difference between experienced shuttle operators and non-shuttle operators. Shuttle operators overall do not get into as many incidents per year when compared to non-shuttle operators, perhaps because they are in general easier to operate.
 
-<center> <h4>Predictive Analyses</h4> </center>
+<center> <h4>Predictive Analysis</h4> </center>
 
 The following interactive graph below gives the actual probability of a specific operator having K incidents in a year, given that the operator has at least one incident. This differs from the above since it provides predictions not for the average incidents per year of all operators in a specific cost centre with a particular experience level, but for the actual observed number of incidents per year for any **single** operator.
 
