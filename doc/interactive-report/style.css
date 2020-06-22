@@ -1,0 +1,26 @@
+h1 {
+  text-align: center;
+  color: #C00000;
+}
+
+h2, h3 {
+	text-align: center;
+	color: #002060;
+}
+
+h4 {
+	text-align: center;
+	color: #002060;
+	font-size: 25px;
+}
+
+.btn {
+    border-width: 0 0px 0px 0px;
+    font-weight: normal;
+}
+
+.btn-default {
+    color: #002060;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
