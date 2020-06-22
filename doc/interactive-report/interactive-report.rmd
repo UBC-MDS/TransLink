@@ -279,7 +279,7 @@ For example, while in the previous section it was observed that more experienced
   
 <center> <h4>Overall Predictive Power of Variables in the Model</h4> </center>
 
-We employed a machine learning model to simultaneously assess the overall predictive power of all of these various factors using a very similar methodology to what is described in two papers ([@Montreal] and [@WilsonML]). Full details are described in the final written report that is also submitted with this one. On average, the model shown here correctly ranks a scenario with an actual incident to be of higher risk than a scenario with no incident, 85% of the time. This is is line with the papers in which this model is based on.
+We employed a machine learning model to simultaneously assess the overall predictive power of all of these various factors using a very similar methodology to what is described in two papers ([@Montreal] and [@WilsonML]). More details are described in the final written report that is also submitted with this one. On average, the model shown here correctly ranks a scenario with an actual incident to be of higher risk than a scenario with no incident, 85% of the time. This is is line with the papers in which this model is based on.
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
@@ -314,7 +314,7 @@ overall_mean <- tibble(
 
 ```
 
-In answering the business question, the graph below summarizes the factors that yield the largest risk of a bus incident occurring, as estimated by the model.
+In answering the business question, the graph below summarizes the variables that are most important in determing the risk of an incident occurring, as estimated by the model.
 
 ```{r ML Model: Summary Plots, echo = FALSE}
 
@@ -357,7 +357,7 @@ ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute Score
 
 ```
 
-The scores shown on the graph above represent the amount of overall importance a variable has in determining whether an incident is more or less likely to occur. The larger the score, the more important the variable is in determining how risky any given scenario is.
+The scores shown on the graph above represent the overall importance a variable has in determining whether an incident is more or less likely to occur. The larger the score, the more important a variable is.
 
 As we can see, it is quite obvious that the bus line number is by far the most important variable in determining whether an incident is likely to occur or not. This is not too surprising considering that some bus lines naturally move through more populated areas. To test this hypothesis and many others, we can use the following tool below to actually see the estimated risk per each line. In addition, we can see how the risk changes for all of the other variables used in this model as well. 
 
@@ -688,7 +688,7 @@ output$bus_plot <- renderPlotly({
 
 ```
 
-Estimated risk scores shown above are adjusted to be between zero and one. A risk score of one means that it is very likely an incident will occur - a risk score closer to zero means it is quite unlikely. A risk score of 0.5 (the red horizontal lines shown above) is the average risk over all values of the variable being viewed - this can be interpreted as unity risk or "no effect". In addition, just like the operators analysis it should be stressed that these are estimated **average** risk scores for a **group of observations** with the same characteristics and not the actual predicted risk scores for a single, specific observation (see below).
+Estimated risk scores shown above are adjusted to be between zero and one. A risk score of one means that it is very likely an incident will occur - a risk score closer to zero means it is quite unlikely. A risk score of 0.5 (the red horizontal line shown above in each plot) is the average risk over all values of the variable being viewed - this can be interpreted as unity risk or "no effect". In addition, just like the operators analysis it should be stressed that these are estimated **average** risk scores for a **group of observations** with the same characteristics and not the actual predicted risk scores for a single, specific observation (see the next section if this is desired).
 
 It is important to stress that these risk scores are **not** probabilities of an incident occurring under a specific scenario. Indeed, some of these scores have values as high as 0.75 which cannot realistically be the probability of an incident occurring under any scenario (incidents are much rarer than that). The reason for why we cannot interpret these scores as probabilities is related to how this model is actually created, but regardless, these scores can only be interpreted as relative measures. That is, these scores have no meaning by themselves but do have proper meaning in relation to each other.
 
@@ -697,9 +697,9 @@ As an example, we see that line 22 is estimated to have the highest risk out of 
 1) Line 22 is roughly 0.68/0.57 = 1.20 times (20%) more likely to be involved in an incident than the R4
 2) Both lines are above the overall average of 0.5 risk
 
-The boxplots can be used to gauge how uncertain the overall estimates are, but the medians can be considered our best point estimate. These stats can be viewed by hovering the mouse cursor over specific boxes directly on the plot.
+The boxplots can be used to gauge how uncertain the overall estimates are, but the medians can be considered our best point estimates. These stats can be viewed by hovering the mouse cursor over specific boxes directly on the plot.
 
-If the variable being analyzed can be any arbitrary number (like all of the weather variables except for elevation) then a plot displaying the estimated "risk curve" for that variable is provided. This gives the estimated average risk for any value of the variable, holding all other variables in the model constant. For some of these plots, the user may notice grey regions for some regions of these plots, such as for very low temperatures. These grey regions reflect the uncertainty in the estimated risk curve in which the curve realistically could fall anywhere in the region. These grey regions are only noticeable for very extreme values of the variable being analyzed since there is very little (if any) data to estimate the effect for these values (such as -30°C which almost never occurs in the Greater Vancouver area).
+If the variable being analyzed can be any arbitrary number (like all of the weather variables except for elevation) then a plot displaying the estimated "risk curve" for that variable is shown. This gives the estimated average risk for any value of the variable, holding all other variables in the model constant. For some of these plots, the user may notice grey regions for some extreme values of the variable being viewed, such as for very low temperatures. These grey regions reflect the uncertainty in the estimated risk curve in which the curve realistically could fall anywhere in the region. These grey regions are only noticeable for very extreme values of the variable being analyzed since there is very little (if any) data to estimate the effect for these values (such as -30°C which almost never occurs in the Greater Vancouver area).
 
 <center> <h4>Results</h4> </center>
 
@@ -707,7 +707,7 @@ Below, we highlight some key observations from the tool above.
 
 - __*Lines*__:
   
-Overall, we can see that the lines estimated to be of highest risk for an incident are the 22, 10, 41, 20, 14 and the 4. All of these lines with the exception of line 41 all go through Downtown Vancouver. It is difficult to know exactly why Downtown is such a troublesome area - perhaps more traffic and overall density could play a role. Indeed, we see in the spatial analysis section that Downtown Vancouver overall dominates the number of claims as well. 
+Overall, we can see that the lines estimated to be of highest risk for an incident are the 22, 10, 41, 20, 14 and the 4. All of these lines with the exception of line 41 go through Downtown Vancouver. It is difficult to know exactly why Downtown is such a troublesome area - perhaps more traffic and overall population density could play a role. Indeed, we see in the spatial analysis section that Downtown Vancouver dominates the total number of claims as well. 
 
 Line 41 is the bus line that sticks out quite noticeably from the others in that it is the only line out of the top six that does not actually go to Downtown Vancouver. However, this bus line does cover a very large distance which dramatically increases the amount of exposure this particular line has. In general, the riskiest lines are those that stretch large portions of Metro Vancouver. One notable exception to this is line 5 which covers a fairly small distance but in a very dense area (Robson Square). 
 
@@ -723,7 +723,7 @@ There is one very strange time that is a clear outlier when compared to others -
 
 - __*Month*__:
 
-Month is the second most predictive variable in this model, and using the tool above it is easy to see why. There is a clear difference between March, June, July, and September and all of the other months. However, we suspect that the differences between the months may not be for the same reasons. January and February could be explained possibly by the erratic weather observed in these months. However, it is not clear as to why April and May are equally as bad as the winter months. 
+Month is the second most predictive variable in this model, and using the tool above it is easy to see why. There is a clear lower risk of incidence between March, June, July, and September and all of the other months. However, we suspect that the differences between the months may not be for the same reasons. January and February could be explained possibly by the erratic weather observed in these months. However, it is not clear as to why April and May are equally as bad as the winter months. 
 
 It may be easier to deduce why June and July are lower incident months - indeed, there is likely less traffic congestion and bus activity due to the Summer season. 
 
@@ -735,7 +735,7 @@ Elevation is noted to be of high predictive power but we believe this is merely 
 
 Two notable variables are that of atmospheric pressure and temperature, both of which are noted to be predictive of an incident. When we view the risk curve for pressure, we see that lower pressures have higher risk which intuitively makes a lot of sense (lower pressures often yields more precipitation, making driving conditions more difficult). However, there is a slight spike at pressures around 103 kPa in which the risk suddenly is driven up again. Higher pressures often yield cloudless skies and a potential explanation for this could be related to increased congestion and pedestrians on "nice" days. The temperature risk curve seems to potentially support this idea - again we see a decreasing risk curve overall as temperature increases until about 31°C in which the risk suddenly starts increasing.
 
-For the risk curve regarding the amount of rain, it would appear that rain amounts < 10 mm have very little effect on estimated risk (in fact, the model estimates a slightly lower risk of an incident for rain amounts < 5 mm). Once rain increases beyond 10 mm, however, we see that the risk curve starts increasing in a rather expected way. Rain amounts around 20 mm are of particular note in which an incident is about 1.1 times more likely to occur when it rains around 20 mm when compared to scenarios with no rain.
+For the risk curve regarding the amount of rain, it would appear that rain amounts < 10 mm have very little effect on estimated risk (in fact, the model estimates a slightly lower than average risk of an incident for rain amounts < 5 mm). Once rain increases beyond 10 mm, however, we see that the risk starts increasing in a rather expected way. Rain amounts around 20 mm are particularly noteworthy in which an incident is about 1.1 times more likely to occur when it rains around 20 mm when compared to scenarios with no rain.
 
 We do not discuss the other weather variables here since they were not found to be very predictive of incidents (and often yield relationships that are nonsensical and spurious at best).
 
@@ -749,7 +749,7 @@ We do not discuss the other bus characteristic variables like asset manufacturer
 
 - __*Operator Experience Revisited*__:
 
-In the previous section, we observed that operators with more experience tend to get into fewer incidents. However, as the tool above shows, the opposite effect is observed here. Those with more experience appear to get into more incidents, and around 65 months (or about five and a half years) appears to be the point at which operators start to see elevated risk levels above the average. While this appears to be a contradiction, it should be noted that the variable overall has limited importance after accounting for all of the other factors such as line number, weather, and time. It would seem that operator experience, after accounting for a bunch of other different variables, does not play as significant of a role as one might believe.
+In the previous section, we observed that operators with more experience tend to get into fewer incidents. However, as the tool above shows, the opposite effect is observed here. Those with more experience appear to get into more incidents, and around 65 months (or about five and a half years) appears to be the point at which operators start to see elevated risk levels above the average. While this appears to be a contradiction, it should be noted that operator experience overall has limited importance after accounting for all of the other variables such as line number, weather, and time. It would seem that operator experience, after accounting for a bunch of other different variables, does not play as significant of a role as one might believe.
 
 Overall, because this analysis actually controls for many more factors it is likely much more accurate than the previous analysis that looked at only operator characteristics. 
 
@@ -769,10 +769,11 @@ sidebarLayout(
   selectInput("day_of_week_custom", label = "Day Of Week:", choices = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"), selected = "Fri"),
   selectInput("month_custom", label = "Month:", choices = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), selected = "Jan"),
   selectInput("bus_carry_capacity_custom", label = "Bus Carry Capacity:", choices = unique(original_train$bus_carry_capacity), selected = 120),
+  sliderInput("bus_age_custom", label = "Bus Age (years):", min = 0, max = 30, value = 0, step = 1),
   selectInput("city_custom", label = "City:", choices = unique(original_train$city), selected = "Vancouver"),
   sliderInput("temp_custom", label = "Temperature (°C):", min = -30, max = 50, value = 10, step = 0.5),
   sliderInput("pressure_custom", label = "Atmospheric Pressure (kPa):", min = 90, max = 130, value = 102.5, step = 0.1),
-  sliderInput("rain_custom", label = "Total Rain (mm):", min = 0, max = 500, value = 0, step = 0.5)),
+  sliderInput("rain_custom", label = "Total Rain (mm):", min = 0, max = 300, value = 0, step = 0.5)),
   mainPanel(
     renderPlotly({
       
@@ -788,6 +789,7 @@ sidebarLayout(
         hour = input$hour_custom,
         day = input$day_of_week_custom,
         month = lookup$month_num[which(lookup$month_name == input$month_custom)],
+        bus_age = input$bus_age_custom,
         bus_carrying_cap = na.omit(input$bus_carry_capacity_custom),
         city = input$city_custom,
         temp = input$temp_custom,
@@ -847,7 +849,9 @@ observeEvent(input$bus_line_custom, {
 
 Like in previous graphs, the scores on the x-axis provide the overall impact of the variable on the final predicted risk of incident. If the variable contributes a lot, then the bar will be larger in value.
 
-The direction of influence a variable has on the final prediction is indicated by the colours of the bars. A blue bar indicates that the variable is reducing the overall predicted risk score - a red bar indicates that the variable is increasing the overall predicted risk score.
+The direction of influence a variable has on the final prediction is indicated by the colours of the bars. A blue bar indicates that the variable is reducing the overall predicted risk score. A red bar indicates that the variable is increasing the overall predicted risk score.
+
+The tool can also be used to further assess the effect of possible changes on overall predicted risk. For example, the user can see how
 
 <center> <h4>Conclusions and Recommendations</h4> </center>
 
@@ -875,7 +879,7 @@ We outline possible improvements that could further improve this analysis here.
 
 Ultimately, TransLink originally approached us with the desire to find **causal** factors that lead to incidents rather than mere correlations. This is very difficult to achieve due to the existence of confounders - variables that influence both the incident risk and a variable of interest like hour of the day. 
 
-These confounders can be controlled for by deliberate experiments. As an example, one such experiment could involve randomly assigning say, 30 random selected bus drivers to bus line 10, and 30 randomly selected bus drivers to bus line 16 and recording their number of incidents over time. This is likely very impractical, but would allow TransLink to actually make sound causal claims if they exist.
+These confounders can be controlled for by deliberate experiments. As an example, one such experiment could involve randomly assigning say, 30 randomly selected bus drivers to bus line 10, and 30 randomly selected bus drivers to bus line 16 and recording their number of incidents over time. This is likely very impractical, but would allow TransLink to actually make sound causal claims if they exist.
 
 A more practical approach is in fact an analysis very similar to that of the analysis done in this report - collect as many variables that could reasonably be linked to the likelihood of an incident and analyze everything simultaneously. The only major difference in methodology will be a more proper statistical analysis on the model output shown here or a switch to a more statistical approach like Bayesian statistics (such as what we did with the operators dataset in this report). The problem with this approach when compared to rigorous experiments is that causal claims cannot be made with 100% certainty due to a lack of random assignment that comes with explicit experimentation. At best, causal claims can be strengthened by including as many possible confounders as possible, like what we tried in this report. However, we feel that the analysis done in this report is far from accounting for all possible confounders. Variables such as the steepness of certain roads, road curvature, distractions from billboard signs/buildings, speed of buses leading up to specific incidents, population density/foot traffic of certain areas, and operator preference towards certain lines all could be confounding this analysis badly. To add to this complexity, there are likely multiple interactions between variables (for example, the effect of operator experience may change depending on what line the operator is working on) which even further complicates things, though there are modern methods similar in spirit to the methods done in this report where these can be accounted for automatically.
 

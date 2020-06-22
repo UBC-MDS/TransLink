@@ -4,11 +4,11 @@ import pickle
 import shap
 from lightgbm import LGBMClassifier
 
-def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp, pressure, total_rain):
+def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp, pressure, bus_age, total_rain):
   
   '''
-  This function calculates new predictions for a given bus line, hour, month, day, bus carrying capacity,
-  city, temperature (degrees celcius), pressure (kPA) and rain (mm). Assumes that a file named 
+  This function calculates new predictions for a given bus line, hour, month, day, bus carrying capacity, bus age
+  (years), city, temperature (degrees celcius), pressure (kPA) and rain (mm). Assumes that a file named 
   final_fitted.pickle is in the results/ml_model directory.
 
   This is solely for use in the interactive report so the user can dynamically generate a graph
@@ -23,9 +23,10 @@ def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp,
       of the week.
     bus_carrying_cap: A integer representing the carrying capacity of a bus.
     city: A str representing the city of interest.
-    temp: The temperature in degrees celcius.
-    pressure: The atmospheric pressure is kPa
-    total_rain: The total rain in mm.
+    temp: A float representing the temperature in degrees celcius.
+    pressure: A float representing the atmospheric pressure in kPa
+    bus_age: An int representing the bus age in years.
+    total_rain: A float representing the total rain in mm.
 
   Returns:
     dict
@@ -47,7 +48,7 @@ def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp,
   new_data = pd.DataFrame({
     'hour': pd.Series(hour, dtype='int'),
     'day_of_week': pd.Series(day, dtype='str'),
-    'bus_age': pd.Series(12.57, dtype='float'),
+    'bus_age': pd.Series(bus_age, dtype='float'),
     'bus_carry_capacity': pd.Series(bus_carrying_cap if bus_carrying_cap != "NA" else np.nan, dtype='float'),
     'line_no': pd.Series(bus_line, dtype='str'),
     'city': pd.Series(city, dtype='str'),
