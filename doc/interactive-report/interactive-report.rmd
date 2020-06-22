@@ -868,4 +868,21 @@ We summarize the key points of this entire analysis:
 ### Common Types of Claims by Location
 ### Assessment of Claims Costs by Location
 ### Future Analysis
+
+We outline possible improvements that could further improve this analysis here.
+
+<center> <h4>Causal Interpretations</h4> </center>
+
+Ultimately, TransLink originally approached us with the desire to find **causal** factors that lead to incidents rather than mere correlations. This is very difficult to achieve due to the existence of confounders - variables that influence both the incident risk and a variable of interest like hour of the day. 
+
+These confounders can be controlled for by deliberate experiments. As an example, one such experiment could involve randomly assigning say, 30 random selected bus drivers to bus line 10, and 30 randomly selected bus drivers to bus line 16 and recording their number of incidents over time. This is likely very impractical, but would allow TransLink to actually make sound causal claims if they exist.
+
+A more practical approach is in fact an analysis very similar to that of the analysis done in this report - collect as many variables that could reasonably be linked to the likelihood of an incident and analyze everything simultaneously. The only major difference in methodology will be a more proper statistical analysis on the model output shown here or a switch to a more statistical approach like Bayesian statistics (such as what we did with the operators dataset in this report). The problem with this approach when compared to rigorous experiments is that causal claims cannot be made with 100% certainty due to a lack of random assignment that comes with explicit experimentation. At best, causal claims can be strengthened by including as many possible confounders as possible, like what we tried in this report. However, we feel that the analysis done in this report is far from accounting for all possible confounders. Variables such as the steepness of certain roads, road curvature, distractions from billboard signs/buildings, speed of buses leading up to specific incidents, population density/foot traffic of certain areas, and operator preference towards certain lines all could be confounding this analysis badly. To add to this complexity, there are likely multiple interactions between variables (for example, the effect of operator experience may change depending on what line the operator is working on) which even further complicates things, though there are modern methods similar in spirit to the methods done in this report where these can be accounted for automatically.
+
+<center> <h4>Roads, Not Just Bus Lines </h4> </center>
+
+Another potential avenue for TransLink to explore is that of incorporating specific roads, rather than just lines. This is entirely possible using the data that we have right now since we are given the specific street names on which an incident actually occurred at. This is more complex than the analysis shown here in the report but would allow TransLink to potentially modify routes away from high risk streets to avoid incidents. We think that this analysis will be incredibly fruitful for TransLink to have, considering that we know that the biggest determiner of risk is the bus line, and that the worst offending bus lines all happen to move through Downtown Vancouver.
+
+We simply ran out of time to implement this but it is completely possible with small modifications to this analysis.
+
 ### References
