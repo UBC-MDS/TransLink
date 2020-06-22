@@ -737,7 +737,7 @@ Two notable variables are that of atmospheric pressure and temperature, both of 
 
 For the risk curve regarding the amount of rain, it would appear that rain amounts < 10 mm have very little effect on estimated risk (in fact, the model estimates a slightly lower risk of an incident for rain amounts < 5 mm). Once rain increases beyond 10 mm, however, we see that the risk curve starts increasing in a rather expected way. Rain amounts around 20 mm are of particular note in which an incident is about 1.1 times more likely to occur when it rains around 20 mm when compared to scenarios with no rain.
 
-We do not discuss the other weather variables here since they were not found to be very predictive of incidents (and often yield relationships that are non-nonsensical and spurious at best).
+We do not discuss the other weather variables here since they were not found to be very predictive of incidents (and often yield relationships that are nonsensical and spurious at best).
 
 - __*Bus Characteristics*__:
 
