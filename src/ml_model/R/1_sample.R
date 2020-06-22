@@ -227,7 +227,8 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
                  experience_in_months = (as.yearmon(loss_date) - as.yearmon(hire_date)) * 12) %>%
           select(-var_to_change, -check, -time_of_loss, -row_num, -hire_date, -termination_date)
         
-        # If you change the line, city, and bus must also change!
+        # If you change the line, then city, and bus must also change!
+        # Additionally, bus year will be incorrect...so we need to fix this.
         set.seed(200350623)
         temp <- temp %>%
           select(-bus_no, -bus_age, -bus_carry_capacity, -city_of_incident) %>%
@@ -236,7 +237,7 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
           group_by(row_no) %>%
           sample_n(1) %>%
           ungroup() %>%
-          select(-row_no)
+          select(-row_no) 
         
         all_negative_samples[[1]] <- temp
         
