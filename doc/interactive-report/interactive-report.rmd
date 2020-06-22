@@ -273,7 +273,7 @@ In the end, we have observed the following points based solely on this dataset:
 
 <center> <h4>TransLink's Overall Business Question</h4> </center>
 
-TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents. Through this identification, TransLink hopes that through the identification of specific factors, certain preventable measures can be taken to help reduce insurance costs. The previous section only looked at operator experience levels and operator cost centre/location but this ignores multiple other factors that potentially distort the previous analysis. 
+TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents. Through this analysis, TransLink hopes that through the identification of specific factors, certain preventable measures can be taken to help reduce insurance costs. The previous section only looked at operator experience levels and operator cost centre/location but this ignores multiple other factors that potentially distort the previous analysis. 
 
 For example, while in the previous section it was observed that more experienced operators get into fewer incidents, this potentially is distorted by the fact that more experienced operators may choose to operate less busy bus lines due to seniority. Therefore, this analysis seeks to analyze everything simultaneously such that the effects of multiple other possible influencing factors are controlled for. In particular, TransLink has expressed interest in understanding the impact of weather conditions, bus characteristics, location, and time in addition to operator characteristics in order to get a better understanding of what is actually driving bus incidents.
   
