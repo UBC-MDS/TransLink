@@ -5,6 +5,37 @@ import shap
 from lightgbm import LGBMClassifier
 
 def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp, pressure, total_rain):
+  
+  '''
+  This function calculates new predictions for a given bus line, hour, month, day, bus carrying capacity,
+  city, temperature (degrees celcius), pressure (kPA) and rain (mm). Assumes that a file named 
+  final_fitted.pickle is in the results/ml_model directory.
+
+  This is solely for use in the interactive report so the user can dynamically generate a graph
+  as needed by querying results from the model. Arguments are fed to this function via. user
+  selected input in the report.
+
+  Parameters:
+    bus_line: A str that represents one of the bus lines in the Greater Vancouver area.
+    hour: An integer 0-23 representing a particular hour of the day.
+    month: An integer 1-12 representing a particular month of the year.
+    day: A str (Mon, Tue, Wed, Thu, Fri, Sat, Sun) that represents a particular day 
+      of the week.
+    bus_carrying_cap: A integer representing the carrying capacity of a bus.
+    city: A str representing the city of interest.
+    temp: The temperature in degrees celcius.
+    pressure: The atmospheric pressure is kPa
+    total_rain: The total rain in mm.
+
+  Returns:
+    dict
+      A dictionary with keys shap, predicted, and column_names containing the
+      SHAP scores (numpy array), predicted 0/1
+      scores (numpy array), and column names used in the model fit (list).
+
+  '''
+  
+  
   shuttles = ["23", "31", "42", "68", "103", "105", "109", "131", "132", "146",
                      "147", "148", "157", "169", "170", "171", "172", "173", "174", "175", "180", "181",
                      "182", "184", "185", "186", "187", "189", "215", "227", "251", "252", "256", "262",
