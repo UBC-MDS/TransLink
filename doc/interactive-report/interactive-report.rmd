@@ -801,7 +801,7 @@ sidebarLayout(
       colnames(graphing) <- shap_scores$column_names
       
       graphing <- graphing %>%
-        select(line_no, hour, day_of_week, month, bus_carry_capacity, city, temp, pressure, total_rain) %>%
+        select(line_no, hour, day_of_week, month, bus_carry_capacity, bus_age, city, temp, pressure, total_rain) %>%
         gather(key = "Predictor", value = "Score") %>%
         mutate(Score = round(Score, 4)) %>%
         mutate(
@@ -809,6 +809,7 @@ sidebarLayout(
           Predictor == "hour" ~ "Hour",
           Predictor == "day_of_week" ~ "Day Of Week",
           Predictor == "bus_carry_capacity" ~ "Bus Carry Capacity",
+          Predictor == "bus_age" ~ "Bus Age",
           Predictor == "line_no" ~ "Bus Line Number",
           Predictor == "city" ~ "City",
           Predictor == "pressure" ~ "Atmospheric Pressure",
@@ -818,7 +819,8 @@ sidebarLayout(
           Predictor == "month" ~ "Month",
           TRUE ~ Predictor
      )) %>%
-        mutate(`Risk Direction` = ifelse(Score < 0, "Induces Lower Risk", "Induces Higher Risk"))
+        mutate(`Risk Direction` = ifelse(Score < 0, "Induces Lower Risk", "Induces Higher Risk")) %>%
+        mutate(Predictor = fct_reorder(Predictor, abs(.$Score)))
       
       ggplotly(ggplot(graphing, aes(x = Predictor, y = Score, fill = `Risk Direction`)) +
         geom_bar(stat = "identity") +
@@ -851,7 +853,7 @@ Like in previous graphs, the scores on the x-axis provide the overall impact of 
 
 The direction of influence a variable has on the final prediction is indicated by the colours of the bars. A blue bar indicates that the variable is reducing the overall predicted risk score. A red bar indicates that the variable is increasing the overall predicted risk score.
 
-The tool can also be used to further assess the effect of possible changes on overall predicted risk. For example, the user can see how
+The tool can also be used to further assess the effect of possible interventions on overall predicted risk. For example, the user can see how much risk will be mitigated by using newer buses. Simulations can also be performed if the user knows what the weather will be like in the future, to potentially warn drivers ahead of time to take extra precaution once certain thresholds of risk are met (especially those who are operating lines that are of high risk).
 
 <center> <h4>Conclusions and Recommendations</h4> </center>
 
@@ -859,15 +861,14 @@ We summarize the key points of this entire analysis:
 
 - Bus line is by far the most important variable in determining how likely an incident is to occur for any scenario.
 - The bus lines that path specifically through Downtown Vancouver, with the exception of bus line 41, are the lines that have the highest risk of incidence. As a result, a large amount of risk can be mitigated simply by focusing on improving safety measures for all lines that move through Downtown Vancouver.
-- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think this is a combination of greater traffic density, more pedestrians, and large amounts of acceleration/deceleration due to a larger frequency of bus stops in a relatively small area.
-- The approach used in this analysis can be extended to more granular levels, in particular roads. We feel that TransLink can possibly extend this analysis to assess the risk per road (rather than per line) to potentially plan routes that avoid high risk areas.
-- The months of June, July, and September are roughly 1.5 times less likely to have an incident than all other months. June and July are possibly the result of lower ridership and traffic congestion during these months (due to the Summer holidays) but it is not clear as to why September is noticeably safer when compared to the others.
+- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think that this is a combination of greater traffic density, more pedestrians, and large amounts of acceleration/deceleration due to a larger frequency of bus stops in a relatively small area.
+- The approach used in this analysis can be extended to more granular levels, in particular to assess specific roads. We feel that TransLink can possibly extend this analysis to assess the risk per road (rather than per line) to potentially plan routes that avoid high risk areas.
+- The months of June, July, and September are roughly 1.5 times less likely to have an incident than all other months. Lower risk in June and July is possibly the result of lower ridership and traffic congestion (due to the Summer holidays) but it is not clear as to why September is noticeably safer when compared to the others.
 - 7 am and 6 pm are the times that are most risky for incidents, however, there are clear intervals within this range that are relatively safer. For example, the morning rush hour (7 am to 9 am) is roughly 1.1 times less likely to have an incident when compared to 3 pm to 5 pm. 
 - There is a very suspicious peak at 3 am in which the risk suddenly increases at this time (albeit, still below average) for unknown reasons.
 - As seen previously, shuttles are roughly 1.3 times less likely of an incident when compared to non-shuttles. Furthermore, there is virtually no difference in risk among smaller and fuller sized regular buses.
 - Bus age is surprisingly **very** predictive of incidents. Specifically, buses that are >= 24 years of age see an increasing risk of an incident (about 1.3 times more) than buses that are relatively new (0 to 1 year old)
-- Weather - specifically temperature and atmospheric pressure are both predictive of incidents. As the temperature increases, in general the risk of an incident decreases, however, after 30°C the risk of incident suddenly starts increasing again. A similar relationship holds for atmospheric pressure in which <100 kPA pressures in general exhibit a higher risk of incidence (due to likely more rain). At around 103-104 kPA, however, there is a noticeable bump. A possible theory for this could be the result of nicer days leading to more ridership and traffic congestion. 
-
+- Weather - specifically temperature and atmospheric pressure are both predictive of incidents. As the temperature increases, in general the risk of an incident decreases, however, after 30°C the risk of incident suddenly starts increasing again. A similar relationship holds for atmospheric pressure in which <100 kPA pressures in general exhibit a higher risk of incidence (due to likely more rain). At around 103-104 kPA, however, there is a noticeable bump in risk. A possible theory for this could be the result of nicer days leading to more ridership and traffic congestion. 
 
 ### Common Types of Claims by Location
 ### Assessment of Claims Costs by Location
@@ -877,15 +878,15 @@ We outline possible improvements that could further improve this analysis here.
 
 <center> <h4>Causal Interpretations</h4> </center>
 
-Ultimately, TransLink originally approached us with the desire to find **causal** factors that lead to incidents rather than mere correlations. This is very difficult to achieve due to the existence of confounders - variables that influence both the incident risk and a variable of interest like hour of the day. 
+TransLink originally approached us with the desire to find **causal** factors that lead to incidents rather than mere correlations. This is very difficult to achieve due to the existence of confounders - variables that influence both the incident risk and a variable of interest like hour of the day. 
 
 These confounders can be controlled for by deliberate experiments. As an example, one such experiment could involve randomly assigning say, 30 randomly selected bus drivers to bus line 10, and 30 randomly selected bus drivers to bus line 16 and recording their number of incidents over time. This is likely very impractical, but would allow TransLink to actually make sound causal claims if they exist.
 
-A more practical approach is in fact an analysis very similar to that of the analysis done in this report - collect as many variables that could reasonably be linked to the likelihood of an incident and analyze everything simultaneously. The only major difference in methodology will be a more proper statistical analysis on the model output shown here or a switch to a more statistical approach like Bayesian statistics (such as what we did with the operators dataset in this report). The problem with this approach when compared to rigorous experiments is that causal claims cannot be made with 100% certainty due to a lack of random assignment that comes with explicit experimentation. At best, causal claims can be strengthened by including as many possible confounders as possible, like what we tried in this report. However, we feel that the analysis done in this report is far from accounting for all possible confounders. Variables such as the steepness of certain roads, road curvature, distractions from billboard signs/buildings, speed of buses leading up to specific incidents, population density/foot traffic of certain areas, and operator preference towards certain lines all could be confounding this analysis badly. To add to this complexity, there are likely multiple interactions between variables (for example, the effect of operator experience may change depending on what line the operator is working on) which even further complicates things, though there are modern methods similar in spirit to the methods done in this report where these can be accounted for automatically.
+A more practical approach is in fact an analysis very similar to that of the analysis done in this report - collect as many variables that could reasonably be linked to the likelihood of an incident and analyze everything simultaneously. The only major difference in methodology will be a more proper statistical analysis on the model output shown here or a switch to a more statistical approach like Bayesian statistics (such as what we did with the operators dataset in this report). The problem with this approach when compared to rigorous experiments is that causal claims cannot be made with 100% certainty due to a lack of random assignment that comes with explicit experimentation. At best, causal claims can be strengthened by including as many possible confounders as possible, like what we tried in this report. However, we feel that the analysis done in this report is far from accounting for all possible confounders. Variables such as the steepness of certain roads, road curvature, distractions from billboard signs/buildings, speed of buses leading up to specific incidents, population density/foot traffic of certain areas, and operator preference towards certain lines all could be confounding this analysis badly. To add to this complexity, there are likely multiple interactions between variables (for example, the effect of operator experience on incident risk may change depending on what line the operator is working on) which even further complicates things, though there are modern methods similar in spirit to the methods done in this report where these can be accounted for automatically.
 
 <center> <h4>Roads, Not Just Bus Lines </h4> </center>
 
-Another potential avenue for TransLink to explore is that of incorporating specific roads, rather than just lines. This is entirely possible using the data that we have right now since we are given the specific street names on which an incident actually occurred at. This is more complex than the analysis shown here in the report but would allow TransLink to potentially modify routes away from high risk streets to avoid incidents. We think that this analysis will be incredibly fruitful for TransLink to have, considering that we know that the biggest determiner of risk is the bus line, and that the worst offending bus lines all happen to move through Downtown Vancouver.
+Another potential avenue for TransLink to explore is that of incorporating specific roads, rather than just lines. This is entirely possible using the data that we have right now since we are given the specific street names on which an incident actually occurred at. This is more complex than the analysis carried out in this report, but would allow TransLink to potentially modify routes away from high risk streets to avoid incidents. We think that this analysis could be incredibly fruitful for TransLink to have, considering that we know that the biggest determiner of risk is the bus line, and that the worst offending bus lines all happen to move through Downtown Vancouver.
 
 We simply ran out of time to implement this but it is completely possible with small modifications to this analysis.
 
