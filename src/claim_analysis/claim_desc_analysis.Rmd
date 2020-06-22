@@ -1,0 +1,474 @@
+---
+title: "Spatial Analysis - Claim description"
+author: "Simardeep Kaur"
+date: "6/20/2020"
+output: html_document
+runtime: shiny
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = here::here())
+library(shiny)
+library(shinydashboard)
+library(shinycssloaders)
+library(RColorBrewer)
+library(tidyverse)
+library(sjmisc)
+library(readxl)
+library(wordcloud)
+library(leaflet)
+library(DT)
+library(dplyr)
+library(ggwordcloud)
+library(wordcloud2)
+library(PubMedWordcloud)
+library(shinycssloaders)
+```
+
+## Introduction
+
+When an incident takes place, it can not be simply called a collision or an accident. An incident involves different objects being impacted in different manners. Different locations in Vancouver have different geography, planning structures(including houses and buildings), road structures, neighbourhood and spatial distribution. This uniqueness in spatial distribution allows us to see if there is any pattern between a certain location with the objects and incidents. Such results can be leveraged by Translink to follow  area specific steps to reduce the numbers of incidents instead of following the same approach over the entire Vancouver. 
+
+## Explanation of the Dashboard
+
+This dashboard is designed for the user to see which objects were impacted in an incident and what is the action that took place in that incident. The dataset used to create this dashboard combines the information of claim description, latitudes and longitudes of the locations where incidents took place, asset manufacturer, date of the incident and bus number.
+
+Dashboard includes two pages. First page gives the information about the objects impacted in the incident. Each dot on the map of Vancouver corresponds to a particular location where the incident took place. Each colored dot on the map corresponds to a different object which was impacted in that incident. The color of the dot corresponds to different objects that have been impacted in those incidents.
+
+As the user will view an area on the map, it will update the wordcloud which shows what are the impacted objects in those incidents. The color of the words in the wordcloud correspond to the colored dots on the map to show which objects were impacted at which locations. The word cloud changes dynamically according to whatever location the user will view on the map. Size of each word in the word cloud corresponds to how frequent the impacted object has been a part of the incidents viewed on the map. 
+
+Five among the most frequently impacted objects will be viewed in the drop down. Users can select any object from the drop down to view the locations specific to that particular object. Map below the drop down will narrow down the locations specific to the particular impacted object. This will give  a better understanding if the location is related to the objects impacted in the incident.
+
+The second page  shows the most frequent actions involved in the incidents. It is based on similar lines and shows the map of Vancouver with different colours corresponding to different actions associated with those incidents. User can choose one of the most frequently occurring  actions from the drop down to get a detailed view to see which locations experienced incidents because of the selected reason.
+
+
+
+```{r include=FALSE}
+location_data <-
+  read_excel("data/TransLink Raw Data/Claim_colour_df.xlsx")
+verb_data <-
+  read_excel("data/TransLink Raw Data/verb_colour_df.xlsx")
+#options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=10)
+```
+
+
+```{r include= FALSE}
+ui <- dashboardPage(
+  dashboardHeader(title = "Reasons for Incidents" , titleWidth = 450),
+  dashboardSidebar(sidebarMenu(
+    menuItem(
+      "Impacted Objects",
+      tabName = "dashboard",
+      icon = icon("bus-alt")
+    ),
+    menuItem(
+      "Impact Actions",
+      icon = icon("car-crash"),
+      tabName = "widgets",
+      badgeColor = "green"
+    )
+  )),
+  dashboardBody(tabItems(
+    tabItem(
+      tabName = "dashboard",
+      fluidRow(box(
+        leafletOutput("mymap", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+        status = "primary",
+        width = 12,
+        height = 500
+      ),),
+      fluidRow(
+        box(
+          plotOutput("plot", height = 250) %>% withSpinner(color = "skyblue", size = 2),
+          title = "OBJECTS",
+          status = "primary",
+          width = 6
+        ),
+        box(
+          uiOutput("frequent_impacts", height = 250) %>% withSpinner(color = "skyblue", size = 2),
+          status = "primary",
+          width = 6
+        )
+        
+      ),
+      
+      fluidRow(
+        box(
+          leafletOutput("my_updated_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+          status = "primary",
+          width = 12,
+          height = 500
+        ))
+      
+    ),
+    
+    tabItem(tabName = "widgets",
+            fluidRow(
+              box(
+                leafletOutput("my_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+                width = 12,
+                height = 500
+              )
+              
+            ),
+            fluidRow(
+              box(
+                plotOutput("plot_verb", height = 250)%>% withSpinner(color =  "skyblue", size=2),
+                title = "ACTIONS",
+                width = 6
+              ),
+              box(uiOutput("frequent_actions") %>% withSpinner(color = "skyblue", size = 2), width = 6)
+            ),
+            
+            fluidRow(
+              box(
+                leafletOutput("my_updated_verb_map", height = 500) %>% withSpinner(color = "skyblue", size = 2),
+                width = 12,
+                height = 500
+                
+              )
+              
+            ))
+  ))
+)
+server <- function(input, output) {
+  # leaflet map for Impacts
+  output$mymap <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(lng = -123.1171,
+              lat = 49.2820,
+              zoom = 12) %>%
+      addCircleMarkers(
+        lng = location_data$long,
+        lat = location_data$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = location_data$impact_colour,
+        popup =
+          paste0(
+            "<b>",
+            "Description",
+            "</b> ",
+            location_data$Description,
+            "</b> <br>",
+            "<b>",
+            "Date: ",
+            "</b> ",
+            location_data$loss_date_x,
+            "<br>",
+            "<b>",
+            "Bus Number: ",
+            "</b> ",
+            location_data$bus_no_x,
+            "<br>",
+            "<b>",
+            "Manufacturer: ",
+            "</b> ",
+            location_data$asset_manufacturer,
+            "<br>"
+          )
+      )
+  })
+  
+  # leaflet map for Verbs
+  output$my_verb_map <- renderLeaflet({
+    leaflet() %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(lng = -123.1171,
+              lat = 49.2820,
+              zoom = 12) %>%
+      addCircleMarkers(
+        lng = verb_data$long,
+        lat = verb_data$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = verb_data$verb_colour,
+        popup = paste0(
+          "<b>",
+          "Description",
+          "</b> ",
+          location_data$Description,
+          "</b> <br>",
+          "<b>",
+          "Date: ",
+          "</b> ",
+          location_data$loss_date_x,
+          "<br>",
+          "<b>",
+          "Bus Number: ",
+          "</b> ",
+          location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
+          "<br>"
+        )
+      )
+  })
+  
+  # wordcloud for Impacts
+  
+  output$plot = renderPlot({
+    if (isTruthy(input$mymap_bounds)) {
+      bounds = input$mymap_bounds
+      df <- location_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      
+      wc_df_impact <- df %>% select(impact, impact_colour)
+      impact_df <- count(wc_df_impact, impact, impact_colour)
+      #view(impact_df)
+      
+      ggplot(impact_df,
+             aes(
+               label = impact,
+               size = n,
+               color = as.character(impact_colour)
+             )) +
+        geom_text_wordcloud_area() +
+        scale_colour_identity() +
+        scale_size_area(max_size = 24) +
+        theme_minimal()
+      
+      
+      
+    } else
+      
+      ggplot(impact_df,
+             aes(
+               label = impact,
+               size = n,
+               color = as.character(impact_colour)
+               
+             )) +
+      geom_text_wordcloud_area() +
+      scale_colour_identity() +
+      scale_size_area(max_size = 24) +
+      theme_minimal()
+  })
+  
+  dataInput <- reactive(if (isTruthy(input$my_verb_map_bounds)) {
+    bounds = input$my_verb_map_bounds
+    verb_data %>% filter(
+      between(long, bounds$west, bounds$east),
+      between(latt, bounds$south, bounds$north)
+    )
+  })
+  
+  # wordcloud for Verbs
+  output$plot_verb = renderPlot({
+    if (isTruthy(input$my_verb_map_bounds)) {
+      bounds = input$my_verb_map_bounds
+      df <- verb_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      
+      
+      wc_verb_df = dataInput() %>% select(chosen_verb_x, verb_colour)
+     
+      verb_df <- count(wc_verb_df, chosen_verb_x, verb_colour)
+      ggplot(verb_df,
+             aes(
+               label = chosen_verb_x,
+               size = n,
+               color = as.character(verb_colour)
+               
+             )) +
+        geom_text_wordcloud_area() +
+        scale_colour_identity() +
+        scale_size_area(max_size = 24) +
+        theme_minimal()
+      
+      
+    } else
+      
+      
+      verb_df <- count(wc_verb_df, chosen_verb_x, verb_colour)
+    ggplot(verb_df,
+           aes(
+             label = chosen_verb_x,
+             size = n,
+             color = as.character(verb_colour)
+             
+           )) +
+      geom_text_wordcloud_area() +
+      scale_colour_identity() +
+      scale_size_area(max_size = 24) +
+      theme_minimal()
+    
+  })
+  
+  
+  # changing the map according to selected impacts
+  dat <- reactive({
+    selected_impact <- input$frequent_impacts
+    if (isTruthy(input$mymap_bounds)) {
+      bounds = input$mymap_bounds
+      df <- location_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+    }
+    
+    df %>% filter(df$impact == selected_impact)
+  })
+  
+  # changing the map according to selected verbs
+  
+  dat_verb <- reactive({
+    selected_verb <- input$frequent_actions
+    if (isTruthy(input$my_verb_map_bounds)) {
+      bounds = input$my_verb_map_bounds
+      df <- verb_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+    }
+
+    df %>% filter(df$chosen_verb_x == selected_verb)
+  })
+
+  # Updating the new maps with selected impacts
+  
+  output$my_updated_map <- renderLeaflet({
+    leaflet("my_updated_map", data = dat()) %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      addCircleMarkers(
+        lng = dat()$long,
+        lat = dat()$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = dat()$impact_colour,
+        popup = paste0(
+          "<b>",
+          "Description",
+          "</b> ",
+          location_data$Description,
+          "</b> <br>",
+          "<b>",
+          "Date: ",
+          "</b> ",
+          location_data$loss_date_x,
+          "<br>",
+          "<b>",
+          "Bus Number: ",
+          "</b> ",
+          location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
+          "<br>"
+        )
+      )
+    
+  })
+  
+  # Updating the new maps with selected verbs
+  
+  output$my_updated_verb_map <- renderLeaflet({
+    leaflet("my_updated_verb_map", data = dat_verb()) %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      addCircleMarkers(
+        lng = dat_verb()$long,
+        lat = dat_verb()$latt,
+        radius = 4,
+        fillOpacity = 1,
+        color = dat_verb()$verb_colour,
+        popup = paste0(
+          "<b>",
+          "Description",
+          "</b> ",
+          location_data$Description,
+          "</b> <br>",
+          "<b>",
+          "Date: ",
+          "</b> ",
+          location_data$loss_date_x,
+          "<br>",
+          "<b>",
+          "Bus Number: ",
+          "</b> ",
+          location_data$bus_no_x,
+          "<br>",
+          "<b>",
+          "Manufacturer: ",
+          "</b> ",
+          location_data$asset_manufacturer,
+          "<br>"
+        )
+      )
+    
+  })
+  
+  # dropdown for Impacts
+  output$frequent_impacts <- renderUI({
+    if (isTruthy(input$mymap_bounds)) {
+      bounds = input$mymap_bounds
+      df <- location_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      view(df)
+      wc_df_impact <- df %>% select(impact, impact_colour)
+      impact_df <- count(wc_df_impact, impact, impact_colour)
+      sorted_df <- impact_df[order(-impact_df$n),]
+      
+      
+    }
+    
+    selectInput(
+      "frequent_impacts",
+      "Most frequently Impacted objects:",
+      as.character(sorted_df$impact)[1:5]
+    )
+  })
+  
+  # dropdown for verbs
+  output$frequent_actions <- renderUI({
+    if (isTruthy(input$my_verb_map_bounds)) {
+      bounds = input$my_verb_map_bounds
+      df <- verb_data %>% filter(
+        between(long, bounds$west, bounds$east),
+        between(latt, bounds$south, bounds$north)
+      )
+      view(df)
+      wc_verb_df = dataInput() %>% select(chosen_verb_x, verb_colour)
+      verb_df <- count(wc_verb_df, chosen_verb_x, verb_colour)
+      sorted_verb_df <- verb_df[order(-verb_df$n),]
+      
+      
+    }
+    
+    selectInput(
+      "frequent_actions",
+      "Most frequent Actions:",
+      as.character(sorted_verb_df$chosen_verb_x)[1:5]
+    )
+  })
+
+  
+}
+```
+
+```{r , echo = FALSE}
+shinyApp(ui = ui, server = server)
+```
+
+## Cons of the Dashboard
+
+Map of Vancouver in the dashboard is created using the “Leaflet” package in R. Color palette of the leaflet is  limited, so it is impossible to associate different colours to  unique objects and actions involved in the incident. Some of the colours for unique objects and actions will appear black. This is because even though these objects have a separate colour assigned to them, leaflet does not render these colours. However, this will never be a problem for the user  as the impacted objects and actions will have different colours in the word cloud. If the user wants to narrow down to a specific object or action it can be done by selecting that object/action from the provided dropdown menus.
+
+
+## Recommendation
+
+Based on the patterns that can be seen by choosing a particular area on the map, Translink can use different approaches to reduce the number of incidents in a particular place. The dashboard will be experimental in suggesting an area wise approach rather than a holistic approach.
+
+
