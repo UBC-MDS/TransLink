@@ -745,7 +745,7 @@ Both bus age and bus carrying capacity are noted to be highly predictive of inci
 
 The risk curve for bus age is very interesting. Buses less than 1 year old are estimated to be of lower risk than average, and buses in the range of [2, 20] years of age exhibit a slightly above average risk score of 0.52. However, once buses age past 24 years we see a very clear (and very certain) trend in which the estimated risk of incidence starts increasing dramatically. Indeed, a very old bus that is around 26 to 27 years old is estimated to be 1.30 times more likely to be in an incident when compared to a bus that is brand new. Therefore, replacing older buses (perhaps those in excess of 24 years) may be a relatively easy actionable item that TransLink can do to reduce the likelihood of an incident occurring.
 
-We do not discuss the other bus characteristic variables like asset manufacturer model or asset model year since they were found to be of low importance. In the case of asset class, the variable is completely unpredictive of incident risk that the final fitted model completely ignores it.
+We do not discuss the other bus characteristic variables like asset manufacturer model or asset model year since they were found to be of low importance. In the case of asset class, the variable is completely ignored by the final fitted model which suggests that there is no information at all that is useful for assessing the risk of an incident occurring.
 
 - __*Operator Experience Revisited*__:
 
@@ -855,13 +855,13 @@ We summarize the key points of this entire analysis:
 
 - Bus line is by far the most important variable in determining how likely an incident is to occur for any scenario.
 - The bus lines that path specifically through Downtown Vancouver, with the exception of bus line 41, are the lines that have the highest risk of incidence. As a result, a large amount of risk can be mitigated simply by focusing on improving safety measures for all lines that move through Downtown Vancouver.
-- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think this is a combination of greater traffic density, more pedestrians, and large amounts of acceleration/decceleration due to a larger frequency of bus stops in a relatively small area.
+- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think this is a combination of greater traffic density, more pedestrians, and large amounts of acceleration/deceleration due to a larger frequency of bus stops in a relatively small area.
 - The approach used in this analysis can be extended to more granular levels, in particular roads. We feel that TransLink can possibly extend this analysis to assess the risk per road (rather than per line) to potentially plan routes that avoid high risk areas.
 - The months of June, July, and September are roughly 1.5 times less likely to have an incident than all other months. June and July are possibly the result of lower ridership and traffic congestion during these months (due to the Summer holidays) but it is not clear as to why September is noticeably safer when compared to the others.
 - 7 am and 6 pm are the times that are most risky for incidents, however, there are clear intervals within this range that are relatively safer. For example, the morning rush hour (7 am to 9 am) is roughly 1.1 times less likely to have an incident when compared to 3 pm to 5 pm. 
 - There is a very suspicious peak at 3 am in which the risk suddenly increases at this time (albeit, still below average) for unknown reasons.
-- As seen previously, shuttles are roughly 1.3 times less likely of an incident when compared to non-shuttles. Furthermore, there is virtually no difference in risk amongst smaller and fuller sized regular busses.
-- Bus age is surprisingly **very** predictive of incidents. Specifically, busses that are >= 24 years of age see an increasing risk of an incident (about 1.3 times more) than busses that are relatively new (0 to 1 year old)
+- As seen previously, shuttles are roughly 1.3 times less likely of an incident when compared to non-shuttles. Furthermore, there is virtually no difference in risk among smaller and fuller sized regular buses.
+- Bus age is surprisingly **very** predictive of incidents. Specifically, buses that are >= 24 years of age see an increasing risk of an incident (about 1.3 times more) than buses that are relatively new (0 to 1 year old)
 - Weather - specifically temperature and atmospheric pressure are both predictive of incidents. As the temperature increases, in general the risk of an incident decreases, however, after 30°C the risk of incident suddenly starts increasing again. A similar relationship holds for atmospheric pressure in which <100 kPA pressures in general exhibit a higher risk of incidence (due to likely more rain). At around 103-104 kPA, however, there is a noticeable bump. A possible theory for this could be the result of nicer days leading to more ridership and traffic congestion. 
 
 
