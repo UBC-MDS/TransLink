@@ -228,7 +228,6 @@ main <- function(path_accident_data, path_weather_stations_data_hour, path_weath
           select(-var_to_change, -check, -time_of_loss, -row_num, -hire_date, -termination_date)
         
         # If you change the line, then city, and bus must also change!
-        # Additionally, bus year will be incorrect...so we need to fix this.
         set.seed(200350623)
         temp <- temp %>%
           select(-bus_no, -bus_age, -bus_carry_capacity, -city_of_incident) %>%
