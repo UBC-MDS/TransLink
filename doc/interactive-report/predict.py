@@ -73,7 +73,7 @@ def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp,
     if col_type == 'object' or col_type.name == 'category':
       new_data[c] = new_data[c].astype('category')
 
-  with (open("../../results/ml_model/final_fitted.pickle", 'rb')) as openfile:
+  with (open("results/ml_model/final_fitted.pickle", 'rb')) as openfile:
     model = pickle.load(openfile)
     
   return {'shap': shap.TreeExplainer(model=model).shap_values(new_data)[1], 'predicted': model.predict_proba(new_data), 'column_names': new_data.columns.to_list()}
