@@ -279,7 +279,7 @@ For example, while in the previous section it was observed that more experienced
   
 <center> <h4>Overall Predictive Power of Variables in the Model</h4> </center>
 
-We employed a machine learning model to simultaneously assess the overall predictive power of all of these various factors using a very similar methodology to what is described in two papers ([@Montreal] and [@WilsonML]). More details are described in the final written report that is also submitted with this one. On average, the model shown here correctly ranks a scenario with an actual incident to be of higher risk than a scenario with no incident, 85% of the time. This is is line with the papers in which this model is based on.
+We employed a machine learning model to simultaneously assess the overall predictive power of all of these various factors using a very similar methodology to what is described in two papers ([@Montreal] and [@WilsonML]). More details are described in the final written report that is also submitted with this one. On average, the model shown here correctly ranks a scenario with an actual incident to be of higher risk than a scenario with no incident, 85% of the time. This is in line with the papers in which this model is based on.
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
