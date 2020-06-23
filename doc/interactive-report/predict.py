@@ -21,7 +21,7 @@ def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp,
     month: An integer 1-12 representing a particular month of the year.
     day: A str (Mon, Tue, Wed, Thu, Fri, Sat, Sun) that represents a particular day 
       of the week.
-    bus_carrying_cap: A integer representing the carrying capacity of a bus.
+    bus_carrying_cap: An integer representing the carrying capacity of a bus.
     city: A str representing the city of interest.
     temp: A float representing the temperature in degrees celcius.
     pressure: A float representing the atmospheric pressure in kPa
