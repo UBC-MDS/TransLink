@@ -881,9 +881,10 @@ We summarize the key points of this entire analysis:
   There are many variables from different datasets that might have an impact on the insurance costs. Thus, as a first step in our analysis, we have built an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and also `claim_vehicle_employee_line.csv` datasets get more information about the collisions, operators and claims respectively. On the top of combined dataset, we populated the coordinates of each incident by using Google Maps GeoCoding API to be able to visualize them on the map. Then, we also used an R package `leaflet` to add interactivity on the map and `shiny` to add control elements to this dashboard.
 
 ```{r joining_datasets, echo=FALSE, out.width = '70%',  fig.align='center'}
-knitr::include_graphics("doc/interactive-report/joining_datasets.png")
+knitr::include_graphics("all_analysis/claim_costs/joining_datasets.png")
 ```
 
+![]("joining_datasets.png")
 
   To provide better user experience, we first classified the costs into four levels as an indicator of severity of the collisions with the input from TransLink. Then we used *time* and *the experience level of the operators* as first-level filter elements in our interactive dashboard since they were two of the most apparent variables that affect the incidents according to the previous analysis.
 
