@@ -41,8 +41,8 @@ opt <- docopt(doc)
 #' path_train = "data/operators/train.csv",
 #' path_test = "data/operators/test.csv",
 #' chosen_model = "results/operators/models/best-bayes-model.rds",
-#' final_model_out = "results/operators/models/final-model.rds",
-#' posterior_samples_out = "results/operators/report-tables/posterior_samples.rds"
+#' final_model_out = "results/operators/models",
+#' posterior_samples_out = "results/operators/report-tables"
 #' )
 main <- function(path_train, path_test, chosen_model, final_model_out, posterior_samples_out) {
   
@@ -53,12 +53,15 @@ main <- function(path_train, path_test, chosen_model, final_model_out, posterior
     stop("File path to test must be a specific file with extension .csv")
   } else if (!str_detect(chosen_model, ".rds")) {
     stop("File path to chosen model in validation must be a specific file with extension .rds")
-  } else if (!str_detect(final_model_out, ".rds")) {
-    stop("File path specifying where final model should be stored must be a specific file with extension .rds")
-  } else if (!str_detect(posterior_samples_out, ".rds")) {
-    stop("File path specifying where posterior samples should be stored must be a specific file with extension .rds")
-  }
-  
+  } else if (str_detect(final_model_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+  	stop("final_model_out should just be a directory, not a specific file. Remove the file extension.")
+  } else if (str_detect(posterior_samples_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+  	stop("posterior_samples_out should just be a directory, not a specific file. Remove the file extension.")
+  } else if (endsWith(final_model_out, "/")) {
+  	stop("File path for final_model_out should not end with /")
+  } else if (endsWith(posterior_samples_out, "/")) {
+  	stop("File path for posterior_samples_out should not end with /")
+  } 
   # Read in both train and test
   train <- read_csv(path_train)
   test <- read_csv(path_test)
@@ -86,7 +89,12 @@ main <- function(path_train, path_test, chosen_model, final_model_out, posterior
   
   # Fit the model and save 
   final_model <- fit_rand_int_slope(tau = tau, data = combined)
-  saveRDS(final_model, final_model_out)
+  
+  if (!dir.exists(final_model_out)) {
+  	dir.create(final_model_out)
+  }
+  
+  saveRDS(final_model, paste0(final_model_out, "/final-model.rds"))
   
   # Generate all combinations of predictors for report. This will give
   # us predicted rates, i.e. Incidents/Year since we have offset = 0.
@@ -106,13 +114,17 @@ main <- function(path_train, path_test, chosen_model, final_model_out, posterior
     summary = FALSE
     )
   
+  if (!dir.exists(posterior_samples_out)) {
+  	dir.create(posterior_samples_out)
+  }
+  
   # Save posterior predictive samples
   saveRDS(
     list(
       variables = all_combinations,
       posterior_samples = predictions
       ),
-    posterior_samples_out
+    paste0(posterior_samples_out, "/posterior_samples.rds")
     )
 }
 

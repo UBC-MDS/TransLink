@@ -12,7 +12,7 @@ Options:
 --path_to_glm=<path_to_glm>             A file path to the best basic GLM model.
 --path_to_bayesian=<path_to_bayesian>   A file path to the best Bayesian model.
 <test_data_path>                        A file path to the test data set.
-<results_out>                           A file path specifying where to output validation results.
+<results_out>                           A file path specifying where to output validation results. This should NOT be a specific file (like .rds or .csv), just a directory.
 <path_out_diag>                         A file path specifying where to output MCMC diagnostic plots and tables. This should NOT be a specific file (like .rds or .csv), just a directory.
 " -> doc
 
@@ -60,6 +60,10 @@ check_samples <- function(model, path_out_diag) {
     pars = c(parnames(model)[1:4])
   )
   
+  if (!dir.exists(path_out_diag)) {
+  	dir.create(path_out_diag)
+  }
+  
   ggsave(trace_plot_global, filename = paste0(path_out_diag, "/trace_plot_globals.png"))
   ggsave(acf_plot_global, filename = paste0(path_out_diag, "/acf_plot_globals.png"))
   
@@ -73,7 +77,8 @@ check_samples <- function(model, path_out_diag) {
 #' @param path_to_glm A file path to the best GLM model.
 #' @param path_to_bayesian A file path to the best Bayesian model.
 #' @param test_data_path A file path to the test data set.
-#' @param results_out A file path specifying where to output the test set scores.
+#' @param results_out A file path specifying where to output the test set scores. 
+#' Should only be a directory, not a specific file name.
 #' @param path_out_diag A file path specifying where to output MCMC diagnostic plots. 
 #' Should only be a directory, not a specific file name.
 #'
@@ -85,7 +90,7 @@ check_samples <- function(model, path_out_diag) {
 #' path_to_glm = "results/operators/models/basic-glm.rds",
 #' path_to_bayesian = "results/operators/models/best-bayes-model.rds",
 #' test_data_path = "data/operators/test.csv",
-#' results_out = "results/operators/report-tables/validation-results.rds",
+#' results_out = "results/operators/report-tables",
 #' path_out_diag = "results/operators/bayes-diagnostics"
 #' )
 main <- function(path_to_glm, path_to_bayesian, test_data_path, results_out, path_out_diag) {
@@ -97,11 +102,15 @@ main <- function(path_to_glm, path_to_bayesian, test_data_path, results_out, pat
     stop("File path to Bayesian model must be a specific file with extension .rds")
   } else if (!str_detect(test_data_path, ".csv")) {
     stop("File path to test set must be a specific file with extension .csv")
-  } else if (!str_detect(results_out, ".rds")) {
-    stop("File path for table of test set scores must be a specific file with extension .rds")
+  } else if (str_detect(results_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+  	stop("results_out should just be a directory, not a specific file. Remove the file extension.")
   } else if (str_detect(path_out_diag, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
     stop("path_out_diag should just be a directory, not a specific file. Remove the file extension.")
-  }
+  } else if (endsWith(results_out, "/")) {
+  	stop("File path for results_out should not end with /")
+  } else if (endsWith(path_out_diag, "/")) {
+  	stop("File path for path_out_diag should not end with /")
+  } 
   
   final_bayes_model <- readRDS(path_to_bayesian)
   final_glm <- readRDS(path_to_glm)
@@ -127,9 +136,13 @@ main <- function(path_to_glm, path_to_bayesian, test_data_path, results_out, pat
             mean(abs(test_results_bayes[, 1] - test_data$number_incidents)))
     )
   
+  if (!dir.exists(results_out)) {
+  	dir.create(results_out)
+  }
+  
   # Save the table of test set scores.
   
-  saveRDS(results, results_out)
+  saveRDS(results, paste0(results_out, "/validation-results.rds"))
 
 }
 

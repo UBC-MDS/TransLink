@@ -1,9 +1,13 @@
 ---
-title: "Vision Over Incidents and Claims - An Analysis of Variables for Predictive Power"
+title: "Vision Over Incidents and Claims - An Analysis"
 author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
-date: "24/05/2020"
-output: html_document
+date: "29/06/2020"
+output:
+  html_document:
+    theme: lumen
+    css: "style.css"
 runtime: shiny
+bibliography: ref.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -11,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = here::here())
 library(brms)
 library(shiny)
+library(reticulate)
 library(kableExtra)
 library(tidyverse)
 library(plotly)
@@ -21,33 +26,30 @@ library(lubridate)
 library(htmlwidgets)
 ```
 
-# Introduction {.tabset}
+## Introduction {.tabset .tabset-fade}
 
 With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a $1 million per occurrence liability policy on each of its revenue vehicles and a $200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%.
 
 In response to soaring insurance costs and road safety concerns, TransLink has asked us to analyze key variables of interest that may be predictive of bus incidents. These variables include an analysis of the operators involved, the impact of bus characteristics (if any), and the effect of weather, time, location, and line number on the likelihood of an incident occurring. Finally, TransLink has also asked us to analyze the types of claims that are occurring - in particular, if there are common types of claims per location and if particular locations yield large paid costs. 
 
-A variety of statistical and machine learning methods are employed in this report to address these questions. As a result, the report is divided into eight sections:
+A variety of statistical and machine learning methods are employed in this report to address these questions. As a result, the report is divided into six sections:
 
 1) Executive Summary
-2) Predictive Power of Time
-3) Predictive Power of Location and Operator Experience
-4) Weather and Busses
-5) A Combined Analysis of All Factors Using Machine Learning
-6) Common Types of Claims by Location
-7) Assessment of Claims Costs by Location
-8) Future Analysis
+2) Predictive Power of Location and Operator Experience
+3) A Combined Analysis of All Factors Using Machine Learning
+4) Common Types of Claims by Location
+5) Assessment of Claims Costs by Location
+6) Future Analysis
 
-## Executive Summary
+### Executive Summary
 
-## Predictive Power of Time
-
-## Predictive Power of Location and Operator Experience
+### Predictive Power of Location and Operator Experience
 
 ```{r Operator Analysis: Import, include = FALSE}
 # This is just helper code - do not show in report
 best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
 posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
+results <- readRDS("results/operators/report-tables/validation-results.rds")
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -55,28 +57,22 @@ predictor_combinations <- posterior_predictions$variables %>%
     experience = as.character(experience),
     cost_centre = as.character(cost_centre)
     )
-
 predictor_combinations$experience <- ifelse(predictor_combinations$experience == ">6 & 18 Months", ">6 & <18 Months", predictor_combinations$experience)
 rm(posterior_predictions)
-
 marginal_plot <- conditional_effects(best_bayes_model, probs = c(0.05, 0.95))[[1]] %>%
   select(effect1__, estimate__, lower__, upper__) %>%
   set_names(c("Effect", "Estimate", "Lower", "Upper")) %>%
   mutate(Effect = as.character(Effect)) %>%
   mutate(Effect = as.factor(ifelse(Effect == ">6 & 18 Months", ">6 & <18 Months", Effect))) %>%
   mutate(Effect = fct_relevel(Effect, c("<6 Months", ">6 & <18 Months", ">18 & <60 Months", ">60 Months")))
-
 random_effects <- ranef(best_bayes_model, summary = FALSE)$cost_centre
 pop_effect <- fixef(best_bayes_model, summary = FALSE) 
-
 calculate_plotting_stats <- function(col_num) {
-
   if (col_num == 1) {
     data_re <- as_tibble(pop_effect[, 1] + random_effects[, , 1])
   } else {
     data_re <- as_tibble(pop_effect[, 1] + random_effects[, , 1] + pop_effect[, col_num] + random_effects[, , col_num])
   }
-
   plotting_data <- tibble(
       `Cost Centre` = colnames(random_effects[, , col_num]),
       Estimate = round(exp(apply(data_re, 2,  FUN = median)), 3),
@@ -92,10 +88,9 @@ calculate_plotting_stats <- function(col_num) {
   }
   list(plot_data = plotting_data, vline = pop_effect_opt)
 }
-
 ```
 
-### TransLink Hypotheses
+<center> <h4>TransLink Hypotheses</h4> </center>
 
 TransLink have proposed two specific hypotheses regarding a possible link between the operators' experience level and how many incidents they are involved in within a year. Intuitively, it makes a lot of sense that new drivers have a higher tendency to get into more accidents.
 
@@ -103,7 +98,7 @@ A further hypothesis was proposed regarding potential complacency for the more e
 
 Finally, we provide a predictive model that provides the probability of a particular operator having K incidents in a year (given that they have at least one incident).
 
-### The Dataset and Overall Model
+<center> <h4>The Dataset and Overall Model</h4> </center>
 
 A random sample of the first five rows of the analyzed dataset is given below.
 
@@ -121,18 +116,15 @@ operators_dataset %>%
   kable_styling()
 ```
 
-There are some issues with this dataset that encourages the use of non-standard statistical methods. For one, there are no operators recorded that have exactly zero incidents in the last three years - in order for an operator to appear in this dataset, they must have had at least one preventable or non-preventable incident. Therefore, using standard techniques that do not take this into consideration will lead to a substantial bias in any estimated effects.
+There are some issues with this dataset that encourages the use of non-standard statistical methods. For one, there are no operators recorded that have exactly zero incidents in the last three years - in order for an operator to appear in this dataset, they must have had at least one preventable or non-preventable incident. Therefore, using standard techniques that do not take this into consideration will lead to possibly incorrect conclusions. Second, the data is naturally grouped by cost centre. Operators who work in similar regions will therefore naturally be correlated.
 
-Second, the data is hierarchical in nature. That is, an operator in one specific cost centre is not completely independent of an operator in another cost centre, especially if they are close geographically. Naively fitting a model that does not consider this will likely lead to degraded model performance.
+Therefore, we decided to fit a Bayesian model that allows the user to control for the two problems above. The performance of this model ended up being much superior to a rather simple linear model, where the Bayesian model outperforms the simple linear model by roughly `r round(((results$MAE[1] - results$MAE[2]) / results$MAE[1]) * 100, 0)`%. Note that we did not include "In Probation" as a variable in the model since this variable carries the exact same information as the experience level. Finally, the model is adjusted to take into consideration how many hours a particular operator actually worked (since an operator who works more will naturally have more incidents).
 
-Therefore, we decided to fit a Bayesian hierarchical model that allows the user to control for the two problems above. The performance of this model ended up being much superior to a rather simple linear model, where the Bayesian model outpeforms the simple linear model by roughly `r round(((results$MAE[1] - results$MAE[2]) / results$MAE[1]) * 100, 0)`%. Note that we did not include "In Probation" as a variable in the model since this variable carries the exact same information as the experience level. Finally, "Incidents Per Year" is adjusted to take into consideration how many hours a particular operator actually worked.
+<center> <h4>Analyzing the Effect of Location and Experience Level</h4> </center>
 
-### Analyzing the Effects of Cost Centre and Experience Level
-
-The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as produced by the Bayesian model. These graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
+The interactive graph below allows the user to see the estimated number of incidents per year per each experience level or per each cost centre as given by the Bayesian model. These two graphs depict the exact same information but from different perspectives. It should be stressed that these are the estimated **average** number of incidents per year over all operators in a specific cost centre, with a specific experience level. These are **not** predictions (see next section) for any single operator.
 
 ```{r Operator Analysis: Marginal Effects, echo = FALSE, warning = FALSE}
-
 tabsetPanel(
   tabPanel("Effect Per Experience Level on Incidents/Yr", selectInput("experience_oa_re", label = "Experience:", 
             choices = unique(predictor_combinations$experience), selected = ">60 Months"), plotlyOutput("re_plot")),
@@ -144,11 +136,9 @@ tabsetPanel(
              selected = "All"),
   plotlyOutput("fe_plot"))
 )
-
 output$fe_plot <- renderPlotly({
   
   cost_centre_sel <- input$cost_centre_oa_re
-
   if (cost_centre_sel != "All Cost Centres") {
       intercept <- pop_effect[, 1] + random_effects[, cost_centre_sel, 1]
       effects_per_centre <- cbind(intercept, intercept + pop_effect[, 2:4] + random_effects[, cost_centre_sel, 2:4])
@@ -169,14 +159,12 @@ output$fe_plot <- renderPlotly({
   ggplotly(ggplot(plot_cost_sel, aes(x = Experience, y = Estimate, ymin = `Lower 5%`, ymax = `Upper 95%`, text = `90% CI`)) +
   geom_point() + 
   geom_errorbar(aes(ymin = `Lower 5%`, ymax = `Upper 95%`)) +
-  theme_economist() +
-  labs(x = "Experience Level", y = "Estimated Incidents/Yr"), width = 800, autosize = TRUE, tooltip = c("Estimate", "90% CI")) %>%
-  layout(title = list(text = paste0("Estimated Incidents/Yr Per Experience", "<br>", "<sup>", "Cost Centre: ", cost_centre_sel, "</sup>"), x = 0)) 
+  theme_bw() +
+  theme(plot.title = element_text(vjust = 5)) + 
+  labs(x = "Experience Level", y = "Estimated Incidents/Yr", title = paste0("Estimated Incidents/Yr Per Experience", "<br>", "<sup>", "Cost Centre: ", cost_centre_sel, "</sup>")), width = 800, autosize = TRUE, tooltip = c("Estimate", "90% CI"))
   
   })
-
 output$re_plot <- renderPlotly({
-
   if (input$experience_oa_re == ">60 Months") {
     
     plotting_data <- calculate_plotting_stats(1)
@@ -200,39 +188,36 @@ output$re_plot <- renderPlotly({
     geom_errorbar(aes(ymin = `Lower 5%`, ymax = `Upper 95%`), width = 0) +
     geom_hline(data = plotting_data[[2]], aes(yintercept = `Overall Estimate Over all Cost Centres`), color = "red") + 
     coord_flip() +
-    labs(y = "Estimated Incidents/Yr") + 
-    theme_economist() +
-    theme(axis.title.y = element_blank()), tooltip = c("Estimate", "90% CI", "Overall Estimate Over all Cost Centres")) %>%
-    layout(title = list(text = paste0("Estimated Cost Centre Effects for: ", input$experience_oa_re, "<br>", "<sup>", "Global Effect in Red", "</sup>"), x = 0)) 
+    labs(y = "Estimated Incidents/Yr", title = paste0("Estimated Cost Centre Effects for: ", input$experience_oa_re, "<br>", "<sup>", "Global Estimate in Red", "</sup>"), x = 0) + 
+    theme_bw() +
+    theme(axis.title.y = element_blank()), tooltip = c("Estimate", "90% CI", "Overall Estimate Over all Cost Centres")) 
   
   })
 ```
 
-The user can hover their mouse over each dot to see a tooltip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior.
+The user can hover their mouse over each dot to see a tool tip that provides more detailed information regarding the expected incidents per each year. One of the elements in the tool tip is labelled `90% CI` which is a 90% credible interval - in other words, there is **exactly** a 90% chance that the true average number of incidents per year (for the chosen experience level and cost centre) falls in the given range. Therefore, the larger the bars/range the greater the amount of uncertainty in the estimate, either due to a lack of data or a large variation in operator behavior. Finally, the estimated overall average over all cost centres is represented by the red vertical line.
 
-In terms of the two original hypotheses by TransLink, it is clear that in most cases, those who are more experienced on average are expected to have fewer incidents per year. The effect is very intuitive especially for something like Vancouver in which the effect decreases in a way we would expect as an operator moves through each experience level. However, this trend is not the same for all cost centres. Port Coquitlam (PTC) is a notable exception, in which operators who fall in the range >18 and <60 Months have a noticeably larger expected incidents per year than those >6 Months & <18 Months. Furthermore, these operators with am experience level in the range of >18 and <60 Months have much larger expected incidents per year when compared to the global, overall average (represented as a red vertical bar) but for all other experience levels Port Coquitlam does not exhibit any abnormal behavior when compared to other cost centres. 
+In terms of the two original hypotheses by TransLink, it is clear that in most cases, those who are more experienced on average are expected to have fewer incidents per year. The effect is very intuitive especially for something like Vancouver in which the effect decreases in a way we would expect as an operator moves through each experience level. However, this trend is not the same for all cost centres. Port Coquitlam (PTC) is a notable exception, in which operators who fall in the range >18 and <60 Months have noticeably larger expected incidents per year than those >6 Months & <18 Months. Furthermore, these operators with am experience level in the range of >18 and <60 Months have much larger expected incidents per year when compared to the global, overall average (represented as a red vertical bar) but for all other experience levels Port Coquitlam does not exhibit any abnormal behavior when compared to other cost centres. 
 
 There does not appear to be any evidence to suggest that operators become less careful as they become more experienced. Port Coquitlam could be a notable exception to this for experience levels that are less than 60 Months, but across the board we can see that the experience level of >60 Months has the lowest expected incidents per year for all of the cost centres.
 
-As an operator gains more experience, the rate at which they change also varies a lot depending on the cost centre. It is clear, for instance, that operators in Richmond do not exhibit much improvement in their expected incidents per year until they reach >60 Months of experience. On the other hand, operators in Vancouver and Burnaby appear to exhibit relatively significant improvement as they move through each experience level, as demonstrated by the non-overlapping 90% credible intervals for VTC.
+As an operator gains more experience, the rate at which they improve also varies a lot depending on the cost centre. It is clear, for instance, that operators in Richmond do not exhibit much improvement in their expected incidents per year until they reach >60 Months of experience. On the other hand, operators in Vancouver and Burnaby appear to exhibit relatively significant improvement as they move through each experience level, as demonstrated by the non-overlapping 90% credible intervals for VTC.
 
-<6 Months of experience largely seems like "the wildwest". It would appear that nothing meaningful can be said about these operators other than that there is a very large variance in incidents per year no matter the cost centre. Burnaby is a notable exception to this, however. Indeed, Burnaby's operators with <6 Months of experience have a significantly higher expected incidents per year when compared to the overall average for all operators with <6 Months of experience.  
+<6 Months of experience largely seems like "the wild west". It would appear that nothing meaningful can be said about these operators other than that there is a very large variance in incidents per year no matter the cost centre. Burnaby is a notable exception to this, however. Indeed, Burnaby's operators with <6 Months of experience have a significantly higher expected incidents per year when compared to the overall average for all operators with <6 Months of experience.  
 
 Finally, there is a clear difference between experienced shuttle operators and non-shuttle operators. Shuttle operators overall do not get into as many incidents per year when compared to non-shuttle operators, perhaps because they are in general easier to operate.
 
-### Predictive Analysis
+<center> <h4>Predictive Analysis</h4> </center>
 
-The following interactive graph below gives the actual probability of a specific operator having K incidents in a year, given that the operator has at least one incident (this is due to the aforementioned problem with the dataset). This differs from the above since it provides predictions not for the average incidents per year of all operators in a specific cost centre with a particular experience level, but for the actual observed number of incidents per year for any **single** operator.
+The following interactive graph below gives the actual probability of a specific operator having K incidents in a year, given that the operator has at least one incident. This differs from the above since it provides predictions not for the average incidents per year of all operators in a specific cost centre with a particular experience level, but for the actual observed number of incidents per year for any **single** operator.
 
-Therefore, this graph can be used for predicting the number of incidents per year for any operator with a known experience level and cost centre (given that they have at least one incident). The highlighted red bar gives a "best guess" for how many incidents per year an operator will have. For instance, an operator in Vancouver with >60 Months of experience be expected to have three incidents in a year. However, this is just a single number and indeed, the 90% credible interval gives the entire range of most likely outcomes taking into consideration uncertainty. For example, the model estimates that there is a 90% chance that an operator in Vancouver with >60 Months of experience will have exactly one to six incidents in a year.
+Therefore, this graph can be used for predicting the number of incidents per year for any operator with a known experience level and cost centre (given that they have at least one incident). The highlighted red bar gives a "best guess" for how many incidents per year an operator will have. For instance, an operator in Vancouver with >60 Months of experience will be expected to have three incidents in a year. However, this is just a single number and indeed, the 90% credible interval gives the entire range of most likely outcomes taking into consideration uncertainty. For example, the model estimates that there is a 90% chance that an operator in Vancouver (who will have at least one incident) with >60 Months of experience will have exactly one to six incidents in a year.
 
 ```{r Operator Analysis: Plot, echo = FALSE, warning = FALSE}
-
 selectInput("cost_centre_oa", label = "Cost Centre:", 
             choices = unique(predictor_combinations$cost_centre), selected = "VTC")
 selectInput("experience_oa", label = "Experience Level:",
             choices = unique(predictor_combinations$experience), selected = ">60 Months")
-
  
 renderPlotly({
   
@@ -259,24 +244,23 @@ renderPlotly({
   
   ggplotly(ggplot(data = plotting_data_oa, aes(x = `Number of Incidents/Yr`, y = `Probability of Occurring`, fill = indicator)) +
   geom_bar(stat = "identity") +
-  labs(x = "Incidents/Year", y = "Probability of Occurring") +
-  theme_economist() +
+  labs(x = "Incidents/Year", y = "Probability of Occurring", 
+       title = paste0("Experience: ", input$experience_oa, ", Cost Centre: ", input$cost_centre_oa, "<br>", "<sup>", "Best Point Prediction in Red, ", "90% Credible Interval: ", "[" , round(lower, 2), ", ", round(upper, 2), "]", "</sup>")) +
+  theme_bw() +
   scale_fill_manual(breaks = c("Median"), values = c("red", "gray"), guide = FALSE) +
   theme(
       legend.position = "none",
       axis.title.y = element_text(vjust = 5),
       axis.title.x = element_text(vjust = -3)) +
-  scale_x_discrete(drop = FALSE), autosize = TRUE, tooltip = c("Number of Incidents/Yr", "Probability of Occurring")) %>%
-    layout(title = list(text = paste0("Experience: ", input$experience_oa, ", Cost Centre: ", input$cost_centre_oa, "<br>", "<sup>", "Best Point Prediction in Red, ", "90% Credible Interval: ", "[" , round(lower, 2), ", ", round(upper, 2), "]", "</sup>"), x = 0))
+  scale_x_discrete(drop = FALSE), autosize = TRUE, tooltip = c("Number of Incidents/Yr", "Probability of Occurring")) 
   
   })
-
 ```
-This tool further emphasizes what was observed in the prior section. If the user switches to cost centre PTC for example, they can see that operators in Port Coquitlam with >6 Months & <18 Months have a lower expected number of incidents per year when compared to operators >18 Months & <60 Months. The number of incidents per year is also much more certain for the **less experienced** operators when compared to the more experienced ones which is very counterintuitive and unique to Port Coquitlam. 
+This tool further emphasizes what was observed in the prior section. If the user switches to cost centre PTC for example, they can see that operators in Port Coquitlam with >6 Months & <18 Months have a lower expected number of incidents per year when compared to operators with >18 Months & <60 Months of experience. The number of incidents per year is also much more certain for the **less experienced** operators when compared to the more experienced ones which is very counter intuitive and unique to Port Coquitlam. 
 
-### Conclusions and Recommendations
+<center> <h4>Conclusions and Recommendations</h4> </center>
 
-In the end, we have observed the following points:
+In the end, we have observed the following points based solely on this dataset:
 
 - As operators become more experienced, they are expected to have fewer incidents per year overall. However, in some areas such as Port Coquitlam this is not true.
 - There is little evidence to suggest that operators become complacent as they exit the probationary period (<6 Months), with most cost centres displaying significant reductions in expected incidents/yr as an operator becomes more experienced.
@@ -285,10 +269,627 @@ In the end, we have observed the following points:
 - There is little to no difference in expected incidents per year for operators with <6 Months of experience over all cost centres. However, Burnaby has a notably higher incidents per year than the overall expectation for other operators, and perhaps more training for new operators is needed for those who work in the Burnaby region, or perhaps these operators experience notably different situations compared to others.
 - Shuttle operators clearly exhibit fewer incidents per year than non-shuttle operators, probably due to ease of use.
 
-## Weather and Busses
+### A Combined Analysis of All Factors Using Machine Learning
 
-## A Combined Analysis of All Factors Using Machine Learning
+<center> <h4>TransLink's Overall Business Question</h4> </center>
 
-## Common Types of Claims by Location
-## Assessment of Claims Costs by Location
-## Future Analysis
+TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents. Through this analysis, TransLink hopes that through the identification of specific factors, certain preventable measures can be taken to help reduce insurance costs. The previous section only looked at operator experience levels and operator cost centre/location but this ignores multiple other factors that potentially distort the previous analysis. 
+
+For example, while in the previous section it was observed that more experienced operators get into fewer incidents, this potentially is distorted by the fact that more experienced operators may choose to operate less busy bus lines due to seniority. Therefore, this analysis seeks to analyze everything simultaneously such that the effects of multiple other possible influencing factors are controlled for. In particular, TransLink has expressed interest in understanding the impact of weather conditions, bus characteristics, location, and time in addition to operator characteristics in order to get a better understanding of what is actually driving bus incidents.
+  
+<center> <h4>Overall Predictive Power of Variables in the Model</h4> </center>
+
+We employed a machine learning model to simultaneously assess the overall predictive power of all of these various factors using a very similar methodology to what is described in two papers ([@Montreal] and [@WilsonML]). More details are described in the final written report that is also submitted with this one. On average, the model shown here correctly ranks a scenario with an actual incident to be of higher risk than a scenario with no incident, 85% of the time. This is in line with the papers in which this model is based on.
+
+```{r ML Model: Helper, echo = FALSE, include = FALSE}
+
+class1 <- read_csv("results/ml_model/class1_shap.csv") %>%
+  select(-X1) 
+
+original_train <- read_csv("results/ml_model/full_data.csv") %>%
+  select(-X1)
+
+filter_for_graph <- function(variable_name) {
+  
+  var_only <- class1 %>%
+    mutate_all(.funs = function(x) exp(x) / (1 + exp(x))) %>%
+    select({{variable_name}}) %>%
+    rename(score = all_of(variable_name))
+
+  graphing <- tibble(original_train %>% select({{variable_name}}), var_only[, 1]) 
+  
+  colnames(graphing) <- c("variable", "score")
+  
+  graphing
+  
+}
+
+line_number_summary <- filter_for_graph("line_no") %>%
+  group_by(variable) %>%
+  summarize(score = median(score))
+
+overall_mean <- tibble(
+    `Global Average Risk` = 0.5
+  )
+
+```
+
+In answering the business question, the graph below summarizes the variables that are most important in determing the risk of an incident occurring, as estimated by the model.
+
+```{r ML Model: Summary Plots, echo = FALSE}
+
+summary_plot <- class1 %>%
+  mutate_all(.funs = list(abs)) %>%
+  summarize_all(mean) %>%
+  gather(key = "Predictor", value = "Mean Absolute Score") %>%
+  mutate(Predictor = case_when(
+    Predictor == "hour" ~ "Hour",
+    Predictor == "day_of_week" ~ "Day Of Week",
+    Predictor == "bus_age" ~ "Bus Age",
+    Predictor == "bus_carry_capacity" ~ "Bus Carry Capacity",
+    Predictor == "line_no" ~ "Bus Line Number",
+    Predictor == "city" ~ "City",
+    Predictor == "pressure" ~ "Atmospheric Pressure",
+    Predictor == "rel_hum" ~ "Relative Humidity",
+    Predictor == "elev" ~ "Elevation",
+    Predictor == "temp" ~ "Temperature",
+    Predictor == "visib" ~ "Visibility",
+    Predictor == "wind_dir" ~ "Wind Direction",
+    Predictor == "wind_spd" ~ "Wind Speed",
+    Predictor == "total_precip" ~ "Total Precipitation",
+    Predictor == "total_rain" ~ "Total Rain",
+    Predictor == "total_snow" ~ "Total Snow",
+    Predictor == "experience_in_months" ~ "Operator Experience in Months",
+    Predictor == "is_shuttle" ~ "Shuttle Y/N",
+    Predictor == "asset_class" ~ "Asset Class",
+    Predictor == "asset_manufactmodel" ~ "Asset Manufacturer Model",
+    Predictor == "month" ~ "Month",
+    TRUE ~ Predictor
+  )) %>%
+  mutate(Predictor = fct_reorder(Predictor, `Mean Absolute Score`),
+         `Mean Absolute Score` = round(`Mean Absolute Score`, 4)) 
+
+ggplotly(ggplot(data = summary_plot, aes(x = Predictor, y = `Mean Absolute Score`)) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Variables Most Correlated With Incidents"), width = 870)
+
+```
+
+The scores shown on the graph above represent the overall importance a variable has in determining whether an incident is more or less likely to occur. The larger the score, the more important a variable is.
+
+As we can see, it is quite obvious that the bus line number is by far the most important variable in determining whether an incident is likely to occur or not. This is not too surprising considering that some bus lines naturally move through more populated areas. To test this hypothesis and many others, we can use the following tool below to actually see the estimated risk per each line. In addition, we can see how the risk changes for all of the other variables used in this model as well. 
+
+```{r ML Model: Marginal Effects, echo = FALSE}
+
+tabsetPanel(
+  tabPanel("Time", selectInput("time_input", label = "Time Variable of Interest:", 
+            choices = c("Hour", "Month", "Day of Week"), selected = "Month"), plotlyOutput("time_plot")),
+  tabPanel("Bus Line Number",
+           tabsetPanel(
+             tabPanel("Top Lines Per Risk",
+                    sliderInput("line_no_input", label = "Select Ranking of Lines to View:", value = c(1, 5), min = 1, max =        length(unique(original_train$line_no))),
+                    checkboxInput("line_no_asc", label = "Lowest Risk First", value = FALSE),
+                    plotlyOutput("line_plot_top")
+          ),
+              tabPanel("Individual Line Selector",
+                     selectInput("line_no_input_ind", label = "Select Specific Lines to View:", 
+                                 choices = unique(original_train$line_no), selected = "10", multiple = TRUE),
+                     plotlyOutput("line_no_indiv"))
+          )),
+  tabPanel("Weather",
+           selectInput(
+             "weather_input",
+             label = "Weather Variable of Interest:",
+             choices = c("Temperature", "Total Rain", "Total Snow", "Total Precipitation", "Wind Direction", "Wind Speed", "Pressure", "Relative Humidity", "Elevation", "Visibility"),
+             selected = "Temperature"),
+  plotlyOutput("weather_plot")),
+  tabPanel("Operator and City of Incident",
+           selectInput(
+             "operator_input",
+             label = "Variable of Interest:",
+             choices = c("Operator Experience", "City of Incident"),
+             selected = "Operator Experience"),
+  plotlyOutput("operator_plot")),
+  tabPanel("Bus Characteristics",
+           selectInput(
+             "bus_input",
+             label = "Bus Variable of Interest:",
+             choices = c("Asset Manufacturer Model", "Asset Class", "Shuttle/Regular Bus", "Bus Age", "Bus Carrying Capacity"),
+             selected = "Shuttle/No Shuttle"),
+  plotlyOutput("bus_plot"))
+)
+
+output$time_plot <- renderPlotly({
+  
+  if (input$time_input == "Hour") {
+    
+    all_graphing <- filter_for_graph("hour") %>%
+      mutate(variable = as.factor(variable),
+             variable = fct_relevel(variable, as.character(0:23))) 
+  
+    } else if (input$time_input == "Month") {
+      
+    all_graphing <- filter_for_graph("month") %>%
+      mutate(variable = as.character(variable)) %>%
+      mutate(variable = case_when(
+        variable == "1" ~ "Jan",
+        variable == "2" ~ "Feb",
+        variable == "3" ~ "Mar",
+        variable == "4" ~ "Apr",
+        variable == "5" ~ "May",
+        variable == "6" ~ "Jun",
+        variable == "7" ~ "Jul",
+        variable == "8" ~ "Aug",
+        variable == "9" ~ "Sep",
+        variable == "10" ~ "Oct",
+        variable == "11" ~ "Nov",
+        variable == "12" ~ "Dec",
+        TRUE ~ variable
+      )) %>%
+        mutate(variable = fct_relevel(variable, c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")))
+  
+    } else {
+    
+    all_graphing <- filter_for_graph("day_of_week") %>%
+      mutate(variable = fct_relevel(variable, c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")))
+    
+    }
+
+  colnames(all_graphing) <- c(input$time_input, "Score")
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$time_input), y = Score, group = !!sym(input$time_input))) +
+    geom_boxplot() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) + 
+    theme_bw() + 
+    labs(
+      title = paste(tools::toTitleCase(input$time_input), "Estimated Risk"),
+      x = paste(tools::toTitleCase(input$time_input)),
+      y = "Estimated Risk of Incident"))
+  
+})
+
+output$line_plot_top <- renderPlotly({
+  
+  if (input$line_no_asc == TRUE) {
+    
+  lines_to_show <- line_number_summary %>%
+    arrange(score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+    
+  } else {
+  
+  lines_to_show <- line_number_summary %>%
+    arrange(-score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+  
+  }
+  
+  all_graphing <- filter_for_graph("line_no") %>%
+    rename(line_no = variable) %>%
+    filter(line_no %in% lines_to_show) %>%
+    mutate(line_no = fct_reorder(line_no, .$score, .desc = TRUE))
+  
+  colnames(all_graphing) <- c("Line Number", "Score")
+  
+  ggplotly(ggplot(all_graphing, aes(x = `Line Number`, y = `Score`, group = `Line Number`)) +
+    geom_boxplot() +
+    theme_bw() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    labs(
+      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      x = paste(tools::toTitleCase(input$time_input)),
+      y = "Estimated Risk Score"))
+  
+})
+
+output$line_plot_top <- renderPlotly({
+  
+  if (input$line_no_asc == TRUE) {
+    
+  lines_to_show <- line_number_summary %>%
+    arrange(score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+    
+  } else {
+  
+  lines_to_show <- line_number_summary %>%
+    arrange(-score) %>%
+    .[input$line_no_input[1]:input$line_no_input[2], ] %>%
+    select(variable) %>%
+    pull()
+  
+  }
+  
+  all_graphing <- filter_for_graph("line_no") %>%
+    rename(line_no = variable) %>%
+    filter(line_no %in% lines_to_show) %>%
+    mutate(line_no = fct_reorder(line_no, .$score, .desc = TRUE))
+  
+  colnames(all_graphing) <- c("Line Number", "Score")
+  ggplotly(ggplot(all_graphing, aes(x = `Line Number`, y = Score, group = `Line Number`)) +
+    geom_boxplot() +
+    theme_bw() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    labs(
+      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      x = "Line Number",
+      y = "Estimated Risk Score"))
+  
+})
+
+output$line_no_indiv <- renderPlotly({
+  
+  validate(need(!is.null(input$line_no_input_ind), "No line number selected."))
+  
+  all_graphing <- filter_for_graph("line_no") %>%
+    rename(line_no = variable) %>%
+    filter(line_no %in% input$line_no_input_ind) %>%
+    mutate(line_no = fct_reorder(line_no, .$score, .desc = TRUE))
+  
+  ggplotly(ggplot(all_graphing, aes(x = line_no, y = score, group = line_no)) +
+    geom_boxplot() +
+    theme_bw() +
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    labs(
+      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      x = "Line Number",
+      y = "Estimated Risk Score"))
+  
+})
+
+output$weather_plot <- renderPlotly({
+  
+  lookup <- tibble(
+    choices = c("Temperature", "Total Rain", "Total Snow", "Total Precipitation", "Wind Direction", "Wind Speed", "Pressure", "Relative Humidity", "Elevation", "Visibility"),
+    var_name = c("temp", "total_rain", "total_snow", "total_precip", "wind_dir", "wind_spd", "pressure", "rel_hum", "elev", "visib"),
+    units = c("°C", "mm", "cm", "mm", "10's of degree", "km/h", "kPa", "%", "m", "km"))
+  
+  all_graphing <- filter_for_graph(lookup$var_name[which(lookup$choices == input$weather_input)]) 
+  
+  colnames(all_graphing) <- c(input$weather_input, "Score")
+
+  if (input$weather_input == "Elevation") {
+  
+  all_graphing <- all_graphing %>%
+    mutate(`Elevation` = as.factor(`Elevation`)) %>%
+    mutate(`Elevation` = fct_relevel(`Elevation`, c("2.5", "3.1", "4.3", "5", "13", "170.2")))
+
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$weather_input), y = Score, group = !!sym(input$weather_input))) +
+    geom_boxplot() +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    labs(
+      title = "Estimated Risk Per Elevation Level",
+      x = paste0("Elevation Level ", "(", lookup$units[which(lookup$choices == input$weather_input)], ")"),
+      y = "Estimated Risk Score"))
+    
+  } else {
+  
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$weather_input), y = Score)) +
+    geom_smooth(method = "gam") +
+    theme_bw() + 
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    labs(
+      title = paste("Estimated Risk For Changing Values of:", input$weather_input),
+      x = paste0(input$weather_input, " ", "(", lookup$units[which(lookup$choices == input$weather_input)], ")"),
+      y = "Estimated Risk Score"))
+  }
+})
+
+output$operator_plot <- renderPlotly({
+  
+  if (input$operator_input == "City of Incident") {
+    
+    all_graphing <- filter_for_graph("city") %>%
+      rename("City of Incident" = variable, Score = score) %>%
+      mutate(`City of Incident` = ifelse(is.na(`City of Incident`), "N/A", `City of Incident`))
+    
+    ggplotly(ggplot(all_graphing, aes(x = `City of Incident`, y = Score, group = `City of Incident`)) +
+      geom_boxplot() +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45)) + 
+      geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+      labs(
+        title = paste("Estimated Risk Per", input$operator_input),
+        x = paste(input$operator_input),
+        y = "Estimated Risk Score"))
+  
+    } else {
+    
+    all_graphing <- filter_for_graph("experience_in_months") %>%
+        rename("Operator Experience in Months" = variable)
+      
+    ggplotly(ggplot(all_graphing, aes(x = `Operator Experience in Months`, y = score)) +
+      geom_smooth(method = "gam") +
+      theme_bw() + 
+      geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+      labs(
+        title = paste("Estimated Risk For Changing Values of:", input$operator_input),
+        x = paste0(input$operator_input, " ", "(", "months", ")"),
+        y = "Estimated Risk Score"))
+      
+  }
+})
+
+output$bus_plot <- renderPlotly({
+  
+  lookup <- tibble(
+    choices = c("Asset Manufacturer Model", "Asset Class", "Shuttle/Regular Bus", "Bus Age", "Bus Carrying Capacity"),
+    var_name = c("asset_manufactmodel", "asset_class", "is_shuttle", "bus_age", "bus_carry_capacity")
+  )
+  
+  all_graphing <- filter_for_graph(lookup$var_name[which(lookup$choices == input$bus_input)])
+  
+  if (input$bus_input == "Bus Age") {
+  
+  colnames(all_graphing) <- c(input$bus_input, "Score")
+    
+  ggplotly(ggplot(all_graphing, aes(x = `Bus Age`, y = Score)) +
+      geom_smooth(method = "gam") +
+      theme_bw() + 
+      geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+      labs(
+        title = paste("Estimated Risk For Changing Values of:", input$bus_input),
+        x = paste0(input$bus_input, " ", "(", "years", ")"),
+        y = "Estimated Risk Score"))
+    
+  } else {
+    
+  all_graphing <- all_graphing %>%
+      mutate(variable = as.character(variable))
+    
+    if (input$bus_input == "Bus Carrying Capacity") {
+      
+      all_graphing <- all_graphing %>%
+        mutate(variable = if_else(is.na(variable), "N/A", variable)) %>%
+        mutate(variable = fct_relevel(variable, as.character(sort(unique(original_train$bus_carry_capacity)))))
+      
+    } else if (input$bus_input == "Shuttle/Regular Bus") {
+      
+      all_graphing <- all_graphing %>%
+        mutate(variable = ifelse(variable == 1, "Shuttle", "Regular"), 
+               variable = fct_relevel(variable, c("Shuttle", "Regular")))
+    } else {
+      
+      all_graphing <- all_graphing %>%
+        mutate(variable = ifelse(is.na(variable), "N/A", variable),
+               variable = fct_reorder(variable, .$score))
+      
+    }
+  
+  colnames(all_graphing) <- c(input$bus_input, "Score")
+  
+  ggplotly(ggplot(all_graphing, aes(x = !!sym(input$bus_input), y = Score, group = !!sym(input$bus_input))) +
+    geom_boxplot() +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45)) + 
+    geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
+    labs(
+      title = paste("Estimated Risk Per", input$bus_input),
+      x = paste(input$bus_input),
+      y = "Estimated Risk Score"))
+
+  }
+  
+})
+  
+  
+
+```
+
+Estimated risk scores shown above are adjusted to be between zero and one. A risk score of one means that it is very likely an incident will occur - a risk score closer to zero means it is quite unlikely. A risk score of 0.5 (the red horizontal line shown above in each plot) is the average risk over all values of the variable being viewed - this can be interpreted as unity risk or "no effect". In addition, just like the operators analysis it should be stressed that these are estimated **average** risk scores for a **group of observations** with the same characteristics and not the actual predicted risk scores for a single, specific observation (see the next section if this is desired).
+
+It is important to stress that these risk scores are **not** probabilities of an incident occurring under a specific scenario. Indeed, some of these scores have values as high as 0.75 which cannot realistically be the probability of an incident occurring under any scenario (incidents are much rarer than that). The reason for why we cannot interpret these scores as probabilities is related to how this model is actually created, but regardless, these scores can only be interpreted as relative measures. That is, these scores have no meaning by themselves but do have proper meaning in relation to each other.
+
+As an example, we see that line 22 is estimated to have the highest risk out of all bus lines with a median score of 0.68, holding all other variables constant. Similarly, the new R4 bus line is estimated to have a median risk score of 0.57. None of these scores have any meaning by themselves, but we can make the conclusions that:
+
+1) Line 22 is roughly 0.68/0.57 = 1.20 times (20%) more likely to be involved in an incident than the R4
+2) Both lines are above the overall average of 0.5 risk
+
+The boxplots can be used to gauge how uncertain the overall estimates are, but the medians can be considered our best point estimates. These stats can be viewed by hovering the mouse cursor over specific boxes directly on the plot.
+
+If the variable being analyzed can be any arbitrary number (like all of the weather variables except for elevation) then a plot displaying the estimated "risk curve" for that variable is shown. This gives the estimated average risk for any value of the variable, holding all other variables in the model constant. For some of these plots, the user may notice grey regions for some extreme values of the variable being viewed, such as for very low temperatures. These grey regions reflect the uncertainty in the estimated risk curve in which the curve realistically could fall anywhere in the region. These grey regions are only noticeable for very extreme values of the variable being analyzed since there is very little (if any) data to estimate the effect for these values (such as -30°C which almost never occurs in the Greater Vancouver area).
+
+<center> <h4>Results</h4> </center>
+
+Below, we highlight some key observations from the tool above.
+
+- __*Lines*__:
+  
+Overall, we can see that the lines estimated to be of highest risk for an incident are the 22, 10, 41, 20, 14 and the 4. All of these lines with the exception of line 41 go through Downtown Vancouver. It is difficult to know exactly why Downtown is such a troublesome area - perhaps more traffic and overall population density could play a role. Indeed, we see in the spatial analysis section that Downtown Vancouver dominates the total number of claims as well. 
+
+Line 41 is the bus line that sticks out quite noticeably from the others in that it is the only line out of the top six that does not actually go to Downtown Vancouver. However, this bus line does cover a very large distance which dramatically increases the amount of exposure this particular line has. In general, the riskiest lines are those that stretch large portions of Metro Vancouver. One notable exception to this is line 5 which covers a fairly small distance but in a very dense area (Robson Square). 
+
+Avoiding the most dense areas of Vancouver in some fashion, perhaps by modifying routes to avoid high traffic areas could possibly be an avenue of interest. Knowing which specific roads are of particularly high risk is the next step in this analysis that would help enable TransLink to design safer routes. This is more challenging but entirely possible, largely using the same methodology employed in this report.
+
+The safest bus lines all are outside of Metro Vancouver for the most part (640, 104, 562, 119, 103) - all are estimated to have a risk score of around 0.05. Thus, these lines are all ten times less likely to be involved in an incident when compared to the global average and roughly 14 times less likely to be involved in an incident than the worst offending lines.
+
+- __*Hour*__:
+
+There are some very interesting results from this analysis regarding the hour of the day. As one might expect, the riskiest times during the day are between 7 am and 6 pm, with 3-5 pm being the worst times in the day likely due to traffic congestion. Finally, the model estimates that the afternoon (especially around 3-5 pm) is 1.1 times more likely to be involved in an incident when compared to that of the morning rush hour (7 am to 9 am).
+
+There is one very strange time that is a clear outlier when compared to others - 3 am. For some strange reason, 3 am is estimated to be of higher risk when compared to other off-peak times which is very bizarre in general (though it is still below average). In fact, an incident is roughly two times more likely to occur in the 3 am hour than 12 am and is comparable in risk to that of 10 pm. This is very strange behavior and is worth exploring further as to why this time is suspiciously higher than other off-peak times.  
+
+- __*Month*__:
+
+Month is the second most predictive variable in this model, and using the tool above it is easy to see why. There is a clear lower risk of incidence between March, June, July, and September and all of the other months. However, we suspect that the differences between the months may not be for the same reasons. January and February could be explained possibly by the erratic weather observed in these months. However, it is not clear as to why April and May are equally as bad as the winter months. 
+
+It may be easier to deduce why June and July are lower incident months - indeed, there is likely less traffic congestion and bus activity due to the Summer season. 
+
+Interestingly, October, November, and December are also estimated as high risk months. These are the "holiday months" in which TransLink actually offers lower service. One would think that this would result in fewer incidents but the opposite occurs. 
+
+- __*Weather*__:
+
+Elevation is noted to be of high predictive power but we believe this is merely a proxy for the city of incident (which from the prior analysis, we saw is predictive of an incident occurring). The tool above shows this - the risk for most of the elevations is the same except at 2.5 meters which corresponds to a weather station located on the Vancouver Sea Island near the airport. We believe that this variable is therefore being used as a proxy that compares Vancouver vs. Richmond/Delta.
+
+Two notable variables are that of atmospheric pressure and temperature, both of which are noted to be predictive of an incident. When we view the risk curve for pressure, we see that lower pressures have higher risk which intuitively makes a lot of sense (lower pressures often yields more precipitation, making driving conditions more difficult). However, there is a slight spike at pressures around 103 kPa in which the risk suddenly is driven up again. Higher pressures often yield cloudless skies and a potential explanation for this could be related to increased congestion and pedestrians on "nice" days. The temperature risk curve seems to potentially support this idea - again we see a decreasing risk curve overall as temperature increases until about 31°C in which the risk suddenly starts increasing.
+
+For the risk curve regarding the amount of rain, it would appear that rain amounts < 10 mm have very little effect on estimated risk (in fact, the model estimates a slightly lower than average risk of an incident for rain amounts < 5 mm). Once rain increases beyond 10 mm, however, we see that the risk starts increasing in a rather expected way. Rain amounts around 20 mm are particularly noteworthy in which an incident is about 1.1 times more likely to occur when it rains around 20 mm when compared to scenarios with no rain.
+
+We do not discuss the other weather variables here since they were not found to be very predictive of incidents (and often yield relationships that are nonsensical and spurious at best).
+
+- __*Bus Characteristics*__:
+
+Both bus age and bus carrying capacity are noted to be highly predictive of incidents. Indeed, using the tool above we can see that bus carrying capacity is really acting as a proxy for shuttles - buses that aren't shuttles basically have the exact same risk of incidence regardless of carrying capacity and are roughly 1.3 times (0.52/0.4) more likely to occur in an incident than a shuttle.
+
+The risk curve for bus age is very interesting. Buses less than 1 year old are estimated to be of lower risk than average, and buses in the range of [2, 20] years of age exhibit a slightly above average risk score of 0.52. However, once buses age past 24 years we see a very clear (and very certain) trend in which the estimated risk of incidence starts increasing dramatically. Indeed, a very old bus that is around 26 to 27 years old is estimated to be 1.30 times more likely to be in an incident when compared to a bus that is brand new. Therefore, replacing older buses (perhaps those in excess of 24 years) may be a relatively easy actionable item that TransLink can do to reduce the likelihood of an incident occurring.
+
+We do not discuss the other bus characteristic variables like asset manufacturer model or asset model year since they were found to be of low importance. In the case of asset class, the variable is completely ignored by the final fitted model which suggests that there is no information at all that is useful for assessing the risk of an incident occurring.
+
+- __*Operator Experience Revisited*__:
+
+In the previous section, we observed that operators with more experience tend to get into fewer incidents. However, as the tool above shows, the opposite effect is observed here. Those with more experience appear to get into more incidents, and around 65 months (or about five and a half years) appears to be the point at which operators start to see elevated risk levels above the average. While this appears to be a contradiction, it should be noted that operator experience overall has limited importance after accounting for all of the other variables such as line number, weather, and time. It would seem that operator experience, after accounting for a bunch of other different variables, does not play as significant of a role as one might believe.
+
+Overall, because this analysis actually controls for many more factors it is likely much more accurate than the previous analysis that looked at only operator characteristics. 
+
+<center> <h4>Predicted Risk for Any Specific Scenario</h4> </center>
+Finally, the following tool allows the user to query the final predicted model to get the predicted risk for any specific scenario they wish. These are not average effects over all observations in the data like in the previous analysis but for **single**, future scenarios. Note for brevity that we let the user change variables that are 1) important to the overall prediction and 2) easily accessible. All other variables that the user cannot change are kept constant. 
+
+It should be noted that the quality of the risk assessment given here is completely dependent on the quality of weather forecasts provided to the model (if any). If the weather forecast is completely off, then the risk assessment will of course be inaccurate as a consequence.
+
+```{r Predicted Risk: Combination of Variables, echo = FALSE}
+
+source_python("doc/interactive-report/predict.py")
+
+sidebarLayout(
+  sidebarPanel(style = "overflow-y:scroll; max-height: 600px; position:relative;",
+  selectInput("bus_line_custom", label = "Bus Line:", choices = unique(original_train$line_no), selected = "10"),
+  sliderInput("hour_custom", label = "Hour:", min = 0, max = 23, value = 17, step = 1),
+  selectInput("day_of_week_custom", label = "Day Of Week:", choices = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"), selected = "Fri"),
+  selectInput("month_custom", label = "Month:", choices = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), selected = "Jan"),
+  selectInput("bus_carry_capacity_custom", label = "Bus Carry Capacity:", choices = unique(original_train$bus_carry_capacity), selected = 120),
+  sliderInput("bus_age_custom", label = "Bus Age (years):", min = 0, max = 30, value = 0, step = 1),
+  selectInput("city_custom", label = "City:", choices = unique(original_train$city), selected = "Vancouver"),
+  sliderInput("temp_custom", label = "Temperature (°C):", min = -30, max = 50, value = 10, step = 0.5),
+  sliderInput("pressure_custom", label = "Atmospheric Pressure (kPa):", min = 90, max = 130, value = 102.5, step = 0.1),
+  sliderInput("rain_custom", label = "Total Rain (mm):", min = 0, max = 300, value = 0, step = 0.5)),
+  mainPanel(
+    renderPlotly({
+      
+      lookup <- tibble(
+        month_num = 1:12,
+        month_name = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+      )
+      
+      # There should be no city. The city should autoomatically be inferred from bus line.
+      # Or the city selection should change per bus line so that the user can't select illegitimate options
+      shap_scores <- get_new_prediction(
+        bus_line = input$bus_line_custom,
+        hour = input$hour_custom,
+        day = input$day_of_week_custom,
+        month = lookup$month_num[which(lookup$month_name == input$month_custom)],
+        bus_age = input$bus_age_custom,
+        bus_carrying_cap = na.omit(input$bus_carry_capacity_custom),
+        city = input$city_custom,
+        temp = input$temp_custom,
+        pressure = input$pressure_custom,
+        total_rain = input$rain_custom
+        )
+      
+      graphing <- as_tibble(shap_scores$shap, .name_repair = "unique") 
+      colnames(graphing) <- shap_scores$column_names
+      
+      graphing <- graphing %>%
+        select(line_no, hour, day_of_week, month, bus_carry_capacity, bus_age, city, temp, pressure, total_rain) %>%
+        gather(key = "Predictor", value = "Score") %>%
+        mutate(Score = round(Score, 4)) %>%
+        mutate(
+          Predictor = case_when(
+          Predictor == "hour" ~ "Hour",
+          Predictor == "day_of_week" ~ "Day Of Week",
+          Predictor == "bus_carry_capacity" ~ "Bus Carry Capacity",
+          Predictor == "bus_age" ~ "Bus Age",
+          Predictor == "line_no" ~ "Bus Line Number",
+          Predictor == "city" ~ "City",
+          Predictor == "pressure" ~ "Atmospheric Pressure",
+          Predictor == "temp" ~ "Temperature",
+          Predictor == "total_rain" ~ "Total Rain",
+          Predictor == "experience_in_months" ~ "Operator Experience in Months",
+          Predictor == "month" ~ "Month",
+          TRUE ~ Predictor
+     )) %>%
+        mutate(`Risk Direction` = ifelse(Score < 0, "Induces Lower Risk", "Induces Higher Risk")) %>%
+        mutate(Predictor = fct_reorder(Predictor, abs(.$Score)))
+      
+      ggplotly(ggplot(graphing, aes(x = Predictor, y = Score, fill = `Risk Direction`)) +
+        geom_bar(stat = "identity") +
+        theme_bw() + 
+        coord_flip() +
+        labs(title = paste0("Risk Breakdown Per Chosen Variables", "<br>", "<sup>", "Predicted Overall Risk: ", round(shap_scores$predicted[2], 3), "</sup>")) +
+        scale_fill_manual(values = c(`Induces Higher Risk` = "firebrick1", `Induces Lower Risk` = "steelblue4")), 
+        tooltip = c("Predictor", "Score"), height = 600, width = 700)
+      
+      
+    })
+  )
+)
+
+observeEvent(input$bus_line_custom, {
+  
+        find_cities_per_line <- original_train %>%
+          filter(line_no == input$bus_line_custom) %>%
+          select(city) %>%
+          pull() %>%
+          unique(.)
+        
+        updateSelectInput(session = session, inputId = "city_custom", choices = find_cities_per_line)
+})
+
+
+```
+
+Like in previous graphs, the scores on the x-axis provide the overall impact of the variable on the final predicted risk of incident. If the variable contributes a lot, then the bar will be larger in value.
+
+The direction of influence a variable has on the final prediction is indicated by the colours of the bars. A blue bar indicates that the variable is reducing the overall predicted risk score. A red bar indicates that the variable is increasing the overall predicted risk score.
+
+The tool can also be used to further assess the effect of possible interventions on overall predicted risk. For example, the user can see how much risk will be mitigated by using newer buses. Simulations can also be performed if the user knows what the weather will be like in the future, to potentially warn drivers ahead of time to take extra precaution once certain thresholds of risk are met (especially those who are operating lines that are of high risk).
+
+<center> <h4>Conclusions and Recommendations</h4> </center>
+
+We summarize the key points of this entire analysis:
+
+- Bus line is by far the most important variable in determining how likely an incident is to occur for any scenario.
+- The bus lines that path specifically through Downtown Vancouver, with the exception of bus line 41, are the lines that have the highest risk of incidence. As a result, a large amount of risk can be mitigated simply by focusing on improving safety measures for all lines that move through Downtown Vancouver.
+- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think that this is a combination of greater traffic density, more pedestrians, and large amounts of acceleration/deceleration due to a larger frequency of bus stops in a relatively small area.
+- As a result of the above three points, increasing training for all operators who commonly work bus lines in Downtown Vancouver (and focusing most safety improvements on Downtown Vancouver in general), is likely to yield the largest impact for TransLink in reducing incidents and therefore insurance costs.
+- The approach used in this analysis can be extended to more granular levels, in particular to assess specific roads. We feel that TransLink can possibly extend this analysis to assess the risk per road (rather than per line) to potentially plan routes that avoid high risk areas.
+- The months of June, July, and September are roughly 1.5 times less likely to have an incident than all other months. Lower risk in June and July is possibly the result of lower ridership and traffic congestion (due to the Summer holidays) but it is not clear as to why September is noticeably safer when compared to the others.
+- 7 am and 6 pm are the times that are most risky for incidents, however, there are clear intervals within this range that are relatively safer. For example, the morning rush hour (7 am to 9 am) is roughly 1.1 times less likely to have an incident when compared to 3 pm to 5 pm. 
+- There is a very suspicious peak at 3 am in which the risk suddenly increases at this time (albeit, still below average) for unknown reasons.
+- As seen previously, shuttles are roughly 1.3 times less likely of an incident when compared to non-shuttles. Furthermore, there is virtually no difference in risk among smaller and fuller sized regular buses.
+- Bus age is surprisingly **very** predictive of incidents. Specifically, buses that are >= 24 years of age see an increasing risk of an incident (about 1.3 times more) than buses that are relatively new (0 to 1 year old). Replacing busses in excess of 24 years of age as much as possible, or decommissioning buses earlier (such as before 24 years) can help mitigate risk of incidence.
+- Weather - specifically temperature and atmospheric pressure are both predictive of incidents. As the temperature increases, in general the risk of an incident decreases, however, after 30°C the risk of incident suddenly starts increasing again. A similar relationship holds for atmospheric pressure in which <100 kPA pressures in general exhibit a higher risk of incidence (due to likely more rain). At around 103-104 kPA, however, there is a noticeable bump in risk. A possible theory for this could be the result of nicer days leading to more ridership and traffic congestion. 
+- Regardless, if temperatures are expected to be higher than 30°C or > 10 mm of precipitation is expected, warnings to operators to act more cautiously due to elevated risk of incidence could be a potential action TransLink could implement.
+
+### Common Types of Claims by Location
+### Assessment of Claims Costs by Location
+### Future Analysis
+
+We outline possible improvements that could further improve this analysis here.
+
+<center> <h4>Causal Interpretations</h4> </center>
+
+TransLink originally approached us with the desire to find **causal** factors that lead to incidents rather than mere correlations. This is very difficult to achieve due to the existence of confounders - variables that influence both the incident risk and a variable of interest like hour of the day. 
+
+These confounders can be controlled for by deliberate experiments. As an example, one such experiment could involve randomly assigning say, 30 randomly selected bus drivers to bus line 10, and 30 randomly selected bus drivers to bus line 16 and recording their number of incidents over time. This is likely very impractical, but would allow TransLink to actually make sound causal claims if they exist.
+
+A more practical approach is in fact an analysis very similar to that of the analysis done in this report - collect as many variables that could reasonably be linked to the likelihood of an incident and analyze everything simultaneously. The only major difference in methodology will be a more proper statistical analysis on the model output shown here or a switch to a more statistical approach like Bayesian statistics (such as what we did with the operators dataset in this report). The problem with this approach when compared to rigorous experiments is that causal claims cannot be made with 100% certainty due to a lack of random assignment that comes with explicit experimentation. At best, causal claims can be strengthened by including as many possible confounders as possible, like what we tried in this report. However, we feel that the analysis done in this report is far from accounting for all possible confounders. Variables such as the steepness of certain roads, road curvature, distractions from billboard signs/buildings, speed of buses leading up to specific incidents, population density/foot traffic of certain areas, and operator preference towards certain lines all could be confounding this analysis badly. To add to this complexity, there are likely multiple interactions between variables (for example, the effect of operator experience on incident risk may change depending on what line the operator is working on) which even further complicates things, though there are modern methods similar in spirit to the methods done in this report where these can be accounted for automatically.
+
+<center> <h4>Roads, Not Just Bus Lines </h4> </center>
+
+Another potential avenue for TransLink to explore is that of incorporating specific roads, rather than just lines. This is entirely possible using the data that we have right now since we are given the specific street names on which an incident actually occurred at. This is more complex than the analysis carried out in this report, but would allow TransLink to potentially modify routes away from high risk streets to avoid incidents. We think that this analysis could be incredibly fruitful for TransLink to have, considering that we know that the biggest determiner of risk is the bus line, and that the worst offending bus lines all happen to move through Downtown Vancouver.
+
+We simply ran out of time to implement this but it is completely possible with small modifications to this analysis.
+
+### References
