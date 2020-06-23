@@ -897,7 +897,6 @@ Our primary element in the dashboard is the interactive map in the middle, which
     
 * Histogram; to show the distribution of the number of incidents for each cost level.
 
-$~$
   
 ```{r include=FALSE}
 my_data <- read_csv("all_analysis/claim_costs/collision_locations_with_coordinates.csv")
@@ -1071,7 +1070,6 @@ shinyApp(ui, server)
 
 ```
 
-$~$
 
 This dashboard has multiple interaction points. On the top-left, there are control elements that can be used for filtering the data by incident year and operator experience. According to the selection, summary views and the map will update themselves. With map view, users can zoom in/out and select an individual incident which then shows a popup including details about the incident. The tile control on the right corner of the map allows users to change map tiles such as switching between street view, details view, and dark view. 
     
@@ -1083,7 +1081,7 @@ Some key points that can be seen from the interactive maps are:
 
 2. The bus age distributions look quite similar for all experience groups and all the cost levels. The distributions are mostly cumulated around 10.
 
-3. The proportion of cost level 4 is almost double for the most experienced operators, which can be inferred as the experienced operators have involved in more severe incidents.
+3. The percentage of the the number of incident in cost level 4 is almost double for the most experienced operators, which can be inferred as the experienced operators have involved in more severe incidents.
 
 4. When cities are ranked with respect to the number of incidents, first two city which are Vancouver and Burnaby remains the same for all experience groups. However, rankings are chaging down the line as experience groups changes. For example; while the third, fourth, and fifth cities are Surrey, Richmond, and North Vancouver for `more than 60 months of experience` group; it is North Vancouver, Richmond, and Coquitlam for `less than 6 months' experience` group.
 
