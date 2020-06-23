@@ -25,7 +25,7 @@ def get_new_prediction(bus_line, hour, month, day, bus_carrying_cap, city, temp,
     city: A str representing the city of interest.
     temp: A float representing the temperature in degrees celcius.
     pressure: A float representing the atmospheric pressure in kPa
-    bus_age: An int representing the bus age in years.
+    bus_age: An integer representing the bus age in years.
     total_rain: A float representing the total rain in mm.
 
   Returns:
