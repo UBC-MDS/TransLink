@@ -887,7 +887,7 @@ knitr::include_graphics("all_analysis/claim_costs/joining_datasets.png")
 
   To provide better user experience, we first classified the costs into four levels as an indicator of severity of the collisions with the input from TransLink. Then we used *time* and *the experience level of the operators* as first-level filter elements in our interactive dashboard since they were two of the most apparent variables that affect the incidents according to the previous analysis.
 
-Our primary element in the dashboard is the interactive map in the middle, which contains all reported incidents in the city map as a point, colored differently to indicate which cost level they belong to. In addition to the map, we also provided summary information that could help users to understand better. To achieve good coverage, we have used a combination of 
+Our primary element in the dashboard is the interactive map in the middle, which contains all reported incidents in the city map as a point, colored differently to indicate which cost level they belong to. In addition to the map, we also provided summary information related to the incident for additional context. To achieve good coverage, we have used a combination of 
 
 * Data tables; to show the number of incidents by city and total cost by bus line and bus manufacturer,
     
