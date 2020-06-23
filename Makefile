@@ -55,9 +55,8 @@ results/ml_model/class1_shap.csv results/ml_model/final_fitted.pickle results/ml
 
 # Cleaning files required for wrangling data
 
-data/Clean_data/Speed performance data.csv data/Clean_data/Collision_preventable.csv data/Clean_data/Collision_non_preventable.csv data/Clean_data/Incident_operator.csv: data/TransLink Raw Data/Speed_performance_data.csv data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx src/clean_data.py
-python src/clean_data.py \
---input_speed_path "data/TransLink Raw Data/Speed_performance_data.csv" \
+data/Clean_data/Speed\ performance\ data.csv data/Clean_data/Collision_preventable.csv data/Clean_data/Collision_non_preventable.csv data/Clean_data/Incident_operator.csv: data/TransLink\ Raw\ Data/Speed_performance_data.csv data/TransLink\ Raw\ Data/2020\ Collisions-\ Preventable\ and\ Non\ Preventable\ UBC\ Set\ Without\ Claim\ Number.xlsx data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx src/claim_analysis/clean_data.py
+	python src/clean_data.py --input_speed_path "data/TransLink Raw Data/Speed_performance_data.csv" \
 --input_prev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
 --input_nonprev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
 --input_incident_path "data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx" \
@@ -68,16 +67,16 @@ python src/clean_data.py \
 
 # Merging data to include  latitudes and longitudes of places
 
-data/TransLink Raw Data/merged_collision.xlsx: data/TransLink Raw Data/claim_vehicle_employee_line.csv data/TransLink Raw Data/collision_locations_with_coordinates.csv src/merge_claims.py
-python src/merge_claims.py \
+data/TransLink\ Raw\ Data/merged_collision.xlsx: data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/collision_locations_with_coordinates.csv src/claim_analysis/merge_claims.py
+	python src/claim_analysis/merge_claims.py \
 --input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
 --input_location_path "data/TransLink Raw Data/collision_locations_with_coordinates.csv" \
 --output_path "data/TransLink Raw Data/merged_collision.xlsx"
 
 # Preprocessing data to create tables required for the dashboard
 
-data/TransLink Raw Data/verb_colour_df.xlsx data/TransLink Raw Data/Claim_colour_df.xlsx: data/TransLink Raw Data/merged_collision.xlsx src/claim_description.py
-python src/claim_description.py \
+data/TransLink\ Raw\ Data/verb_colour_df.xlsx data/TransLink\ Raw\ Data/Claim_colour_df.xlsx: data/TransLink\ Raw\ Data/merged_collision.xlsx src/claim_analysis/claim_description.py
+	python src/claim_description.py \
 --input_merged_path "data/TransLink Raw Data/merged_collision.xlsx" \
 --color_path "data/TransLink Raw Data/data.json" \
 --output_verb_color_df "data/TransLink Raw Data/verb_colour_df.xlsx" \
