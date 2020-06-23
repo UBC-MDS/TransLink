@@ -20,17 +20,19 @@ library(lubridate)
 library(htmlwidgets)
 ```
 
-# Assessment of Claims Costs by Location
+# Assessment of Claim Costs by Location
 
-One of the primary concerns for TransLink was soaring insurance costs in recent years. Concerning the insurance costs TransLink interested in causal/exploratory analysis as well as cost prediction for upcoming months. However, after analyzing the available data-set, we figured out that almost half of the claims are still open and there were no negative examples in which the bus completed its route without any incident, hence without any cost. A predictive machine learning model on the insurance costs would be potentially highly biased since the insurance costs cannot be assessed accurately. Therefore, the best approach to get more insights into the increasing insurance costs was using exploratory data analysis techniques. For that purpose, we developed an interactive map tool to easily check and explore the spatial details of the collisions on a real city map. As the first step in our analysis, we combined different datasets to get more information about the claims, collisions, and also operators. Since there are many variables from different datasets that might have an effect on the insurance costs, we tried to build an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and also `claim_vehicle_employee_line.csv` datasets.
+  One of the primary concerns for TransLink was soaring insurance costs in recent years. Concerning the insurance costs, TransLink was interested in causal/exploratory analysis as well as cost prediction for upcoming months. However, after analyzing the available datasets, we figured out that almost half of the claims are still open and there were no negative examples in which the bus completed its route without any incidents (hence without any cost). A predictive machine learning model on the insurance costs would be potentially highly biased since the insurance costs cannot be assessed accurately. Therefore, the best approach to get more insights into the increasing insurance costs was using exploratory data analysis techniques. For that purpose, we developed an interactive map tool to easily check and explore the details of the collisions/costs on a real city map. 
+  
+  There are many variables from different datasets that might have an impact on the insurance costs. Thus, as a first step in our analysis, we have built an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and also `claim_vehicle_employee_line.csv` datasets get more information about the collisions, operators and claims respectively. On the top of combined dataset, we populated the coordinates of each incident by using Google Maps GeoCoding API to be able to visualize them on the map. Then, we also used an R package `leaflet` to add interactivity on the map and `shiny` to add control elements to this dashboard.
 
-![](../../images/joining_dataset_2.png)
+```{r joining_datasets, echo=FALSE, out.width = '70%',  fig.align='center'}
+knitr::include_graphics("joining_dataset_2.png")
+```
 
-On the top of combined dataset, we populated the coordinates of each incident by using Google Maps GeoCoding API to be able to visualize them on the map. Furthermore, we also used an R package `leaflet` to add interactivity on this map.
+To provide better user experience, we first classified the costs into four levels as an indicator of severity of the collisions with the input from TransLink. Then we used *time* and *the experience level of the operators* as first-level filter elements in our interactive dashboard since they were two of the most apparent variables that affect the incidents according to the previous analysis.
 
-Since our primary focus in this analysis is the insurance costs, we identified four levels of costs with input from TransLink to show the distribution of cost levels under specific conditions. According to the previous analysis, *time* and *the experience level of the operators* are two of the most apparent variables that affect the incidents. Therefore we used these two variables as first-level filter elements in our interactive dashboard.
-
-Our primary element in the dashboard is the interactive map in the middle, which contains all reported incidents in the city map as a point, colored differently to indicate which cost level they belong to. In addition to the map, we also provided summary information that could help understand the data better. To achieve good coverage, we have used a combination of 
+Our primary element in the dashboard is the interactive map in the middle, which contains all reported incidents in the city map as a point, colored differently to indicate which cost level they belong to. In addition to the map, we also provided summary information that could help users to understand better. To achieve good coverage, we have used a combination of 
 
 * Data tables; to show the number of incidents by city and total cost by bus line and bus manufacturer,
     
@@ -38,8 +40,9 @@ Our primary element in the dashboard is the interactive map in the middle, which
     
 * Line chart; to show the number of incidents changes over time,
     
-*  Histogram; to show the distribution of the number of incidents for each cost level.
-  
+* Histogram; to show the distribution of the number of incidents for each cost level.
+
+$~$
   
 ```{r include=FALSE}
 my_data <- read_csv("results/processed_data/collision_locations_with_coordinates.csv")
@@ -213,9 +216,9 @@ shinyApp(ui, server)
 
 ```
 
+$~$
 
-
-On the left, there are control elements that can be used for filtering the data by incident year and operator experience. On the right side, there is an interactive map that allows users to zoom in/out and selecting an individual incident which then shows a popup including details about the incident. The tile controls on the right corner allow users to change map tiles such as switching from street view to details view. 
+This dashboard has multiple interaction points. On the top-left, there are control elements that can be used for filtering the data by incident year and operator experience. According to the selection, summary views and the map will update themselves. With map view, users can zoom in/out and select an individual incident which then shows a popup including details about the incident. The tile control on the right corner of the map allows users to change map tiles such as switching between street view, details view, and dark view. 
 
 ### Conclusions and Recommendations
 
@@ -223,13 +226,12 @@ Some key points that can be seen from the interactive maps are:
 
 1. The number of incidents in cost level 1 has increased over the years for all the experience groups. Whereas, the cost levels 2 and 3 have slightly decreased and cost level 4 has a steady trend.
 
-2. The bus age distributions look quite similar for all experience groups and the cost levels. The distributions are most cumulated around 10.
+2. The bus age distributions look quite similar for all experience groups and all the cost levels. The distributions are mostly cumulated around 10.
 
 3. The proportion of cost level 4 is almost double for the most experienced operators, which can be inferred as the experienced operators have involved in more severe incidents.
 
-4. Although most of the incidents have occurred in Vancouver and Burnaby for all experience groups, the order of the following more risky cities is different for each experience level. For example, the third, fourth, and fifth risky cities are Surrey, Richmond, and North Vancouver for the group with more than 60 months of experience. On the other hand, for a group with less than 6 months' experience, the order is North Vancouver, Richmond, and Coquitlam.
+4. When cities are ranked with respect to the number of incidents, first two city which are Vancouver and Burnaby remains the same for all experience groups. However, rankings are chaging down the line as experience groups changes. For example; while the third, fourth, and fifth cities are Surrey, Richmond, and North Vancouver for `more than 60 months of experience` group; it is North Vancouver, Richmond, and Coquitlam for `less than 6 months' experience` group.
 
 5. The bus lines with the highest costs are also quite different for each experience level. The lines 320, 20, 99, 4, 22 are the ones with the highest costs for the group with more than 60 months experience, whereas 20, 22, 25, 153, and 8 are the highest ones for the groups with less than 6 months experience.
 
-
-Things to be improved: The map shows the areas with the most incidents, but it is hard to use the phrase “most dangerous”, as the dataset does not tell us how many buses traveled through each area without any incidents.  
+**Things to be improved:** The map shows the areas with the most incidents, but it is hard to use the phrase “most dangerous”, as the dataset does not tell us how many buses traveled through each area without any incidents. This recommendation also applies to other analyses like bus age, operator expereince and bus manifacturer effects. It is hard to see the correlation without seeing the bigger picture like all operators, entire bus mission list and bus inventory and bus routes without incidents.  
