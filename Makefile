@@ -50,3 +50,34 @@ results/ml_model/final_model_after_optimization.pickle: src/ml_model/python/2_mo
 
 results/ml_model/class1_shap.csv results/ml_model/final_fitted.pickle results/ml_model/full_data.csv: src/ml_model/python/3_model_generator.py data/ml_model/train.csv data/ml_model/test.csv data/TransLink\ Raw\ Data/Bus_spec.csv
 	python src/ml_model/python/model_generator.py --train_file_path=data/ml_model/train.csv --bus_file_path=data/TransLink\ Raw\ Data/Bus_spec.csv --test_file_path=data/ml_model/test.csv --model_file_path=results/ml_model/final_model_after_optimization.pickle
+
+#------------------Claim Analysis-----------------
+
+# Cleaning files required for wrangling data
+
+data/Clean_data/Speed\ performance\ data.csv data/Clean_data/Collision_preventable.csv data/Clean_data/Collision_non_preventable.csv data/Clean_data/Incident_operator.csv: data/TransLink\ Raw\ Data/Speed_performance_data.csv data/TransLink\ Raw\ Data/2020\ Collisions-\ Preventable\ and\ Non\ Preventable\ UBC\ Set\ Without\ Claim\ Number.xlsx data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx src/claim_analysis/clean_data.py
+	python src/clean_data.py --input_speed_path "data/TransLink Raw Data/Speed_performance_data.csv" \
+--input_prev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
+--input_nonprev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
+--input_incident_path "data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx" \
+--output_speed_path "data/Clean_data/Speed performance data.csv" \
+--output_prev_path "data/Clean_data/Collision_preventable.csv" \
+--output_nonprev_path "data/Clean_data/Collision_non_preventable.csv" \
+--output_incident_path "data/Clean_data/Incident_operator.csv" 
+
+# Merging data to include  latitudes and longitudes of places
+
+data/TransLink\ Raw\ Data/merged_collision.xlsx: data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/collision_locations_with_coordinates.csv src/claim_analysis/merge_claims.py
+	python src/claim_analysis/merge_claims.py \
+--input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
+--input_location_path "data/TransLink Raw Data/collision_locations_with_coordinates.csv" \
+--output_path "data/TransLink Raw Data/merged_collision.xlsx"
+
+# Preprocessing data to create tables required for the dashboard
+
+data/TransLink\ Raw\ Data/verb_colour_df.xlsx data/TransLink\ Raw\ Data/Claim_colour_df.xlsx: data/TransLink\ Raw\ Data/merged_collision.xlsx src/claim_analysis/claim_description.py
+	python src/claim_description.py \
+--input_merged_path "data/TransLink Raw Data/merged_collision.xlsx" \
+--color_path "data/TransLink Raw Data/data.json" \
+--output_verb_color_df "data/TransLink Raw Data/verb_colour_df.xlsx" \
+--output_noun_color_df "data/TransLink Raw Data/Claim_colour_df.xlsx"
