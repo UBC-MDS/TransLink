@@ -46,3 +46,35 @@ data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds d
 
 data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test.csv: src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds 'data/TransLink Raw Data/Scheduled_Actual_services_2019.csv'
 	Rscript src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds 'data/TransLink Raw Data/Scheduled_Actual_services_2019.csv' data/ml-model
+
+#------------------Claim Analysis-----------------
+
+# Cleaning files required for wrangling data
+
+python src/clean_data.py \
+--input_speed_path "data/TransLink Raw Data/Speed_performance_data.csv" \
+--input_prev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
+--input_nonprev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
+--input_incident_path "data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx" \
+--output_speed_path "data/Clean_data/Speed performance data.csv" \
+--output_prev_path "data/Clean_data/Collision_preventable.csv" \
+--output_nonprev_path "data/Clean_data/Collision_non_preventable.csv" \
+--output_incident_path "data/Clean_data/Incident_operator.csv" 
+
+# Merging data to include  latitudes and longitudes of places
+
+python src/merge_claims.py \
+--input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
+--input_location_path "data/TransLink Raw Data/collision_locations_with_coordinates.csv" \
+--output_path "data/TransLink Raw Data/merged_collision.xlsx"
+
+# Preprocessing data to create tables required for the dashboard
+
+python src/claim_description.py \
+--input_merged_path "data/TransLink Raw Data/merged_collision.xlsx" \
+--color_path "data/TransLink Raw Data/data.json" \
+--output_verb_color_df "data/TransLink Raw Data/verb_colour_df.xlsx" \
+--output_noun_color_df "data/TransLink Raw Data/Claim_colour_df.xlsx"
+
+
+
