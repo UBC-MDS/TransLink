@@ -897,6 +897,7 @@ Our primary element in the dashboard is the interactive map in the middle, which
     
 * Histogram; to show the distribution of the number of incidents for each cost level.
 
+$~$
   
 ```{r include=FALSE}
 my_data <- read_csv("all_analysis/claim_costs/collision_locations_with_coordinates.csv")
@@ -1070,23 +1071,24 @@ shinyApp(ui, server)
 
 ```
 
-
+$~$
+  
 This dashboard has multiple interaction points. On the top-left, there are control elements that can be used for filtering the data by incident year and operator experience. Additionally, summary views and the map will update automatically according to what is selected. With the map view, users can zoom in/out and by selecting an individual incident, a popup outlining details about the incident is displayed. The tile control on the upper right corner of the map allows users to change the appearance of the map (switching between street view, details view, and dark view). 
     
 <center> <h4>Conclusions and Recommendations</h4> </center>
 
 Some key points that can be seen from the interactive maps are:
 
-1. The number of incidents in cost level 1 has increased over the years for all the experience groups. Whereas, the cost levels 2 and 3 have slightly decreased and cost level 4 has a steady trend.
+- The number of incidents in cost level 1 has increased over the years for all of the experience groups. However, cost levels 2 and 3 have slightly decreased and cost level 4 has a steady trend.
 
-2. The bus age distributions look quite similar for all experience groups and all the cost levels. The distributions are mostly cumulated around 10.
+- The bus age distributions look quite similar for all experience groups and for all cost levels. The distributions are mostly cumulated around 10.
 
-3. The percentage of the the number of incident in cost level 4 is almost double for the most experienced operators, which can be inferred as the experienced operators have involved in more severe incidents.
+- The percentage of incidents that occur at cost level 4 is almost double for the most experienced operators, which can possibly suggest that experienced operators are involved in more severe incidents.
 
-4. When cities are ranked with respect to the number of incidents, first two city which are Vancouver and Burnaby remains the same for all experience groups. However, rankings are chaging down the line as experience groups changes. For example; while the third, fourth, and fifth cities are Surrey, Richmond, and North Vancouver for `more than 60 months of experience` group; it is North Vancouver, Richmond, and Coquitlam for `less than 6 months' experience` group.
-
-5. The bus lines with the highest costs are also quite different for each experience level. The lines 320, 20, 99, 4, 22 are the ones with the highest costs for the group with more than 60 months experience, whereas 20, 22, 25, 153, and 8 are the highest ones for the groups with less than 6 months experience.
-
+- When cities are ranked with respect to the number of incidents, Vancouver and Burnaby are always the first and second cities with the most incidents, respectively. However, rankings change quite a bit after this as the experience groups changes. For example; while the third, fourth, and fifth-ranked cities are Surrey, Richmond, and North Vancouver for operators with more than 60 months of experience, it is North Vancouver, Richmond, and Port Coquitlam for operators with less than six months of experience. This matches quite closely with the previous analysis of the operators.
+  
+- The bus lines with the highest claim costs also vary a lot with operator experience level. Bus lines 320, 20, 99, 4, 22 all have the highest costs for operators with more than 60 months of experience, whereas bus lines 20, 22, 25, 153, and 8 have the highest claim costs for operators with less than 6 months of experience.
+  
 **Things to be improved:** The map shows the areas with the most incidents, but it is hard to use the phrase “most dangerous” as the dataset does not tell us how many buses traveled through each area without any incidents. This recommendation also applies to other analyses like bus age, operator experience, and bus manufacturer effects.
 
   
