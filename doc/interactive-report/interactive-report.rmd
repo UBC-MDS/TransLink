@@ -875,7 +875,6 @@ We summarize the key points of this entire analysis:
 ### Common Types of Claims by Location
 ### Assessment of Claims Costs by Location
 
-
   One of the primary concerns for TransLink was soaring insurance costs in recent years. Concerning the insurance costs, TransLink was interested in causal/exploratory analysis as well as cost prediction for upcoming months. However, after analyzing the available datasets, we figured out that almost half of the claims are still open and there were no negative examples in which the bus completed its route without any incidents (hence without any cost). A predictive machine learning model on the insurance costs would be potentially highly biased since the insurance costs cannot be assessed accurately. Therefore, the best approach to get more insights into the increasing insurance costs was using exploratory data analysis techniques. For that purpose, we developed an interactive map tool to easily check and explore the details of the collisions/costs on a real city map. 
   
   There are many variables from different datasets that might have an impact on the insurance costs. Thus, as a first step in our analysis, we have built an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and also `claim_vehicle_employee_line.csv` datasets get more information about the collisions, operators and claims respectively. On the top of combined dataset, we populated the coordinates of each incident by using Google Maps GeoCoding API to be able to visualize them on the map. Then, we also used an R package `leaflet` to add interactivity on the map and `shiny` to add control elements to this dashboard.
@@ -1075,8 +1074,8 @@ shinyApp(ui, server)
 $~$
 
 This dashboard has multiple interaction points. On the top-left, there are control elements that can be used for filtering the data by incident year and operator experience. According to the selection, summary views and the map will update themselves. With map view, users can zoom in/out and select an individual incident which then shows a popup including details about the incident. The tile control on the right corner of the map allows users to change map tiles such as switching between street view, details view, and dark view. 
-  
-### Conclusions and Recommendations
+    
+<center> <h4>Conclusions and Recommendations</h4> </center>
 
 Some key points that can be seen from the interactive maps are:
 
