@@ -27,10 +27,11 @@ library(htmlwidgets)
   There are many variables from different datasets that might have an impact on the insurance costs. Thus, as a first step in our analysis, we have built an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and also `claim_vehicle_employee_line.csv` datasets get more information about the collisions, operators and claims respectively. On the top of combined dataset, we populated the coordinates of each incident by using Google Maps GeoCoding API to be able to visualize them on the map. Then, we also used an R package `leaflet` to add interactivity on the map and `shiny` to add control elements to this dashboard.
 
 ```{r joining_datasets, echo=FALSE, out.width = '70%',  fig.align='center'}
-knitr::include_graphics("joining_dataset_2.png")
+knitr::include_graphics("joining_datasets.png")
 ```
 
-To provide better user experience, we first classified the costs into four levels as an indicator of severity of the collisions with the input from TransLink. Then we used *time* and *the experience level of the operators* as first-level filter elements in our interactive dashboard since they were two of the most apparent variables that affect the incidents according to the previous analysis.
+
+  To provide better user experience, we first classified the costs into four levels as an indicator of severity of the collisions with the input from TransLink. Then we used *time* and *the experience level of the operators* as first-level filter elements in our interactive dashboard since they were two of the most apparent variables that affect the incidents according to the previous analysis.
 
 Our primary element in the dashboard is the interactive map in the middle, which contains all reported incidents in the city map as a point, colored differently to indicate which cost level they belong to. In addition to the map, we also provided summary information that could help users to understand better. To achieve good coverage, we have used a combination of 
 
@@ -45,7 +46,7 @@ Our primary element in the dashboard is the interactive map in the middle, which
 $~$
   
 ```{r include=FALSE}
-my_data <- read_csv("results/processed_data/collision_locations_with_coordinates.csv")
+my_data <- read_csv("all_analysis/claim_costs/collision_locations_with_coordinates.csv")
 my_data$years <- year(my_data$loss_date)
 my_data <- my_data %>% mutate(apta_desc = ifelse(apta_desc == "Collisions With Other Vehicles (At G/C)", "Collisions With Other Vehicles", 
                                                  ifelse(apta_desc == "Collisions With Objects (At G/C)", "Collisions With Objects",  apta_desc)))
