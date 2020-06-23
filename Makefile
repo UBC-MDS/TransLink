@@ -51,6 +51,7 @@ data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test
 
 # Cleaning files required for wrangling data
 
+data/Clean_data/Speed performance data.csv data/Clean_data/Collision_preventable.csv data/Clean_data/Collision_non_preventable.csv data/Clean_data/Incident_operator.csv: data/TransLink Raw Data/Speed_performance_data.csv data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx src/clean_data.py
 python src/clean_data.py \
 --input_speed_path "data/TransLink Raw Data/Speed_performance_data.csv" \
 --input_prev_path "data/TransLink Raw Data/2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.xlsx" \
@@ -63,6 +64,7 @@ python src/clean_data.py \
 
 # Merging data to include  latitudes and longitudes of places
 
+data/TransLink Raw Data/merged_collision.xlsx: data/TransLink Raw Data/claim_vehicle_employee_line.csv data/TransLink Raw Data/collision_locations_with_coordinates.csv src/merge_claims.py
 python src/merge_claims.py \
 --input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
 --input_location_path "data/TransLink Raw Data/collision_locations_with_coordinates.csv" \
@@ -70,6 +72,7 @@ python src/merge_claims.py \
 
 # Preprocessing data to create tables required for the dashboard
 
+data/TransLink Raw Data/verb_colour_df.xlsx data/TransLink Raw Data/Claim_colour_df.xlsx: data/TransLink Raw Data/merged_collision.xlsx src/claim_description.py
 python src/claim_description.py \
 --input_merged_path "data/TransLink Raw Data/merged_collision.xlsx" \
 --color_path "data/TransLink Raw Data/data.json" \
