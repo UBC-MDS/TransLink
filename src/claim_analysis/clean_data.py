@@ -63,9 +63,9 @@ def main(input_speed_path, input_prev_path, input_nonprev_path, input_incident_p
     """
 	Speed_performance = pd.read_csv(input_speed_path, low_memory=False)
 
-	Collision_preventable = pd.read_excel(input_prev_path, skiprows=  3)
+	Collision_preventable = pd.read_excel(input_prev_path, skiprows=3)
 
-	Collision_non_preventable = pd.read_excel(input_nonprev_path, skiprows=  3, sheet_name=1)
+	Collision_non_preventable = pd.read_excel(input_nonprev_path, skiprows=3, sheet_name=1)
 
 	Incident_operator = pd.read_excel(input_incident_path, sheet_name=1)
 
