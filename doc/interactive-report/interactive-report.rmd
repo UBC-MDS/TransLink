@@ -1087,7 +1087,7 @@ Some key points that can be seen from the interactive maps are:
 
 5. The bus lines with the highest costs are also quite different for each experience level. The lines 320, 20, 99, 4, 22 are the ones with the highest costs for the group with more than 60 months experience, whereas 20, 22, 25, 153, and 8 are the highest ones for the groups with less than 6 months experience.
 
-**Things to be improved:** The map shows the areas with the most incidents, but it is hard to use the phrase “most dangerous”, as the dataset does not tell us how many buses traveled through each area without any incidents. This recommendation also applies to other analyses like bus age, operator expereince and bus manifacturer effects. It is hard to see the correlation without seeing the bigger picture like all operators, entire bus mission list and bus inventory and bus routes without incidents.
+**Things to be improved:** The map shows the areas with the most incidents, but it is hard to use the phrase “most dangerous” as the dataset does not tell us how many buses traveled through each area without any incidents. This recommendation also applies to other analyses like bus age, operator experience, and bus manufacturer effects.
 
   
 ### Future Analysis
