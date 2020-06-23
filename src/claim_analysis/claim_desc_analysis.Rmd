@@ -73,7 +73,7 @@ ui <- dashboardPage(
     tabItem(
       tabName = "dashboard",
       fluidRow(box(
-        leafletOutput("mymap", height = 500)%>% withSpinner(color =  "skyblue", size=2),
+        leafletOutput("mymap", height = 500) %>% withSpinner(color =  "skyblue", size=2),
         status = "primary",
         width = 12,
         height = 500
