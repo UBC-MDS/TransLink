@@ -38,8 +38,8 @@ data/ml_model/cleaned_accident_data.rds data/ml_model/stations_per_loc_day.rds d
 	
 # Get training and testing data sets
 
-data/ml-model/final_data_combined.csv data/ml-model/train.csv data/ml-model/test.csv: src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds 'data/TransLink Raw Data/Scheduled_Actual_services_2019.csv'
-	Rscript src/ml-model/R/1_sample.R data/ml-model/cleaned_accident_data.rds data/ml-model/stations_per_loc_day.rds data/ml-model/stations_per_loc_hour.rds 'data/TransLink Raw Data/Scheduled_Actual_services_2019.csv' data/ml-model
+data/ml_model/final_data_combined.csv data/ml_model/train.csv data/ml_model/test.csv: src/ml_model/R/1_sample.R data/ml_model/cleaned_accident_data.rds data/ml_model/stations_per_loc_day.rds data/ml_model/stations_per_loc_hour.rds data/TransLink\ Raw\ Data/Scheduled_Actual_services_2019.csv
+	Rscript src/ml_model/R/1_sample.R data/ml_model/cleaned_accident_data.rds data/ml_model/stations_per_loc_hour.rds data/ml_model/stations_per_loc_day.rds data/TransLink\ Raw\ Data/Scheduled_Actual_services_2019.csv data/ml_model
 
 # Validate model
 
