@@ -47,9 +47,9 @@ A variety of statistical and machine learning methods are employed in this repor
 
 ```{r Operator Analysis: Import, include = FALSE}
 # This is just helper code - do not show in report
-best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
-posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
-results <- readRDS("results/operators/report-tables/validation-results.rds")
+best_bayes_model <- readRDS("all_analysis/operators/best-bayes-model.rds")
+posterior_predictions <- readRDS("all_analysis/operators/posterior_samples.rds")
+results <- readRDS("all_analysis/operators/validation-results.rds")
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -104,7 +104,7 @@ A random sample of the first five rows of the analyzed dataset is given below.
 
 ```{r Operator Analysis: Sample Dataset, echo = FALSE, include = FALSE}
 
-operators_dataset <- read_csv("data/operators/train.csv") %>%
+operators_dataset <- read_csv("all_analysis/operators/train.csv") %>%
   sample_n(5) %>%
   select(experience, in_probation, cost_centre, total_hours_last3yr, number_incidents, number_preventables, incidents_year, preventables_year) %>%
   rename(Experience = experience, `Cost Centre` = cost_centre, `In Probation` = in_probation, `Total Hours Worked in Last 3 Yr` = total_hours_last3yr, `Incidents/Yr` = incidents_year, `Preventables/Yr` = preventables_year, `Number of Incidents` = number_incidents, `Number of Preventables` = number_preventables)
@@ -283,10 +283,10 @@ We employed a machine learning model to simultaneously assess the overall predic
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
-class1 <- read_csv("results/ml_model/class1_shap.csv") %>%
+class1 <- read_csv("all_analysis/ml_model/class1_shap.csv") %>%
   select(-X1) 
 
-original_train <- read_csv("results/ml_model/full_data.csv") %>%
+original_train <- read_csv("all_analysis/ml_model/full_data.csv") %>%
   select(-X1)
 
 filter_for_graph <- function(variable_name) {
