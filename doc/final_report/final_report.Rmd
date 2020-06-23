@@ -4,8 +4,7 @@ author: " Brayden Tang, Kirk Zhong, Merve Sahin, Simardeep Kaur"
 header-includes: \usepackage{graphicx} \usepackage{fancyhdr} \pagestyle{fancy} \setlength\headheight{28pt}
   \fancyhead[R]{\includegraphics[width=4cm]{logo.png}} \fancyfoot[R,RO]{}
 output:
-  word_document:
-    reference_docx: word_template.docx
+  html_document:
 bibliography: ref.bib
 ---
 
@@ -27,57 +26,86 @@ knitr::opts_chunk$set(cache=TRUE,
 
 # SUMMARY
 
-In 2019/2020, TransLink has paid around \$20 million in expenses for insurance claims to ICBC and \$1.6 million in premium to the captive insurance company. Additionally, the premium paid by TransLink has increased by more than 200% during the last five years. The project builds upon the identification of potential factors responsible for the occurrence of incidents. To reduce the count of incidents in the future, statistical methods such as zero-truncated regression, time series modeling, and mixed-effect models will be leveraged in order to identify the incident patterns and factors that are predictive of incident frequency.
+To identify the transit incident pattern, the spatial analyses of both claim cost and claim description are employed and a comprehensive machine learning model is built to assess the overall predictive power of all of these various factors such as bus line, weather conditions, time and bus characteristics by using LightGBM classifier. The bus line turned out to be the most important variable in determining how likely an incident is to occur for any scenario. All these analyses together with findings and recommendations are integrated in an interactive report.
+
 
 # INTRODUCTION
 
-With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 [@TransLink]. Legislation requires TransLink to carry a \$1 million per occurrence liability policy on each of its revenue vehicles and a \$200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. Running alongside, the premium paid to its own captive insurance company has increased by 33% for at-fault physical damage losses to its vehicles. In response to soaring insurance costs and road safety concerns, this research will investigate variables of interest that may influence the frequency of transit incidents and claims. The research objectives are to:
+With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a $1 million per occurrence liability policy on each of its revenue vehicles and a \$200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%.
 
-- Characterize current patterns of incident frequency in terms of variables related to drivers and vehicles
-- With the help of external data such as weather conditions and geographic data, examine how predictive these variables are of incidents/claims
-- Recommend actions for TransLink to reduce the incident frequency strategically
+In response to soaring insurance costs and road safety concerns, a variety of statistical and machine learning methods are employed to address the research questions. We analyzed key variables of interest that may be predictive of bus incidents. These variables include an analysis of the operators involved, the impact of bus characteristics, and the effect of weather, time, location, and line number on the likelihood of an incident occurring. Meanwhile, the types of claims that are occurring - in particular, if there are common types of claims per location and if particular locations yield large paid costs were also analyzed. 
 
 
-# DATA PRODUCT
+# DATA SCIENCE METHODS
 
-A fully reproducible and interactive report will be delivered at the end of the project. The report will give a visual representation of relationships between the frequency of claims and specific variables interactively. The project will use a fully reproducible data pipeline so that the user can run the entire analysis using simple and understandable make commands. A docker container for reproducibility on any operating system will also be included. 
+Three categorical analyses were conducted including spatial analysis with the format of an interactive map, and incident analysis based on a comprehensive machine learning model. 
 
-# DATA DESCRIPTION
+**Spatial Analysis- Claim Cost**
 
-Below is a summary of the data sets that this project will be built on.
+One of the primary concerns for TransLink was soaring insurance costs in recent years.In that context, TransLink was interested in causal/exploratory analysis as well as cost prediction for upcoming months. However, after analyzing the available datasets, we figured out that almost half of the claims are still open and there were no negative examples in which the bus completed its route without any incidents (hence without any cost). A predictive machine learning model on the insurance costs would be potentially highly biased since the insurance costs cannot be assessed accurately. Therefore, the best approach to get more insights into the increasing insurance costs was using exploratory data analysis techniques. For that purpose, we developed an interactive map tool to easily check and explore the details of the collisions/costs on a real city map. The exact locations and some detailed information about the incidents can be easily seen and the comparison between different neighborhoods in terms of the number of incidents can be done. The map also shows how the different levels of operators’ experience affect the number of incidents and how these trends evolved. The map is colored according to the levels of cost range to see how the cost range differs in different neighborhoods. 
 
-![](images/picture1.png)
-
-The key variables in each dataset that have the highest potential to answer the core business problems are:
-
-- Bus model and length from the “Bus Trip Information” dataset.
-- Experience and probation status of the drivers from the “Operator Occurrences” dataset.
-- Loss location and claim description from the “Collisions” dataset.
-- Loss date and more granular information about the claim amount from the “Claims” dataset.
+![](images/figure1.png)
+_Figure 1: Screenshot of the interactive map of claim cost_
 
 
+**Spatial Analysis- Claim Description**
+
+We deployed Natural Language Processing in our claim description analysis. The idea is extracting nouns and verbs from the incident/claim descriptions. Nouns extracted from narrative sentences contain information about what objects were impacted in the incident and verbs will tell us about the granular level of the impact of the incident.
+
+![](images/figure2.png)
+_Figure 2: Screenshot of the interactive map of claim description_
+
+**Incident Analysis**
+
+TransLink's overall goal is to identify certain factors that are highly correlated with operator incidents. Through this analysis, TransLink hopes that through the identification of specific factors, certain preventable measures can be taken to help reduce insurance costs. In particular, TransLink has expressed interest in understanding the impact of weather conditions, bus characteristics, location, and time in addition to operator characteristics  to get a better understanding of what is actually driving bus incidents.
+
+We employed a machine learning model to simultaneously assess the overall predictive power of all of these various factors using a very similar methodology to what is described in two papers ([@Montreal] and [@WilsonML]).
 
 
-# METHODOLOGY
-
-The analysis will focus on preventable, rather than non-preventable, claims incidents. Non-preventable incidents are less likely to lend themselves to easy interventions that could reduce insurance-related costs. Preliminary analysis will focus on the incident occurrence rather than the incidence cost since claims can remain open for an extended time (which means costs cannot be assessed accurately).
-
-Multiple separate analyses will be used to determine variables of interest in predicting incident occurrence. Individual variables, such as time, operator, location, and bus type, require different statistical or machine learning approaches to relate them to the variable of interest since each variable operates at a different level of aggregation. However, these separate analyses could potentially serve as a basis for the creation of a composite machine learning model, where all variables that are identified to be predictive are used simultaneously.
-
-To assess the predictive power of time and weather on occurrences, a time series analysis is proposed in which weather will be used as an exogenous variable. In addition, the predictive power of bus type and location are to be analyzed using mixed-effect model approaches, due to the natural grouping of the data. For simplicity, a linear mixed model will be investigated first, using region and various bus features as random effects. Figure A demonstrates a potential relationship between preventable occurrences and vehicle year, for instance, that could be incorporated in a mixed model approach.
-
-The operator dataset only contains operators with at least one incident. Therefore, to account for this bias zero-truncated models or Bayesian regression models will be considered, which will incorporate variables such as cost centre and experience. Figure B, for example, demonstrates a potential correlation between experience and incidents/year that can be exploited in these models. Finally, to find out whether certain descriptions and/or codes exhibit similar loss experience, methods such as standard cluster analyses will be deployed to identify potential groupings. Furthermore, topic modeling for the manually written accident descriptions will be used to further determine potential groupings or patterns in claim behavior. 
-
-![](images/picture3.png)
-_Figure A: Count of preventable occurrences per asset vehicle year. Older vehicles appear to show a greater number of incident occurrences. However, it is essential that the number of each type of bus in use (in each year) is obtained to get a fairer comparison so that rates can be calculated instead._
-
-_Figure B: The incidents/year against operator experience. There is a very clear correlation between operator experience and incident rate._
+![](images/figure3.png)
+_Figure 3: Synthetically create negative examples_
 
 
-# TIMELINE
+We trained many different machine learning models on our synthetic dataset including Logistic Regression, but LightGBM gave the best overall performance (ROC/AUC) and also relatively interpretable thanks to SHAP scores. On average, the model shown here correctly ranks a scenario with an actual incident to be of higher risk than a scenario with no incident, 85% of the time. This is in line with the papers in which this model is based on. 
 
-The project will be completed with a four-phase research plan. After refining the research objectives, the proposal is expected to be composed during the first phase The second phase consists of three tasks: data preprocessing and getting some preliminary results via exploratory data analysis. Findings will be communicated directly to TransLink to further explore and implement any possible feedback to improve the analysis. Meanwhile, a Makefile is expected throughout the project to establish a data pipeline. In the third phase, the final predictive model will be developed, and the final interactive report will be generated. With a docker container, the data pipeline will be completed to make the project fully reproducible. The fourth phase is dedicated to final reviews and completion of the project.
 
-![](images/picture2.png)
+![](images/figure4.png)
+
+_Figure 4: Model Output_
+
+
+# DATA PRODUCT AND RESULTS
+
+Employing a variety of statistical and machine learning methods, we have a very user-friendly interactive report as our data product. The interactive report is divided into six sections:
+
+- Executive Summary
+- Predictive Power of Location and Operator Experience
+- A Combined Analysis of All Factors Using Machine Learning
+- Common Types of Claims by Location
+- Assessment of Claims Costs by Location
+- Future Analysis
+
+
+![](images/figure5.png)
+
+_Figure 5: A glance of the interactive report_
+
+# CONCLUSION AND RECOMMENDATION
+
+We summarize the key points of this entire analysis:
+
+- The bus line is by far the most important variable in determining how likely an incident is to occur for any scenario. The bus lines that path-specifically through Downtown Vancouver, with the exception of bus line 41, are the lines that have the highest risk of incidence. As a result, a large amount of risk can be mitigated simply by focusing on improving safety measures for all lines that move through Downtown Vancouver.
+
+- The months of June, July, and September are roughly 1.5 times less likely to have an incident than all other months. Lower risk in June and July is possibly the result of lower ridership and traffic congestion (due to the Summer holidays) but it is not clear as to why September is noticeably safer when compared to the others.
+
+- 7 am and 6 pm are the times that are most risky for incidents, however, there are clear intervals within this range that are relatively safer. For example, the morning rush hour (7 am to 9 am) is roughly 1.1 times less likely to have an incident when compared to 3 pm to 5 pm. 
+
+- As seen previously, shuttles are roughly 1.3 times less likely of an incident when compared to non-shuttles. Furthermore, there is virtually no difference in risk among smaller and fuller sized regular buses.
+
+- The bus age is surprisingly very predictive of incidents. Specifically, buses that are >= 24 years of age see an increased risk of an incident (about 1.3 times more) than buses that are relatively new (0 to 1 year old). Replacing busses in excess of 24 years of age as much as possible, or decommissioning buses earlier (such as before 24 years) can help mitigate the risk of incidence.
+
+- Weather - specifically temperature and atmospheric pressure are both predictive of incidents. As the temperature increases, in general the risk of an incident decreases, however, after 30°C the risk of incident suddenly starts increasing again. A similar relationship holds for atmospheric pressure in which <100 kPA pressures in general, exhibit a higher risk of incidence (due to likely more rain). At around 103-104 kPA, however, there is a noticeable bump in risk. A possible theory for this could be the result of nicer days leading to more ridership and traffic congestion. Regardless, if temperatures are expected to be higher than 30°C or > 10 mm of precipitation is expected, warnings to operators to act more cautiously due to elevated risk of incidence could be a potential action TransLink could implement.
+
+
 
 # REFERENCE
