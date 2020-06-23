@@ -43,21 +43,27 @@ source("src/operators/R/helper_scripts/bayesian-fit.R")
 #' @examples 
 #' main(
 #' train_path_data = "data/operators/train.csv",
-#' table_out = "results/operators/report-tables/loo-model-cv-summary-bayes.rds",
-#' all_model_out = "results/operators/models/all-bayes-models.rds",
-#' best_model_out = "results/operators/models/best-bayes-model.rds"
+#' table_out = "results/operators/report-tables",
+#' all_model_out = "results/operators/models",
+#' best_model_out = "results/operators/models"
 #' )
 main <- function(train_data_path, table_out, all_model_out, best_model_out) {        
   
   # Check that the paths specified are correct.
   if (!str_detect(train_data_path, ".csv")) {
     stop("Train path must be a specific .csv file.")
-  } else if (!str_detect(table_out, ".rds")) {
-    stop("Path to store output table of LOO scores must be a specific .rds file.")
-  } else if (!str_detect(all_model_out, ".rds")) {
-    stop("Path to store the model object must be a specific .rds file.")
-  } else if (!str_detect(best_model_out, ".rds")) {
-    stop("Path to store best Bayes model must be a specific .rds file.")
+  } else if (str_detect(table_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+  	stop("Path to store output table of results should just be a general path. Remove file extension.")
+  } else if (str_detect(all_model_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+  	stop("Path to store all Bayes models should just be a general path. Remove file extension.")
+  } else if (str_detect(best_model_out, "\\.txt$|\\.csv$|\\.xlsx$|//.rds$")) {
+  	stop("Path to store best Bayes model should just be a general path. Remove file extension.")
+  } else if (endsWith(table_out, "/")) {
+  	stop("File path for table_out should not end with /")
+  } else if (endsWith(all_model_out, "/")) {
+  	stop("File path for all_model_out should not end with /")
+  } else if (endsWith(best_model_out, "/")) {
+  	stop("File path for best_model_out should not end with /")
   }
   
   # Read in data, preprocess
@@ -91,18 +97,31 @@ main <- function(train_data_path, table_out, all_model_out, best_model_out) {
   names(results_rand_int_slope) <- paste0(tau_rand_int_slope, "rand_int_slope")
   
   results_combined <- c(results_NH, results_rand_int, results_rand_int_slope)
-  saveRDS(results_combined, all_model_out)
+  
+  if (!dir.exists(all_model_out)) {
+  	dir.create(all_model_out)
+  }
+  
+  saveRDS(results_combined, paste0(all_model_out, "/all-bayes-models.rds"))
   
   print("Done running MCMC sampling. Now calculating PSIS-LOO scores.")
   
   results_loo <- lapply(results_combined, LOO, cores = detectCores() - 2)
   loo_values <- loo_compare(results_loo)
   
-  saveRDS(loo_values, table_out)
+  if (!dir.exists(table_out)) {
+  	dir.create(table_out)
+  }
+  
+  saveRDS(loo_values, paste0(table_out, "/loo-model-cv-summary-bayes.rds"))
   
   final_bayes_model <- results_combined[[rownames(loo_values)[1]]]
   
-  saveRDS(final_bayes_model, best_model_out)
+  if (!dir.exists(best_model_out)) {
+  	dir.create(best_model_out)
+  }
+  
+  saveRDS(final_bayes_model, paste0(best_model_out, "/best-bayes-model.rds"))
 
 }
 

@@ -1,15 +1,15 @@
 # Author: Brayden Tang
 # Date: May 13th, 2020
 
-"This script reads in the raw data and then splits it into train/test sets.
+'This script reads in the raw data and then splits it into train/test sets.
 The files are stored in the main data folder. This script assumes that the user
 is running this script from the root of the repository.
-Usage: 0_wrangle.R <path_data> <directory_out>
+Usage:  0_wrangle.R <path_data> <directory_out>
 
 Options:
-<path_data>       A file path that gives the location of the raw data.
-<directory_out>   A file path specifying where to store the train and test data sets.
-" -> doc
+<path_data> A file path that gives the location of the raw data.
+<directory_out> A file path specifying where to store the train and test data sets.
+' -> doc
 
 # Import packages needed to run this script
 
@@ -20,7 +20,7 @@ library(caret)
 library(docopt)
 
 # Store document string as doc object.
-
+  
 opt <- docopt(doc)
 
 #' This function reads in the raw data, and splits into train and test based 
@@ -35,7 +35,7 @@ opt <- docopt(doc)
 #'
 #' @examples 
 #' main(
-#' path_data = "data/TransLink Raw Data/Operator with Incident Last 3 Years.xlsx",
+#' path_data = "data/TransLink Raw Data/Operator With Incident Last 3 Years.xlsx",
 #' directory_out = "data/operators"
 #' )
 main <- function(path_data, directory_out) {
