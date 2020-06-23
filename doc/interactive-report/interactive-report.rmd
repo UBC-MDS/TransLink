@@ -47,9 +47,9 @@ A variety of statistical and machine learning methods are employed in this repor
 
 ```{r Operator Analysis: Import, include = FALSE}
 # This is just helper code - do not show in report
-best_bayes_model <- readRDS("all_analysis/operators/best-bayes-model.rds")
-posterior_predictions <- readRDS("all_analysis/operators/posterior_samples.rds")
-results <- readRDS("all_analysis/operators/validation-results.rds")
+best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
+posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
+results <- readRDS("results/operators/report-tables/validation-results.rds")
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -104,7 +104,7 @@ A random sample of the first five rows of the analyzed dataset is given below.
 
 ```{r Operator Analysis: Sample Dataset, echo = FALSE, include = FALSE}
 
-operators_dataset <- read_csv("all_analysis/operators/train.csv") %>%
+operators_dataset <- read_csv("data/operators/train.csv") %>%
   sample_n(5) %>%
   select(experience, in_probation, cost_centre, total_hours_last3yr, number_incidents, number_preventables, incidents_year, preventables_year) %>%
   rename(Experience = experience, `Cost Centre` = cost_centre, `In Probation` = in_probation, `Total Hours Worked in Last 3 Yr` = total_hours_last3yr, `Incidents/Yr` = incidents_year, `Preventables/Yr` = preventables_year, `Number of Incidents` = number_incidents, `Number of Preventables` = number_preventables)
@@ -200,7 +200,7 @@ The user can hover their mouse over each dot to see a tool tip that provides mor
 In terms of the two original hypotheses by TransLink, it is clear that in most cases, those who are more experienced on average are expected to have fewer incidents per year. The effect is very intuitive especially for something like Vancouver in which the effect decreases in a way we would expect as an operator moves through each experience level. However, this trend is not the same for all cost centres. Port Coquitlam (PTC) is a notable exception, in which operators who fall in the range >18 and <60 Months have noticeably larger expected incidents per year than those >6 Months & <18 Months. Furthermore, these operators with am experience level in the range of >18 and <60 Months have much larger expected incidents per year when compared to the global, overall average (represented as a red vertical bar) but for all other experience levels Port Coquitlam does not exhibit any abnormal behavior when compared to other cost centres. 
 
 There does not appear to be any evidence to suggest that operators become less careful as they become more experienced. Port Coquitlam could be a notable exception to this for experience levels that are less than 60 Months, but across the board we can see that the experience level of >60 Months has the lowest expected incidents per year for all of the cost centres.
-	
+
 As an operator gains more experience, the rate at which they improve also varies a lot depending on the cost centre. It is clear, for instance, that operators in Richmond do not exhibit much improvement in their expected incidents per year until they reach >60 Months of experience. On the other hand, operators in Vancouver and Burnaby appear to exhibit relatively significant improvement as they move through each experience level, as demonstrated by the non-overlapping 90% credible intervals for VTC.
 
 <6 Months of experience largely seems like "the wild west". It would appear that nothing meaningful can be said about these operators other than that there is a very large variance in incidents per year no matter the cost centre. Burnaby is a notable exception to this, however. Indeed, Burnaby's operators with <6 Months of experience have a significantly higher expected incidents per year when compared to the overall average for all operators with <6 Months of experience.  
@@ -283,10 +283,10 @@ We employed a machine learning model to simultaneously assess the overall predic
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
-class1 <- read_csv("all_analysis/ml_model/class1_shap.csv") %>%
+class1 <- read_csv("results/ml_model/class1_shap.csv") %>%
   select(-X1) 
 
-original_train <- read_csv("all_analysis/ml_model/full_data.csv") %>%
+original_train <- read_csv("results/ml_model/full_data.csv") %>%
   select(-X1)
 
 filter_for_graph <- function(variable_name) {
