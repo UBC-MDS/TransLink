@@ -87,9 +87,9 @@ data/TransLink\ Raw\ Data/verb_colour_df.xlsx data/TransLink\ Raw\ Data/Claim_co
 # Prepering data that will be appear in the map
 
 results/processed_data/collision_with_claim_and_employee_info.csv: src/interactive_map/prepare_data.py data/TransLink\Raw\Data/claim_vehicle_employee_line.csv data/TransLink\Raw\Data/Preventable and Non Preventable_tabDelimited.txt data/TransLink\Raw\Data/employee_experience_V2.csv
-	python src/interactive_map/prepare_data.py --claims_file_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" --collisions_file_path  "data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt" --employee_file_path "data/TransLink Raw Data/employee_experience_V2.csv" 
+	python src/interactive_map/prepare_data.py --claims_file_path data/TransLink Raw Data/claim_vehicle_employee_line.csv --collisions_file_path  data/TransLink Raw Data/Preventable and Non Preventable_tabDelimited.txt --employee_file_path data/TransLink Raw Data/employee_experience_V2.csv 
 	
 # Append the longitudes and latitudes of each location, required google maps geocoding api key
 
 results/processed_data/collision_locations_with_coordinates.csv: src/interactive_map/append_coordinates.py results/processed_data/collision_with_claim_and_employee_info.csv
-	python src/interactive_map/append_coordinates.py --input_file "results/processed_data/collision_with_claim_and_employee_info.csv" --api_key=...
+	python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --api_key=...
