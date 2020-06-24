@@ -8,9 +8,9 @@ Usage: merge_claims.py --input_claim_path=<input_claims> --input_location_path=<
 
 Example:
 python src/merge_claims.py \
---input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
---input_location_path "data/TransLink Raw Data/collision_locations_with_coordinates.csv" \
---output_path "data/TransLink Raw Data/merged_collision.xlsx"
+--input_claim_path "results/claim_analysis/claim_vehicle_employee_line.csv" \
+--input_location_path "results/claim_analysis/collision_locations_with_coordinates.csv" \
+--output_path "results/claim_analysis/merged_collision.xlsx"
 
 Options:
 --input_claim_path=<input_claims> A file for claim data.

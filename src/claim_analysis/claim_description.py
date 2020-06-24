@@ -10,10 +10,10 @@ Usage: claim_description.py --input_merged_path=<input_merged_path> --color_path
 
 Example: 
 python src/claim_description.py \
---input_merged_path "data/TransLink Raw Data/merged_collision.xlsx" \
---color_path "data/TransLink Raw Data/data.json" \
---output_verb_color_df "data/TransLink Raw Data/verb_colour_df.xlsx" \
---output_noun_color_df "data/TransLink Raw Data/Claim_colour_df.xlsx"
+--input_merged_path "results/claim_analysis/merged_collision.xlsx" \
+--color_path "results/claim_analysis/data.json" \
+--output_verb_color_df "results/claim_analysis/verb_colour_df.xlsx" \
+--output_noun_color_df "results/claim_analysis/Claim_colour_df.xlsx"
 
 Options:
 --input_merged_path=<input_merged_path> A file path for merged data.

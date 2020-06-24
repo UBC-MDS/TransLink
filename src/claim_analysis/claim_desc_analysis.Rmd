@@ -46,9 +46,9 @@ The second page shows the most frequent actions in the incidents. It is similar 
 
 ```{r include=FALSE}
 location_data <-
-  read_excel("data/TransLink Raw Data/Claim_colour_df.xlsx")
+  read_excel("results/claim_analysis/Claim_colour_df.xlsx")
 verb_data <-
-  read_excel("data/TransLink Raw Data/verb_colour_df.xlsx")
+  read_excel("results/claim_analysis/verb_colour_df.xlsx")
 #options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=10)
 ```
 
