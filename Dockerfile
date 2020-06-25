@@ -38,8 +38,6 @@ RUN apt-get install libudunits2-dev -y
 # Need this package for caret and leaflet in R
 RUN apt install libgdal-dev -y 
 
-RUN apt-get install libxrender1 libxtst6 libxi6 -y
-
 # Install R Packages needed 
 RUN Rscript -e "install.packages(c('caret', 'brms', 'here', 'zoo', 'shiny', 'leaflet',\
 'kableExtra', 'plotly', 'ggthemes', 'mapview', 'lubridate', 'htmlwidgets',\
