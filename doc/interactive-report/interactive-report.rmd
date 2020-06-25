@@ -1329,7 +1329,7 @@ shinyApp(ui = ui, server = server)
 
 
 ```{r, echo = FALSE}
-img <- readPNG("results/claim_costs/joining_datasets.png")
+img <- readPNG("results/processed_data/joining_datasets.png")
 grid.raster(img)
 ```
 
