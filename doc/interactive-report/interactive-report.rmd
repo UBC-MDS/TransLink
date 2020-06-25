@@ -34,7 +34,6 @@ library(DT)
 library(ggwordcloud)
 library(wordcloud2)
 library(PubMedWordcloud)
-library(shinycssloaders)
 library(png)
 library(grid)
 ```
