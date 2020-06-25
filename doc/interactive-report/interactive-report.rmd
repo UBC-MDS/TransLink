@@ -59,9 +59,9 @@ A variety of statistical and machine learning methods are employed in this repor
 
 ```{r Operator Analysis: Import, include = FALSE}
 # This is just helper code - do not show in report
-best_bayes_model <- readRDS("results/operators/best-bayes-model.rds")
-posterior_predictions <- readRDS("results/operators/posterior_samples.rds")
-results <- readRDS("results/operators/validation-results.rds")
+best_bayes_model <- readRDS("results/operators/models/best-bayes-model.rds")
+posterior_predictions <- readRDS("results/operators/report-tables/posterior_samples.rds")
+results <- readRDS("results/operators/report-tables/validation-results.rds")
 posterior_samples <- as_tibble(posterior_predictions$posterior_samples, .name_repair = "unique") %>% set_names(seq(1, ncol(.), 1))
 
 predictor_combinations <- posterior_predictions$variables %>%
@@ -116,7 +116,7 @@ A random sample of the first five rows of the analyzed dataset is given below.
 
 ```{r Operator Analysis: Sample Dataset, echo = FALSE, include = FALSE}
 
-operators_dataset <- read_csv("results/operators/train.csv") %>%
+operators_dataset <- read_csv("results/operators/data/train.csv") %>%
   sample_n(5) %>%
   select(experience, in_probation, cost_centre, total_hours_last3yr, number_incidents, number_preventables, incidents_year, preventables_year) %>%
   rename(Experience = experience, `Cost Centre` = cost_centre, `In Probation` = in_probation, `Total Hours Worked in Last 3 Yr` = total_hours_last3yr, `Incidents/Yr` = incidents_year, `Preventables/Yr` = preventables_year, `Number of Incidents` = number_incidents, `Number of Preventables` = number_preventables)
@@ -295,10 +295,10 @@ We employed a machine learning model to simultaneously assess the overall predic
 
 ```{r ML Model: Helper, echo = FALSE, include = FALSE}
 
-class1 <- read_csv("results/ml_model/class1_shap.csv") %>%
+class1 <- read_csv("results/ml_model/report/class1_shap.csv") %>%
   select(-X1) 
 
-original_train <- read_csv("results/ml_model/full_data.csv") %>%
+original_train <- read_csv("results/ml_model/report/full_data.csv") %>%
   select(-X1)
 
 filter_for_graph <- function(variable_name) {
@@ -903,9 +903,9 @@ The second page shows the most frequent actions in the incidents. It is similar 
 
 ```{r include=FALSE}
 location_data <-
-    read_excel("data/TransLink Raw Data/Claim_colour_df.xlsx")
+    read_excel("results/claim_analysis/report/claim_colour_df.xlsx")
 verb_data <-
-  read_excel("data/TransLink Raw Data/verb_colour_df.xlsx")
+  read_excel("results/claim_analysis/report/verb_colour_df.xlsx")
 #options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=10)
 ```
 
@@ -1350,7 +1350,7 @@ Our primary element in the dashboard is the interactive map in the middle, which
 $~$
   
 ```{r include=FALSE}
-my_data <- read_csv("results/claim_costs/collision_locations_with_coordinates.csv")
+my_data <- read_csv("results/processed_data/collision_locations_with_coordinates.csv")
 my_data$years <- year(my_data$loss_date)
 my_data <- my_data %>% mutate(apta_desc = ifelse(apta_desc == "Collisions With Other Vehicles (At G/C)", "Collisions With Other Vehicles", 
                                                  ifelse(apta_desc == "Collisions With Objects (At G/C)", "Collisions With Objects",  apta_desc)))
