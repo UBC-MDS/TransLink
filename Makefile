@@ -88,7 +88,7 @@ results/processed_data/collision_with_claim_and_employee_info.csv: src/interacti
 
 results/processed_data/collision_locations_with_coordinates.csv: src/interactive_map/append_coordinates.py results/processed_data/collision_with_claim_and_employee_info.csv
 	python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --api_key=...
-	
+
 #----------------CLEAN Command---------------------
 
 clean:
