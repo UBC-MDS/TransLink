@@ -320,10 +320,6 @@ line_number_summary <- filter_for_graph("line_no") %>%
   group_by(variable) %>%
   summarize(score = median(score))
 
-overall_mean <- tibble(
-    `Global Average Risk` = 0.5
-  )
-
 ```
 
 In answering the business question, the graph below summarizes the variables that are most important in determing the risk of an incident occurring, as estimated by the model.
@@ -396,6 +392,12 @@ tabsetPanel(
              label = "Weather Variable of Interest:",
              choices = c("Temperature", "Total Rain", "Total Snow", "Total Precipitation", "Wind Direction", "Wind Speed", "Pressure", "Relative Humidity", "Elevation", "Visibility"),
              selected = "Temperature"),
+           conditionalPanel(
+            "input.weather_input != 'Elevation'",
+           sliderInput("avg_risk_range_input",
+                       label = "Average Risk in Range:",
+                       min = -400, 
+                       max = 400, step = 1, value = c(0, 10))),
   plotlyOutput("weather_plot")),
   tabPanel("Operator and City of Incident",
            selectInput(
@@ -403,6 +405,14 @@ tabsetPanel(
              label = "Variable of Interest:",
              choices = c("Operator Experience", "City of Incident"),
              selected = "Operator Experience"),
+           conditionalPanel(
+             "input.operator_input == 'Operator Experience'",
+             sliderInput("avg_risk_range_operator_input",
+                         label = "Average Risk in Range:",
+                         min = 0,
+                         max = round(max(original_train$experience_in_months, na.rm = TRUE), 4),
+                         value = c(0, 30), step = 1)
+           ),
   plotlyOutput("operator_plot")),
   tabPanel("Bus Characteristics",
            selectInput(
@@ -410,6 +420,14 @@ tabsetPanel(
              label = "Bus Variable of Interest:",
              choices = c("Asset Manufacturer Model", "Asset Class", "Shuttle/Regular Bus", "Bus Age", "Bus Carrying Capacity"),
              selected = "Shuttle/No Shuttle"),
+           conditionalPanel(
+             "input.bus_input == 'Bus Age'",
+             sliderInput("avg_risk_range_bus_input",
+                         label = "Average Risk in Range:",
+                         min = 0,
+                         max = max(original_train$bus_age, na.rm = TRUE),
+                         value = c(0, 5), step = 1)
+           ),
   plotlyOutput("bus_plot"))
 )
 
@@ -450,6 +468,11 @@ output$time_plot <- renderPlotly({
     }
 
   colnames(all_graphing) <- c(input$time_input, "Score")
+  
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(all_graphing$Score), 2)
+  )
+  
   ggplotly(ggplot(all_graphing, aes(x = !!sym(input$time_input), y = Score, group = !!sym(input$time_input))) +
     geom_boxplot() +
     geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) + 
@@ -462,6 +485,11 @@ output$time_plot <- renderPlotly({
 })
 
 output$line_plot_top <- renderPlotly({
+  
+  score <- exp(class1$line_no) / (1 + exp(class1$line_no))
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(score), 2)
+  )
   
   if (input$line_no_asc == TRUE) {
     
@@ -494,13 +522,18 @@ output$line_plot_top <- renderPlotly({
     geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
     theme(axis.text.x = element_text(angle = 45)) + 
     labs(
-      title = paste("Top", input$line_no_input, "Highest/Lowest Risk Lines"),
+      title = paste0("Top ", input$line_no_input, " Highest/Lowest Risk Lines"),
       x = paste(tools::toTitleCase(input$time_input)),
       y = "Estimated Risk Score"))
   
 })
 
 output$line_plot_top <- renderPlotly({
+  
+  score <- exp(class1$line_no) / (1 + exp(class1$line_no))
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(score), 2)
+  )
   
   if (input$line_no_asc == TRUE) {
     
@@ -542,6 +575,11 @@ output$line_no_indiv <- renderPlotly({
   
   validate(need(!is.null(input$line_no_input_ind), "No line number selected."))
   
+  score <- exp(class1$line_no) / (1 + exp(class1$line_no))
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(score), 2)
+  )
+  
   all_graphing <- filter_for_graph("line_no") %>%
     rename(line_no = variable) %>%
     filter(line_no %in% input$line_no_input_ind) %>%
@@ -569,6 +607,10 @@ output$weather_plot <- renderPlotly({
   all_graphing <- filter_for_graph(lookup$var_name[which(lookup$choices == input$weather_input)]) 
   
   colnames(all_graphing) <- c(input$weather_input, "Score")
+  
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(all_graphing$Score), 2)
+  )  
 
   if (input$weather_input == "Elevation") {
   
@@ -588,12 +630,25 @@ output$weather_plot <- renderPlotly({
     
   } else {
   
+  avg_risk_range <- class1[, lookup$var_name[which(lookup$choices == input$weather_input)]] %>%
+    bind_cols(., original_train[, lookup$var_name[which(lookup$choices == input$weather_input)]]) 
+  
+  colnames(avg_risk_range) <- c("SHAP", "variable")
+  
+  avg_risk_range <- avg_risk_range %>%
+    filter(variable >= input$avg_risk_range_input[1], variable <= input$avg_risk_range_input[2]) %>%
+    select(SHAP) %>%
+    pull() 
+  
+  avg_risk_range <- exp(avg_risk_range) / (1 + exp(avg_risk_range))
+  
   ggplotly(ggplot(all_graphing, aes(x = !!sym(input$weather_input), y = Score)) +
     geom_smooth(method = "gam") +
     theme_bw() + 
     geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
     labs(
-      title = paste("Estimated Risk For Changing Values of:", input$weather_input),
+      title = paste0("Estimated Risk For Changing Values of: ", input$weather_input,
+                     "<br>", "<sup>", "Estimated Average Risk in Range: [", input$avg_risk_range_input[1], ", ", input$avg_risk_range_input[2], "] ", "is: ", round(mean(avg_risk_range), 2)),
       x = paste0(input$weather_input, " ", "(", lookup$units[which(lookup$choices == input$weather_input)], ")"),
       y = "Estimated Risk Score"))
   }
@@ -602,6 +657,11 @@ output$weather_plot <- renderPlotly({
 output$operator_plot <- renderPlotly({
   
   if (input$operator_input == "City of Incident") {
+  
+  scores <- exp(class1$city) / (1 + exp(class1$city))  
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(scores), 2)
+  )
     
     all_graphing <- filter_for_graph("city") %>%
       rename("City of Incident" = variable, Score = score) %>%
@@ -619,15 +679,32 @@ output$operator_plot <- renderPlotly({
   
     } else {
     
+    scores <- exp(class1$experience_in_months) / (1 + exp(class1$experience_in_months))  
+    overall_mean <- tibble(
+    `Global Average Risk` = round(mean(scores), 2)
+    )  
+      
     all_graphing <- filter_for_graph("experience_in_months") %>%
         rename("Operator Experience in Months" = variable)
-      
+    
+    avg_risk_range <- class1 %>%
+      select(experience_in_months) %>%
+      rename(SHAP = experience_in_months) %>%
+      bind_cols(., original_train %>% select(experience_in_months)) %>%
+      filter(experience_in_months >= input$avg_risk_range_operator_input[1],
+             experience_in_months <= input$avg_risk_range_operator_input[2]) %>%
+      select(SHAP) %>%
+      pull()
+    
+    avg_risk_range <- exp(avg_risk_range) / (1 + exp(avg_risk_range))
+    
     ggplotly(ggplot(all_graphing, aes(x = `Operator Experience in Months`, y = score)) +
       geom_smooth(method = "gam") +
       theme_bw() + 
       geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
       labs(
-        title = paste("Estimated Risk For Changing Values of:", input$operator_input),
+        title = paste0("Estimated Risk For Changing Values of: ", input$operator_input,
+                       "<br>", "<sup>", "Estimated Average Risk in Range: [", input$avg_risk_range_operator_input[1], ", ", input$avg_risk_range_operator_input[2], "] ", "is: ", round(mean(avg_risk_range), 2)),
         x = paste0(input$operator_input, " ", "(", "months", ")"),
         y = "Estimated Risk Score"))
       
@@ -643,16 +720,32 @@ output$bus_plot <- renderPlotly({
   
   all_graphing <- filter_for_graph(lookup$var_name[which(lookup$choices == input$bus_input)])
   
+  overall_mean <- tibble(
+    `Global Average Risk` = round(mean(all_graphing$score), 2)
+  )
+  
   if (input$bus_input == "Bus Age") {
   
   colnames(all_graphing) <- c(input$bus_input, "Score")
-    
+  
+  avg_risk_range <- class1 %>%
+      select(bus_age) %>%
+      rename(SHAP = bus_age) %>%
+      bind_cols(., original_train %>% select(bus_age)) %>%
+      filter(bus_age >= input$avg_risk_range_bus_input[1],
+             bus_age <= input$avg_risk_range_bus_input[2]) %>%
+      select(SHAP) %>%
+      pull()
+  
+  avg_risk_range <- exp(avg_risk_range) / (1 + exp(avg_risk_range))
+  
   ggplotly(ggplot(all_graphing, aes(x = `Bus Age`, y = Score)) +
       geom_smooth(method = "gam") +
       theme_bw() + 
       geom_hline(data = overall_mean, aes(yintercept = `Global Average Risk`), color = "red", show.legend = FALSE) +
       labs(
-        title = paste("Estimated Risk For Changing Values of:", input$bus_input),
+title = paste0("Estimated Risk For Changing Values of: ", input$bus_input,
+                       "<br>", "<sup>", "Estimated Average Risk in Range: [", input$avg_risk_range_bus_input[1], ", ", input$avg_risk_range_bus_input[2], "] ", "is: ", round(mean(avg_risk_range), 2)),
         x = paste0(input$bus_input, " ", "(", "years", ")"),
         y = "Estimated Risk Score"))
     
@@ -694,6 +787,23 @@ output$bus_plot <- renderPlotly({
 
   }
   
+})
+
+observeEvent(input$weather_input, {
+  
+  lookup <- tibble(
+      choices = c("Temperature", "Total Rain", "Total Snow", "Total Precipitation", "Wind Direction", "Wind Speed", "Pressure", "Relative Humidity", "Elevation", "Visibility"),
+      var_name = c("temp", "total_rain", "total_snow", "total_precip", "wind_dir", "wind_spd", "pressure", "rel_hum", "elev", "visib"),
+      units = c("°C", "mm", "cm", "mm", "10's of degree", "km/h", "kPa", "%", "m", "km"))
+  
+  find_min <- min(original_train[, c(lookup$var_name[which(lookup$choices == input$weather_input)])], na.rm = TRUE)
+  find_max <- max(original_train[, c(lookup$var_name[which(lookup$choices == input$weather_input)])], na.rm = TRUE)
+  
+  if (input$weather_input == "Elevation") {
+    updateSliderInput(session = session, inputId = "avg_risk_range_input", min = 0, max = 0)
+  } else {
+    updateSliderInput(session = session, inputId = "avg_risk_range_input", min = find_min, max = find_max)
+  }
 })
   
   
@@ -1322,7 +1432,7 @@ shinyApp(ui = ui, server = server)
   
 ### Assessment of Claims Costs by Location
   
-  One of the primary concerns for TransLink was soaring insurance costs in recent years. Concerning the insurance costs, TransLink was interested in causal/exploratory analysis as well as cost prediction for upcoming months. However, after analyzing the available datasets, we figured out that almost half of the claims are still open and there were no negative examples in which the bus completed its route without any incidents (hence without any cost). A predictive machine learning model on the insurance costs would be potentially highly biased since the insurance costs cannot be assessed accurately. Therefore, the best approach to get more insights into the increasing insurance costs was using exploratory data analysis techniques. For that purpose, we developed an interactive map tool to easily check and explore the details of the collisions/costs on a real city map. 
+  One of the primary concerns for TransLink are soaring insurance costs in recent years. Concerning the insurance costs, TransLink expressed interest in a causal/exploratory analysis as well as cost forecasts for upcoming months. However, after analyzing the available datasets, we figured out that almost half of the claims are still open and there were no negative examples in which the bus completed its route without any incidents (hence without any cost). A predictive machine learning model on the insurance costs would be potentially highly biased since the insurance costs cannot be assessed accurately. Therefore, the best approach to get more insights into the increasing insurance costs was using exploratory data analysis techniques. For that purpose, we developed an interactive map tool to easily check and explore the details of the collisions/costs on a real city map. 
   
   There are many variables from different datasets that might have an impact on the insurance costs. Thus, as a first step in our analysis, we have built an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and also `claim_vehicle_employee_line.csv` datasets get more information about the collisions, operators and claims respectively. On the top of combined dataset, we populated the coordinates of each incident by using Google Maps GeoCoding API to be able to visualize them on the map. Then, we also used an R package `leaflet` to add interactivity on the map and `shiny` to add control elements to this dashboard.
 
