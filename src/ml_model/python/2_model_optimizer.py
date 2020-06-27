@@ -7,14 +7,14 @@ It compares different models to select the best one and then tune the best model
 Returns the best model as a pickled file and assumes the script will be run from the root of the repository.
 
 Usage: 2_model_optimizer.py --train_file_path=<train_file_path> --bus_file_path=<bus_file_path> \
-    --test_file_path=<test_file_path>
+    --test_file_path=<test_file_path> --path_out=<path_out>
 
 Options:
 
 --train_file_path=<train_file_path>     A file path containing the train dataset.
 --bus_file_path=<bus_file_path>     A file path containing other bus information.
 --test_file_path=<test_file_path>     A file path containing the test dataset.
-
+--path_out=<path_out> A file path that specifies where to output the final selected model's parameters.
 """
 import numpy as np
 import time
@@ -93,7 +93,7 @@ def add_expt_result(results_dict, model, train_score, test_score):
     df = df.drop_duplicates()
     return df
 
-def main(train_file_path, bus_file_path, test_file_path):
+def main(train_file_path, bus_file_path, test_file_path, path_out):
     # load bus information
     other_bus_info = pd.read_csv(bus_file_path)
 
@@ -104,7 +104,6 @@ def main(train_file_path, bus_file_path, test_file_path):
     # load train data and test data
     train = pd.read_csv(train_file_path)
     test = pd.read_csv(test_file_path)
-
 
     # merge bus information into train and test datasets
     train_with_bus = train.merge(other_bus_info, on="bus_no", how="left")
@@ -120,15 +119,13 @@ def main(train_file_path, bus_file_path, test_file_path):
     train_with_bus = train_with_bus.drop(columns = ["date", "empl_id", 'bus_no', 'day_of_year'])
     test_with_bus = test_with_bus.drop(columns = ["date", "empl_id", 'bus_no', 'day_of_year'])
 
-
-
     X = train_with_bus.drop(columns='incident')
     y = train_with_bus['incident']
 
     X_test = test_with_bus.drop(columns='incident')
     y_test = test_with_bus['incident']
 
-    #split the train dataset to get validation dataset
+    # split the train dataset to get validation dataset
     X_train, X_valid, y_train, y_valid = train_test_split(X, y,train_size=0.8, random_state=22)
 
 
@@ -144,7 +141,7 @@ def main(train_file_path, bus_file_path, test_file_path):
         ('scaler', StandardScaler())])
 
 
-    #create a pipeline for the model
+    # create a pipeline for the model
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy="most_frequent", fill_value='missing')),
         ('onehot', OneHotEncoder(sparse=False, handle_unknown='ignore'))])
@@ -187,7 +184,7 @@ def main(train_file_path, bus_file_path, test_file_path):
     print(results_df)
 
 
-    #lightgbm optimization procedure
+    # lightgbm optimization procedure
     param_opt = {
         'classifier__max_depth': [10, 20, 40],
         'classifier__num_leaves': [5, 15, 30],
@@ -205,7 +202,7 @@ def main(train_file_path, bus_file_path, test_file_path):
         ('classifier', model_lgbm)
     ])
 
-    #to get the best parameters apply grid search
+    # to get the best parameters apply grid search
     cv_folds = StratifiedKFold(n_splits=10, shuffle=True, random_state=123)
 
     gridSearchCV = GridSearchCV(estimator=estimator , 
@@ -215,11 +212,11 @@ def main(train_file_path, bus_file_path, test_file_path):
         cv=cv_folds,
         verbose=2)
 
-    #use all training dataset to get best parameters
+    # use all training dataset to get best parameters
 
     gridSearchCV.fit(X,y) 
 
-    #see the test scores 
+    # see the test scores 
 
     lr_probs_test = gridSearchCV.best_estimator_.predict_proba(X_test)
     lr_probs_test = lr_probs_test[:, 1]
@@ -234,10 +231,10 @@ def main(train_file_path, bus_file_path, test_file_path):
         reg_alpha=gridSearchCV.best_params_['classifier__reg_alpha'],
         subsample=gridSearchCV.best_params_['classifier__subsample']
         )
-    filename = 'results/ml_model/final_model_after_optimization'
-    outfile = open(filename,'wb')
-    pickle.dump(final_model, outfile)
-    outfile.close()
+        
+    filename = path_out + '/final_model_after_optimization'
+    with open(filename, 'wb') as out:
+        pickle.dump(final_model, out)
 
 if __name__ == "__main__":
-    main(opt["--train_file_path"], opt["--bus_file_path"], opt["--test_file_path"])
+    main(opt["--train_file_path"], opt["--bus_file_path"], opt["--test_file_path"], opt["--path_out"])

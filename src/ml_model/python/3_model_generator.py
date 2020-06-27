@@ -8,7 +8,7 @@ It also takes the path for the final model and writes the results to the output 
 
 
 Usage: 3_model_generator.py --train_file_path=<train_file_path> --bus_file_path=<bus_file_path> \
-    --test_file_path=<test_file_path> --model_file_path=<model_file_path>
+    --test_file_path=<test_file_path> --model_file_path=<model_file_path> --path_out=<path_out>
 
 
 
@@ -18,13 +18,13 @@ Options:
 --bus_file_path=<bus_file_path>     A file path containing other bus information.
 --test_file_path=<test_file_path>     A file path containing the test dataset.
 --model_file_path=<model_file_path>     A file path containing the final model selected from optimization.
-
+--path_out=<path_out> A file path that specifies where to output needed files for the interactive report.
 
 Example:
 
-python src/ml_model/python/model_generator.py --train_file_path "data/ml_model/train.csv"\
-     --bus_file_path "data/TransLink Raw Data/Bus_spec.csv" --test_file_path  "data/ml_model/test.csv"\
-         --model_file_path "results/ml_model/final_model_after_optimization.pickle"
+python src/ml_model/python/model_generator.py --train_file_path "results/ml_model/data/train.csv"\
+     --bus_file_path "data/TransLink Raw Data/Bus_spec.csv" --test_file_path  "results/ml_model/data/test.csv"\
+         --model_file_path "results/ml_model/models/final_model_after_optimization.pickle" --path_out="results/ml_model/report"
 """
 
 import numpy as np
@@ -56,7 +56,7 @@ import pickle
 
 opt = docopt(__doc__)
 
-def main(train_file_path, bus_file_path, test_file_path, model_file_path):
+def main(train_file_path, bus_file_path, test_file_path, model_file_path, path_out):
 
     # load bus information
     other_bus_info = pd.read_csv(bus_file_path)
@@ -94,20 +94,19 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
 
     #open the final model from the given path      
     filename = model_file_path
-    infile = open(filename,'rb')
+    
+    with open(filename, 'rb') as infile:
+        best_estimator = pickle.load(infile)
 
-    #get the model
-    best_estimator = pickle.load(infile)
-    infile.close()
     print(best_estimator)
     #fit the final model with the complete dataset
     best_estimator.fit(X, y)
     
     # Save the final fitted model for usage in interactive report
-    filename = "results/ml_model/final_fitted.pickle"
-    outfile = open(filename, 'wb')
-    pickle.dump(best_estimator, outfile)
-    
+    filename = path_out + "/final_fitted.pickle"
+    with open(filename, 'wb') as outfile:
+        pickle.dump(best_estimator, outfile)
+
     # generate summary plot for interpretability
     
     feat_import = TreeExplainer(best_estimator).shap_values(X=X)
@@ -118,8 +117,8 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
     class1.columns = X.columns
     
     # Save class1 shap scores for usage in interactive report
-    class1.to_csv("results/ml_model/class1_shap.csv")
-    X.to_csv("results/ml_model/full_data.csv")
+    class1.to_csv(path_out + "/class1_shap.csv")
+    X.to_csv(path_out + "/full_data.csv")
 
     # No longer needed since we recreate these plots in native R using the SHAP scores.
     # # onehot encoding for categorical features and standard scaling for numerical features
@@ -164,4 +163,4 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path):
 
 if __name__ == "__main__":
     main(opt["--train_file_path"], opt["--bus_file_path"], opt["--test_file_path"],
-        opt["--model_file_path"])
+        opt["--model_file_path"], opt["--path_out"])
