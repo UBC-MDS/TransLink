@@ -40,7 +40,7 @@ library(grid)
 
 ## Introduction {.tabset .tabset-fade}
 
-With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a $1 million per occurrence liability policy on each of its revenue vehicles and a $200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% to cover onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%.
+With the largest transit service area in Canada, TransLink is operating more than 245 bus routes and 79 kilometers of rapid transit to meet the transportation needs of 2.5 million people in Metro Vancouver as of the end of 2018 (TransLink 2018). Legislation requires TransLink to carry a $1 million per occurrence liability policy on each of its revenue vehicles and a $200,000 per occurrence liability policy on each of its non-revenue vehicles. Since 2014/2015, the premium paid to ICBC has increased by over 200% as a result of increasing onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. For at-fault physical damage losses to its vehicles, the premium paid to its own captive insurance company has increased by 33%.
 
 In response to soaring insurance costs and road safety concerns, TransLink has asked us to analyze key variables of interest that may be predictive of bus incidents. These variables include bus operator characteristics (such as work experience), bus characteristics (such as bus model and bus age), weather and time related variables, and various other factors unique to TransLink, like the bus line. Finally, TransLink has also asked us to analyze the types of claims that are occurring - in particular, if there are common types of claims per location and if particular locations yield large paid costs. 
 
@@ -53,7 +53,9 @@ A variety of statistical and machine learning methods are employed in this repor
 5) Assessment of Claims Costs by Location
 6) Future Analysis
 
-Finally, this report makes use of the following nomenclature:
+Finally, this report makes use of the following nomenclature. 
+
+<center> <h4>Relevant Terminology</h4> </center>
 
 `incident`: This is a reported collision or injury (involving a TransLink operated bus) that has **possibly** led to a claim (that may or may not produce an actual cost to TransLink). Examples include a bus collision leading to a broken mirror, a pedestrian being struck on the sidewalk by a bus, or a passenger on a bus falling over due to a wide turn taken by the operator. In general, we use this term only in a predictive context to distinguish from `claims` specific information (which can only be known after an incident has occurred). The idea is that if we try to reduce the number of incidents we directly reduce the number of claims, and therefore, insurance costs to TransLink.
 
@@ -62,6 +64,17 @@ Finally, this report makes use of the following nomenclature:
 `loss year`, `loss date`: There is a natural time lag between when an incident actually occurs, and when a claim relating to that incident is actually reported. The `loss year` and `loss date` reflect the time in which an incident actually occurred. 
 
 ### Executive Summary
+
+<center> <h4>Executive Summary</h4> </center>
+TransLink has seen their insurance premium to ICBC increase by over 200% in response to an increase in onboard passenger injuries, cyclist injuries, pedestrian injuries, and losses from collisions with third party vehicles. In addition, their premium has increased by roughly 33% to their own captive insurance company. As a result, this report seeks to identify specific variables that are highly predictive of bus incidents so that TransLink can make data driven decisions to help reduce the number of incidents (and therefore, claims). In addition, this report provides two interactive dashboards that seek to analyze common types, and the overall cost impact, of claims resulting from these incidents. Using these dashboards, TransLink can hopefully assess in finer detail what is actually driving up their insurance costs.
+
+Overall, this report is divided into four sections in which the first two sections deal primarily with the analysis of variables that may be linked to the frequency of bus incidents. The last two sections analyze data related to the actual claims that result from these incidents - in particular, claim descriptions and claim costs. The first section deals with an analysis of bus operator characteristics which is what TransLink currently uses to assess incident risk. In this section, both experience level and operator cost centre are analyzed in detail to determine the effect (if any) these variables have on the number of incidents per year an operator is involved in. Using only this information, results show that both experience level and operator cost centre are highly predictive of the number of incidents per year an operator has, in which operators who are more experienced achieve lower incidents per year over all cost centres. However, Port Coquitlam is noted to be an outlier cost centre in which more experienced operators (with less than five years of experience) are involved in **more** incidents per year. It is recommended that operators with less than five years of experience in Port Coquitlam are analyzed in further detail to better understand why this is the case.
+
+The second section can be viewed as an extension of the first one, with the key difference being that weather, time, bus line, and bus characteristic variables are used in addition to the operator characteristics previously mentioned. The methods used here incorporate a state of the art machine learning approach to assess the relative risk of any scenario described by these variables. Through interpretation of the models outputs, it is found that the bus line is by far the most important variable in determining whether an incident occurs or not. In particular, it is found that bus lines that move through Downtown Vancouver are estimated to be the riskiest - *8 out of the top 10 riskiest bus lines all move through Downtown Vancouver*, and these bus lines account for roughly 23% of all incidents since 2011. Therefore, if TransLink focuses solely on reducing the number of incidents for all bus lines that operate through Downtown Vancouver, it is believed that TransLink can mitigate a large portion of risk. Other notable results in this analysis include buses greater than 24 years of age being of significantly higher risk of incidence, and temperatures in excess of 31°C/rain amounts in excess of 18 mm yielding notable spikes in risk.
+
+The third section analyzes manually written claim descriptions that in general, tend to describe the actual incident that led to each individual claim itself. Each claim is displayed on an interactive map that shows where the actual incident took place, allowing the user to spot any potential patterns in the types of incidents for any specific area. One type of claim that is immediately noticeable are those that involve mirrors. It would appear that many claims involve the replacement of bus mirrors and this appears to be a noteworthy area of the bus that is commonly damaged in incidents.
+
+Finally, the last section analyzes the actual claim costs associated with each incident (if any), in a similar fashion to what is done in the third section. A map is provided which details where each incident took place and the user can view information regarding the claim costs associated with any incident on the map. Detailed statistics on the left side of the dashboard are also provided which can be helpful as an aid when analyzing the actual claim costs per different variables of interest. In the end, it is observed that a large portion of claim costs are coming from a greater frequency of minor incidents rather than say, a smaller number of very severe incidents. Combining this with the third section above, it is reasonable to think that a large portion of these minor claims could simply be damage to bus mirrors.
 
 ### Predictive Power of Location and Operator Experience
 
@@ -417,7 +430,7 @@ tabsetPanel(
                          label = "Average Risk in Range:",
                          min = 0,
                          max = round(max(original_train$experience_in_months, na.rm = TRUE), 4),
-                         value = c(0, 30), step = 1)
+                         value = c(0, 30), step = 0.1)
            ),
   plotlyOutput("operator_plot")),
   tabPanel("Bus Characteristics",
@@ -829,13 +842,15 @@ The boxplots can be used to gauge how uncertain the overall estimates are, but t
 
 If the variable being analyzed can be any arbitrary number (like all of the weather variables except for elevation) then a plot displaying the estimated "risk curve" for that variable is shown. This gives the estimated average risk for any value of the variable, holding all other variables in the model constant. For some of these plots, the user may notice grey regions for some extreme values of the variable being viewed, such as for very low temperatures. These grey regions reflect the uncertainty in the estimated risk curve in which the curve realistically could fall anywhere in the region. These grey regions are only noticeable for very extreme values of the variable being analyzed since there is very little (if any) data to estimate the effect for these values (such as -15°C which almost never occurs in the Greater Vancouver area). Finally, these plots with risk curves also have an additional slider that allows the user to calculate the estimated average risk for a specific range of the variable being viewed. The user just has to move the slider input to the range they are interested in, and then the calculated average risk for the selected range is displayed in the subtitle of the plot.
 
+Note that the risk curves are fit using a secondary regression method to the risk scores predicted by the machine learning model (to more easily see the relationship graphically) and therefore there are regression. Therefore, the averages produced by the slider and the averages produced using the risk curve may not be the same, but in general they should be quite close. If there is a discrepancy, we recommend trusting the curve rather than the slider input.
+
 <center> <h4>Results</h4> </center>
 
 Below, we highlight some key observations from the tool above.
 
 - __*Lines*__:
   
-Overall, we can see that the lines estimated to be of highest risk for an incident are the 22, 10, 41, 20, 14 and the 4. All of these lines with the exception of line 41 go through Downtown Vancouver. It is difficult to know exactly why Downtown is such a troublesome area - perhaps more traffic and overall population density could play a role. Indeed, we see in the spatial analysis section that Downtown Vancouver dominates the total number of claims as well. 
+Overall, we can see that the lines estimated to be of highest risk for an incident are the 22, 10, 41, 20, 14 and the 4. All of these lines with the exception of line 41 go through Downtown Vancouver, in fact, eight out of the top ten riskiest bus lines move through Downtown Vancouver and account for about 23% of all bus incidents since 2011. It is difficult to know exactly why Downtown is such a troublesome area - perhaps more traffic and overall population density could play a role. Indeed, we see in the spatial analysis section that Downtown Vancouver dominates the total number of claims as well. 
 
 Line 41 is the bus line that sticks out quite noticeably from the others in that it is the only line out of the top six that does not actually go to Downtown Vancouver. However, this bus line does cover a very large distance which dramatically increases the amount of exposure this particular line has. In general, the riskiest lines are those that stretch large portions of Metro Vancouver. One notable exception to this is line 5 which covers a fairly small distance but in a very dense area (Robson Square). 
 
@@ -863,7 +878,7 @@ Elevation is noted to be of high predictive power but we believe this is merely 
 
 Two notable variables are that of atmospheric pressure and temperature, both of which are noted to be predictive of an incident. When we view the risk curve for pressure, we see that lower pressures have higher risk which intuitively makes a lot of sense (lower pressures often yields more precipitation, making driving conditions more difficult). However, there is a slight spike at pressures around 103 kPa in which the risk suddenly is driven up again. Higher pressures often yield cloudless skies and a potential explanation for the increase risk could be related to increased congestion and pedestrians on "nice" days. The temperature risk curve seems to potentially support this idea - again we see a decreasing risk curve overall as temperature increases until about 31°C in which the risk suddenly starts increasing.
 
-For the risk curve regarding the amount of rain, it would appear that rain amounts < 10 mm have very little effect on estimated risk (in fact, the model estimates a slightly lower than average risk of an incident for rain amounts < 5 mm). Once rain increases beyond 10 mm, however, we see that the risk starts increasing in a rather expected way. Rain amounts around 20 mm are particularly noteworthy in which an incident is about 1.1 times more likely to occur when it rains around 20 mm when compared to scenarios with no rain.
+For the risk curve regarding the amount of rain, it would appear that rain amounts < 10 mm have very little effect on estimated risk (in fact, the model estimates a slightly lower than average risk of an incident for rain amounts < 5 mm). Once rain increases beyond 10 mm, however, we see that the risk starts increasing in a rather expected way. Rain amounts around 18 mm are particularly noteworthy in which an incident is about 1.1 times more likely to occur when it rains around 18 mm when compared to scenarios with no rain.
 
 We do not discuss the other weather variables here since they were not found to be very predictive of incidents (and often yield relationships that are nonsensical and spurious at best).
 
@@ -989,7 +1004,7 @@ We summarize the key points of this entire analysis:
 
 - Bus line is by far the most important variable in determining how likely an incident is to occur for any scenario.
 - The bus lines that path specifically through Downtown Vancouver, with the exception of bus line 41, are the lines that have the highest risk of incidence. As a result, a large amount of risk can be mitigated simply by focusing on improving safety measures for all lines that move through Downtown Vancouver.
-- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think that this is a combination of greater traffic density, more pedestrians, and large amounts of acceleration/deceleration due to a larger frequency of bus stops in a relatively small area.
+- We do not really know what are the actual causal factors that are leading to more incidents in Downtown Vancouver, but we feel that it is reasonable to think that this is a combination of greater traffic density, more pedestrians, and greater amounts of acceleration/deceleration due to a larger frequency of bus stops in a relatively small area.
 - As a result of the above three points, increasing training for all operators who commonly work bus lines in Downtown Vancouver (and focusing most safety improvements on Downtown Vancouver in general), is likely to yield the largest impact for TransLink in reducing incidents and therefore insurance costs.
 - The approach used in this analysis can be extended to more granular levels, in particular to assess specific roads. We feel that TransLink can possibly extend this analysis to assess the risk per road (rather than per line) to potentially plan routes that avoid high risk areas.
 - The months of June, July, and September are roughly 1.5 times less likely to have an incident than all other months. Lower risk in June and July is possibly the result of lower ridership and traffic congestion (due to the Summer holidays) but it is not clear as to why September is noticeably safer when compared to the others.
@@ -1001,6 +1016,8 @@ We summarize the key points of this entire analysis:
 - Regardless, if temperatures are expected to be higher than 30°C or > 10 mm of precipitation is expected, warnings to operators to act more cautiously due to elevated risk of incidence could be a potential action TransLink could implement.
 
 ### Common Types of Claims by Location
+
+<center> <h4>Claim Descriptions by Location</h4> </center>
 
 Different locations in the Greater Vancouver area have different geographies, planning structures (including houses and buildings), and roads, all of which could influence the kinds of bus incidents and resulting claims that end of occurring. Thus, the uniqueness of each area motivates us to see if there is any pattern between the types of claims (using a dataset containing manually written claim descriptions) that are reported and specific locations. Such results can be leveraged by TransLink to better understand the types of claims that are most frequently occurring, in hopes that preventable measures specific to each location can be implemented. 
 <center> <h4>Example Claim Descriptions</h4> </center>
@@ -1448,8 +1465,10 @@ shinyApp(ui = ui, server = server)
   
 ### Assessment of Claims Costs by Location
   
+<center> <h4>Difficulties Analyzing Claim Costs</h4> </center>  
 One of the primary concerns for TransLink are soaring insurance costs in recent years. As a result of these rising costs, TransLink expressed interest in a potential causal or exploratory analysis to figure out what variables actually cause bus incidents, as well as claim cost forecasts for upcoming months. However, after analyzing the available datasets, we observed that almost half of the claims are still open and in addition, there were no negative examples in which the bus completed its route without any incidents (and hence, without any cost). Thus, a predictive machine learning model on the claim costs would be potentially highly biased since open claims naturally have their final costs understated. Therefore, we opt for the use of exploratory data analysis techniques instead and developed an interactive map to easily check and explore the claim costs associated with a particular incident (if they exist). 
-  
+
+<center> <h4>Methodology and Usage</h4> </center>  
 There are many variables from different datasets that might have an impact on the cost of claims per incident. Thus, as a first step in our analysis, we have built an extended dataset by joining the `2020 Collisions- Preventable and Non Preventable UBC Set Without Claim Number.csv`, `employee_experience_V2.csv` and the `claim_vehicle_employee_line.csv` datasets to get more context about each claim. In addition, we found the coordinates of each incident by using the Google Maps GeoCoding API in order to visualize them on the map. Finally, we also used the R package `leaflet` to add interactivity on the map and `shiny` to add control elements to this dashboard.
 
 ```{r, echo = FALSE}
