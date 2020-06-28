@@ -1,14 +1,11 @@
 # The Makefile - use to generate EVERYTHING that was done in this entire analysis
-# Before you do this, CTRL + F for "..." and replace with the required keys. 
-# We need both access_key and secret_key for the S3 bucket, and a Google Maps Geocoding API Key!
-
+# Before you do this, CTRL + F for "..." and replace with the required keys Google Maps Geocoding API Key!
+# Assumes that a folder called "data" exists in the root of the repository containing the raw data
+# with exactly the same names as what was originally on S3. This folder can be obtained from AWS S3 or 
+# potentially from a local copy that has been (hopefully) stored somewhere.
 
 # This is the all command - use to recreate this entire analysis!
 all: results/claim_analysis/report/claim_colour_df.xlsx results/claim_analysis/report/verb_colour_df.xlsx results/ml_model/report/class1_shap.csv results/ml_model/report/final_fitted.pickle results/ml_model/full_data.csv results/operators/data/train.csv results/operators/models/best-bayes-model.rds results/operators/report-tables/posterior_samples.rds results/operators/report-tables/validation-results.rds
-
-# Pull in data from S3. Replace ... with your access key and secret key.
-data/TransLink\ Raw\ Data/2020\ Collisions-\ Preventable\ and\ Non\ Preventable\ UBC\ Set\ Without\ Claim\ Number.xlsx data/TransLink\ Raw\ Data/claim_vehicle_employee_line.csv data/TransLink\ Raw\ Data/Operator\ With\ Incident\ Last\ 3\ Years.xlsx data/TransLink\ Raw\ Data/pedestrain_claims.csv data/TransLink Raw\ Data/preventable_NonPreventable_claims.csv data/TransLink\ Raw\ Data/Speed\ performance\ data.csv: src/get-data.py
-	python src/get-data.py --access_key=... --secret_key=...
 
 #--------------Operator Analysis-------------
 # Wrangle the data, split into train and test
