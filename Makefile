@@ -70,7 +70,7 @@ results/claim_analysis/data/merged_collision.xlsx: data/TransLink\ Raw\ Data/cla
 results/claim_analysis/report/verb_colour_df.xlsx results/claim_analysis/report/claim_colour_df.xlsx: results/claim_analysis/data/merged_collision.xlsx src/claim_analysis/claim_description.py
 	python src/claim_analysis/claim_description.py \
 --input_merged_path "results/claim_analysis/data/merged_collision.xlsx" \
---color_path "results/claim_analysis/data/data.json" \
+--color_path "src/claim_analysis/data.json" \
 --output_verb_color_df "results/claim_analysis/report/verb_colour_df.xlsx" \
 --output_noun_color_df "results/claim_analysis/report/claim_colour_df.xlsx"
 
