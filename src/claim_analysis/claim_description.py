@@ -370,8 +370,8 @@ def main(input_merged_path, color_path, output_path):
     result_verb_df = result_verb_df.replace('DarkOliveGreen3', 'sandybrown')
     result_verb_df = result_verb_df.replace('White', 'magenta')
 
-	if not os.path.exists(output_path):
-	    os.makedirs(output_path)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
     # saving the data with colours for unique nouns
     result_df.to_excel(output_path + '/claim_colour_df.xlsx', index=False)
     # saving the data with colours for unique verbs

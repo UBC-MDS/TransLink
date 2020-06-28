@@ -27,7 +27,8 @@ RUN conda install -y -c anaconda docopt \
     conda install -y -c conda-forge googlemaps \
                                        lightgbm \
                                        shap \
-                                       spacy 
+                                       spacy \
+                                       spacy-model-en_core_web_sm
 
 # RStudio authentication                            
 CMD ["/bin/bash"] 

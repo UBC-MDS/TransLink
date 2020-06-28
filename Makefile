@@ -83,7 +83,7 @@ results/processed_data/collision_with_claim_and_employee_info.csv: src/interacti
 # Append the longitudes and latitudes of each location, required google maps geocoding api key
 
 results/processed_data/collision_locations_with_coordinates.csv: src/interactive_map/append_coordinates.py results/processed_data/collision_with_claim_and_employee_info.csv
-	python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --output_file_path results/processed_data/collision_locations_with_coordinates.csv --api_key=...
+	python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --output_file_path results/processed_data/collision_locations_with_coordinates.csv --api_key=AIzaSyD0z4QGi9X9zo9o2v9DWVMnjA90YOT2ElM
 
 #----------------CLEAN Command---------------------
 
