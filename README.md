@@ -63,7 +63,7 @@ Finally, we *highly recommend* that after you download the files from the AWS S3
 
 This method actually recreates all of the analyses done for this Capstone project from scratch. Therefore, this will **take over a day to complete** and this is not recommended if you just wish to view the interactive report. In addition, a [Google Maps Geocoding API key is also required](https://developers.google.com/maps/documentation/geocoding/get-api-key) - Google provides $200 of free credit every month which should be more than enough to run this analysis.
 
-To use this method, you just need Docker and Git. Access to the Amazon S3 bucket is also required but only to obtain the raw data. 
+To use this method, you just need Docker and Git. Access to the Amazon S3 bucket is also required but only to obtain the raw data - the results folder on S3 is not necessary using this method since everything is created from scratch locally (whereas Method 1 has everything precompiled on S3 in /results). 
 
 Finally, your computer **must** have at least:
 
