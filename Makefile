@@ -71,8 +71,7 @@ results/claim_analysis/report/verb_colour_df.xlsx results/claim_analysis/report/
 	python src/claim_analysis/claim_description.py \
 --input_merged_path "results/claim_analysis/data/merged_collision.xlsx" \
 --color_path "src/claim_analysis/data.json" \
---output_verb_color_df "results/claim_analysis/report/verb_colour_df.xlsx" \
---output_noun_color_df "results/claim_analysis/report/claim_colour_df.xlsx"
+--output_path "results/claim_analysis/report" 
 
 #------------------Claim Analysis-----------------
 
