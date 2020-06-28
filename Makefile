@@ -63,7 +63,7 @@ results/claim_analysis/data/merged_collision.xlsx: data/TransLink\ Raw\ Data/cla
 	python src/claim_analysis/merge_claims.py \
 --input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
 --input_location_path "results/processed_data/collision_locations_with_coordinates.csv" \
---output_path "results/claim_analysis/data/merged_collision.xlsx"
+--output_path "results/claim_analysis/data"
 
 # Preprocessing data to create tables required for the dashboard
 
@@ -84,14 +84,16 @@ results/processed_data/collision_with_claim_and_employee_info.csv: src/interacti
 # Append the longitudes and latitudes of each location, required google maps geocoding api key
 
 results/processed_data/collision_locations_with_coordinates.csv: src/interactive_map/append_coordinates.py results/processed_data/collision_with_claim_and_employee_info.csv
-	python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --output_file_path results/processed_data/collision_locations_with_coordinates.csv --api_key=AIzaSyD0z4QGi9X9zo9o2v9DWVMnjA90YOT2ElM
+	python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --output_file_path results/processed_data/collision_locations_with_coordinates.csv --api_key=...
 
 #----------------CLEAN Command---------------------
 
 clean:
 	rm -rf results/claim_analysis/report/*
 	rm -rf results/claim_analysis/data/*
-	rm -rf results/processed_data/*
+	rm -rf results/processed_data/collision_with_claim_and_employee_info.csv
+	rm -rf results/processed_data/collision_locations_with_coordinates.csv
+	rm -rf results/processed_data/joining_datasets.png
 	rm -rf results/ml_model/report/*
 	rm -rf results/ml_model/models/*
 	rm -rf results/ml_model/data/*

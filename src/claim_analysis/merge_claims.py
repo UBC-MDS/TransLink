@@ -9,8 +9,8 @@ Usage: merge_claims.py --input_claim_path=<input_claims> --input_location_path=<
 Example:
 python src/merge_claims.py \
 --input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
---input_location_path "data/TransLink Raw Data/collision_locations_with_coordinates.csv" \
---output_path "data/TransLink Raw Data/merged_collision.xlsx"
+--input_location_path "results/processed_data/collision_locations_with_coordinates.csv" \
+--output_path "results/claim_analysis/data"
 
 Options:
 --input_claim_path=<input_claims> A file for claim data.
@@ -21,6 +21,7 @@ Options:
 from docopt import docopt
 import pandas as pd
 import numpy as np
+import os
 
 opt = docopt(__doc__)
 
@@ -30,22 +31,25 @@ def main(input_claim_path,input_location_path, output_path):
 
 	Parameters
 	--------------
-	input_claim_path A file for claim data.
-	input_location_path A file for location data.
-	output_path Merged data file.
+	input_claim_path: A file for claim data.
+	input_location_path: A file for location data.
+	output_path: Merged data file.
 
 	Returns
 	--------
 	None
 	"""
-
+	
 	claim_vehicle_data = pd.read_csv(input_claim_path)
 
 	collision_location_data = pd.read_csv(input_location_path)
 
 	merged_data = pd.merge(claim_vehicle_data, collision_location_data,on=['claim_id'], how='inner')
 
-	merged_data.to_excel(output_path , index=False)
+	if not os.path.exists(output_path):
+		os.makedirs(output_path)
+	
+	merged_data.to_excel(output_path + '/merged_collision.xlsx', index=False)
 
 if __name__ == "__main__":
 	main(opt["--input_claim_path"], opt["--input_location_path"], opt["--output_path"])
