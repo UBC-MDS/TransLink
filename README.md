@@ -160,11 +160,13 @@ The following dependencies are required to run this analysis from scratch (i.e. 
   - spacy-model-en_core_web_sm==2.0.0
   - shap==0.35.0
   - nltk==3.4.5
+  - all nltk data (nltk.download('all'))
   
 - R 3.6.3 or lower (does **not** work on R 4.0) and R packages:
   - brms==2.12.0
   - tidyverse==1.3.0
   - caret==6.0-86
+  - weathercan==0.3.4
   - here==0.1
   - zoo==1.8-7
   - shiny==1.4.0.2
