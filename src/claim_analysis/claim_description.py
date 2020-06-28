@@ -35,8 +35,8 @@ import os
 opt = docopt(__doc__)
 
 
-def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_df):
-    """This function takes the claim data nd parses the claim description to create two different dataframes where nouns and verbs are mapped 		with different colours to store the results in the local system. These files are further used to create R shiny dashboard for the 		interactive visualisation
+def main(input_merged_path, color_path, output_path):
+    """This function takes the claim data nd parses the claim description to create two different dataframes where nouns and verbs are mapped with different colours to store the results in the local system. These files are further used to create R shiny dashboard for the 		interactive visualisation
 
 	Parameters
 	-----------
@@ -44,10 +44,8 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
 		A file path for merged data.
 	color_path 
 		A file path for the list of colors.
-	output_verb_color_df
+	output_path
 		 A file path to store the verb colour dataframe.
-	output_noun_color_df
-		 A file path to store the noun colour dataframe.
 
 	Returns
 	----------
@@ -372,8 +370,8 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
     result_verb_df = result_verb_df.replace('DarkOliveGreen3', 'sandybrown')
     result_verb_df = result_verb_df.replace('White', 'magenta')
 
-		if not os.path.exists(output_path):
-			os.makedirs(output_path)
+	if not os.path.exists(output_path):
+	    os.makedirs(output_path)
     # saving the data with colours for unique nouns
     result_df.to_excel(output_path + '/claim_colour_df.xlsx', index=False)
     # saving the data with colours for unique verbs
@@ -381,4 +379,4 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
 
 
 if __name__ == "__main__":
-    main(opt['--input_merged_path'], opt['--color_path'], opt['--output_verb_color_df'], opt['output_path'])
+    main(opt['--input_merged_path'], opt['--color_path'], opt['--output_path'])
