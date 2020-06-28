@@ -92,7 +92,6 @@ clean:
 	rm -rf results/claim_analysis/data/*
 	rm -rf results/processed_data/collision_with_claim_and_employee_info.csv
 	rm -rf results/processed_data/collision_locations_with_coordinates.csv
-	rm -rf results/processed_data/joining_datasets.png
 	rm -rf results/ml_model/report/*
 	rm -rf results/ml_model/models/*
 	rm -rf results/ml_model/data/*
