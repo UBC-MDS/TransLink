@@ -95,6 +95,7 @@ clean:
 	rm -rf results/ml_model/report/*
 	rm -rf results/ml_model/models/*
 	rm -rf results/ml_model/data/*
+	rm -rf results/operators/data*
 	rm -rf results/operators/bayes-diagnostics/*
 	rm -rf results/operators/models/*
 	rm -rf results/operators/report-tables/*
