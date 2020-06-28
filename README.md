@@ -1,5 +1,5 @@
 
-<img src="images/logo.png" width="260" align = "right">
+<img src="images/logo.png" width="230" align = "right">
 
 # Vision over Transit Incidents & Claims
 
