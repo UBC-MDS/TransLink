@@ -47,13 +47,13 @@ Finally, we *highly recommend* that after you download the files from the AWS S3
 
 Install Docker and Git. Next, clone this repository and then run the following command at the command line/terminal from the root directory of this repository:
 
-```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
+  ```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
 where you replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your actual AWS access key and AWS secret key. You may need sudo privileges. This command only needs to be run once (unless you delete the data and/or the results folders for some reason, in which case this command needs to be run again).
 
 Then, run the following command at the command line/terminal, again from the root directory of this repository:
 
-```docker run --rm -p 3838:3838 -v "/$(pwd):/repo" btang101/tl_vision Rscript -e "rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))"```
+  ```docker run --rm -p 3838:3838 -v "/$(pwd):/repo" btang101/tl_vision Rscript -e "rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))"```
 
 Navigate to the address 0.0.0.0:3838 in any web browser and after maybe 45 seconds the interactive report should be viewable. 
 
@@ -74,47 +74,47 @@ Finally, your computer **must** have at least:
 
 After cloning this repository, open up the Makefile found in the root directory of this repository (called Makefile) in a text editor like Notepad. Ctrl + F for the symbols "..." (no quotations). You should have a single match and be brought to this line:
 
-```python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --api_key=...```
+  ```python src/interactive_map/append_coordinates.py --input_file results/processed_data/collision_with_claim_and_employee_info.csv --api_key=...```
 
 Replace "..." where it says `--api_key=...` with your Google Maps Geocoding API key. 
 
 Save the Makefile and close it. Next, run the following command at the command line/terminal from the root directory of this repository:
 
-```docker run --rm -v "${pwd}://repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
+  ```docker run --rm -v "${pwd}://repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
 Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this once and we *highly recommend* that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, run this command (again from the root directory of this repository):  
 
-```docker run --rm -v "${pwd}://repo" btang101/tl_vision make -C /repo all```
+  ```docker run --rm -v "${pwd}://repo" btang101/tl_vision make -C /repo all```
 
 After everything has completed (which will likely take over a day), run the following command again from the root directory of this repository:
 
-```docker run --rm -p 3838:3838 -v "${pwd}://repo" btang101/tl_vision Rscript -e "rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))"```
+  ```docker run --rm -p 3838:3838 -v "${pwd}://repo" btang101/tl_vision Rscript -e "rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host =   '0.0.0.0'))"```
 
 Then, visit localhost:3838 in a web browser to view the interactive report.
 
 To reset the repository to a clean state, with no intermediate or results files, run the following command at the command line/terminal from the root directory of this repository:
 
-```docker run --rm -v "${pwd}://repo" btang101/tl_vision make -C /repo clean``` 
+  ```docker run --rm -v "${pwd}://repo" btang101/tl_vision make -C /repo clean``` 
 
 #### Linux and Mac Users:
 
 Edit the Makefile as explained above by replacing the three dots ("...") with your Google Maps Geocoding API key. Then, after saving the Makefile run the following command at the command line/terminal from the root directory of this repository:
 
-```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
+  ```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
 Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we **highly recommend** that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, from the root directory of this repository run this command:  
 
-```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision make -C /repo all```
+  ```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision make -C /repo all```
 
 Finally, run this command (again from the root directory of this repository):
 
-```sudo docker run --rm -p 3838:3838 -v "/$(pwd):/repo" btang101/tl_vision Rscript -e "rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))"```
+  ```sudo docker run --rm -p 3838:3838 -v "/$(pwd):/repo" btang101/tl_vision Rscript -e "rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))"```
 
 Then, visit 0.0.0.0:3838 in a web browser to view the interactive report.
 
 To reset the repository to a clean state, with no intermediate or results files, run the following command at the command line/terminal from the root directory of this repository:
 
-```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision make -C /repo clean```
+  ```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision make -C /repo clean```
 
 ### Method 3 (No Docker + Make) - COMPLETELY NOT RECOMMENDED!
 
@@ -124,21 +124,21 @@ This method requires installing **all of the dependencies** listed below in this
 
 Regardless, after installing all dependencies in the list below, edit the Makefile and then run this command from the root directory of this repository:
 
-```python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
+  ```python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
 Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we highly recommend that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, run this command (again from the root of this repository):
 
-```make all```
+  ```make all```
 
 This will take over a day to finish. Once everything has finished running, run this command in the root directory of this repository:
 
-```Rscript -e rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0')```
+  ```Rscript -e rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0')```
 
 Then, visit 0.0.0.0:3838 (Linux or Mac) OR localhost:3838 (Windows) to view the interactive report.
 
 To reset the repository to a clean state, with no intermediate or results files, run the following command at the command line/terminal from the root directory of this repository:
 
-```make clean```
+  ```make clean```
 
 ## Flow Diagram
 
