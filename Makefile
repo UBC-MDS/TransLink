@@ -47,13 +47,13 @@ results/ml_model/data/final_data_combined.csv results/ml_model/data/train.csv re
 
 # Validate model
 
-results/ml_model/models/final_model_after_optimization.pickle: src/ml_model/python/2_model_optimizer.R results/ml_model/data/train.csv results/ml_model/data/test.csv data/TransLink\ Raw\ Data/Bus_spec.csv
+results/ml_model/models/final_model_after_optimization.pickle: src/ml_model/python/2_model_optimizer.py results/ml_model/data/train.csv results/ml_model/data/test.csv data/TransLink\ Raw\ Data/Bus_spec.csv
 	python src/ml_model/python/2_model_optimizer.py --train_file_path=results/ml_model/data/train.csv --bus_file_path=data/TransLink\ Raw\ Data/Bus_spec.csv --test_file_path=results/ml_model/data/test.csv --path_out=results/ml_model/models
 	
 # Fit final model and save outputs
 
-results/ml_model/report/class1_shap.csv results/ml_model/report/final_fitted.pickle results/ml_model/report/full_data.csv: src/ml_model/python/3_model_generator.py results/ml_model/data/train.csv results/ml_model/data/test.csv data/TransLink\ Raw\ Data/Bus_spec.csv
-	python src/ml_model/python/model_generator.py --train_file_path=results/ml_model/data/train.csv --bus_file_path=data/TransLink\ Raw\ Data/Bus_spec.csv --test_file_path=results/ml_model/data/test.csv --model_file_path=results/ml_model/models/final_model_after_optimization.pickle --path_out=results/ml_model/report
+results/ml_model/report/class1_shap.csv results/ml_model/report/final_fitted.pickle results/ml_model/report/full_data.csv: src/ml_model/python/3_model_generator.py results/ml_model/data/train.csv results/ml_model/data/test.csv data/TransLink\ Raw\ Data/Bus_spec.csv results/ml_model/models/final_model_after_optimization.pickle
+	python src/ml_model/python/3_model_generator.py --train_file_path=results/ml_model/data/train.csv --bus_file_path=data/TransLink\ Raw\ Data/Bus_spec.csv --test_file_path=results/ml_model/data/test.csv --model_file_path=results/ml_model/models/final_model_after_optimization.pickle --path_out=results/ml_model/report
 
 #------------------Claim Descriptions-----------------
 

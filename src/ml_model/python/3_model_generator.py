@@ -6,25 +6,16 @@ This script fits the final model and generate results from this model for use in
 It takes train, test and bus information datasets and combines them to fit the final model.
 It also takes the path for the final model and writes the results to the output file. 
 
-
 Usage: 3_model_generator.py --train_file_path=<train_file_path> --bus_file_path=<bus_file_path> \
-    --test_file_path=<test_file_path> --model_file_path=<model_file_path> --path_out=<path_out>
-
-
+--test_file_path=<test_file_path> --model_file_path=<model_file_path> --path_out=<path_out>
 
 Options:
-
---train_file_path=<train_file_path>     A file path containing the train dataset.
---bus_file_path=<bus_file_path>     A file path containing other bus information.
---test_file_path=<test_file_path>     A file path containing the test dataset.
---model_file_path=<model_file_path>     A file path containing the final model selected from optimization.
+--train_file_path=<train_file_path> A file path containing the train dataset.
+--bus_file_path=<bus_file_path> A file path containing other bus information.
+--test_file_path=<test_file_path> A file path containing the test dataset.
+--model_file_path=<model_file_path> A file path containing the final model selected from optimization.
 --path_out=<path_out> A file path that specifies where to output needed files for the interactive report.
 
-Example:
-
-python src/ml_model/python/model_generator.py --train_file_path "results/ml_model/data/train.csv"\
-     --bus_file_path "data/TransLink Raw Data/Bus_spec.csv" --test_file_path  "results/ml_model/data/test.csv"\
-         --model_file_path "results/ml_model/models/final_model_after_optimization.pickle" --path_out="results/ml_model/report"
 """
 
 import numpy as np
