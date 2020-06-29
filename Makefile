@@ -31,7 +31,7 @@ results/operators/report-tables/validation-results.rds results/operators/bayes-d
 # Fit the final model on the entire dataset, and generate relevant figures for report
 
 results/operators/models/final-model.rds results/operators/report-tables/posterior_samples.rds: src/operators/R/4_final-model.R src/operators/R/helper_scripts/bayesian-fit.R results/operators/data/train.csv results/operators/data/test.csv results/operators/models/best-bayes-model.rds
-	Rscript src/operators/R/4_final-model.R results/operators/data/train.csv results/operators/data/test.csv results/operators/models results/operators/models results/operators/report-tables
+	Rscript src/operators/R/4_final-model.R results/operators/data/train.csv results/operators/data/test.csv results/operators/models/best-bayes-model.rds results/operators/models results/operators/report-tables
 
 #-------------ML-Model--------------------------
 
