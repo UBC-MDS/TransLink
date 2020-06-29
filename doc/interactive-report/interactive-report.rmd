@@ -1,5 +1,5 @@
 ---
-title: "Vision Over Incidents and Claims - An Analysis"
+title: "Vision over Incidents and Claims - An Analysis"
 author: "Brayden Tang, Merve Sahin, Simardeep Kaur, Xugang Zhong"
 date: "29/06/2020"
 output:
@@ -11,7 +11,7 @@ bibliography: ref.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(root.dir = here::here())
 library(brms)
 library(shiny)
@@ -36,6 +36,9 @@ library(wordcloud2)
 library(PubMedWordcloud)
 library(png)
 library(grid)
+
+# To supress warnings
+options(warn = -1)
 ```
 
 ## Introduction {.tabset .tabset-fade}
@@ -144,7 +147,7 @@ operators_dataset <- read_csv("results/operators/data/train.csv") %>%
 ```{r Operator Analysis: Sample Dataset (show), echo = FALSE}
 operators_dataset %>%  
   kable() %>%
-  kable_styling()
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 There are some issues with this dataset that encourages the use of non-standard statistical methods. For one, there are no operators recorded that have exactly zero incidents in the last three years - in order for an operator to appear in this dataset, they must have had at least one preventable or non-preventable incident. Therefore, using standard techniques that do not take this into consideration will lead to possibly incorrect conclusions. Second, the data is naturally grouped by cost centre. Operators who work in similar regions will therefore naturally be correlated.
@@ -842,7 +845,7 @@ The boxplots can be used to gauge how uncertain the overall estimates are, but t
 
 If the variable being analyzed can be any arbitrary number (like all of the weather variables except for elevation) then a plot displaying the estimated "risk curve" for that variable is shown. This gives the estimated average risk for any value of the variable, holding all other variables in the model constant. For some of these plots, the user may notice grey regions for some extreme values of the variable being viewed, such as for very low temperatures. These grey regions reflect the uncertainty in the estimated risk curve in which the curve realistically could fall anywhere in the region. These grey regions are only noticeable for very extreme values of the variable being analyzed since there is very little (if any) data to estimate the effect for these values (such as -15°C which almost never occurs in the Greater Vancouver area). Finally, these plots with risk curves also have an additional slider that allows the user to calculate the estimated average risk for a specific range of the variable being viewed. The user just has to move the slider input to the range they are interested in, and then the calculated average risk for the selected range is displayed in the subtitle of the plot.
 
-Note that the risk curves are fit using a secondary regression method to the risk scores predicted by the machine learning model (to more easily see the relationship graphically) and therefore there are regression. Therefore, the averages produced by the slider and the averages produced using the risk curve may not be the same, but in general they should be quite close. If there is a discrepancy, we recommend trusting the curve rather than the slider input.
+Note that the risk curves are fit using a secondary regression method to the risk scores predicted by the machine learning model (to more easily see the relationship graphically). Therefore, the averages produced by the slider and the averages produced using the risk curve may not be the same, but in general they should be quite close. If there is a discrepancy, we recommend trusting the curve rather than the averages produced from the slider input.
 
 <center> <h4>Results</h4> </center>
 
@@ -1022,7 +1025,7 @@ We summarize the key points of this entire analysis:
 Different locations in the Greater Vancouver area have different geographies, planning structures (including houses and buildings), and roads, all of which could influence the kinds of bus incidents and resulting claims that end of occurring. Thus, the uniqueness of each area motivates us to see if there is any pattern between the types of claims (using a dataset containing manually written claim descriptions) that are reported and specific locations. Such results can be leveraged by TransLink to better understand the types of claims that are most frequently occurring, in hopes that preventable measures specific to each location can be implemented. 
 <center> <h4>Example Claim Descriptions</h4> </center>
 
-The dashboard below analyzes the manually written claim descriptions filled out by TransLink employees. The following table displays five randomly selected claim descriptions:
+The dashboard below analyzes the manually written claim descriptions filled out by TransLink employees. The following list displays five randomly selected claim descriptions:
 
 - "T/P REAR ENDED STOPPED BUS"                                        
 - "LEFT TURNING TP RF CORNER HIT STATIONARY BUS LS"                   
@@ -1051,7 +1054,6 @@ verb_data <-
   read_excel("results/claim_analysis/report/verb_colour_df.xlsx")
 #options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=10)
 ```
-
 
 ```{r include= FALSE, warning = FALSE}
 ui <- dashboardPage(
@@ -1453,13 +1455,11 @@ server <- function(input, output) {
       as.character(sorted_verb_df$chosen_verb_x)[1:5]
     )
   })
-
-  
 }
 ```
 
 ```{r , echo = FALSE}
-shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server, options = list(height = 1400))
 ```
 
   
@@ -1488,8 +1488,6 @@ The primary element in the dashboard is the interactive map in the middle, which
     
 - a histogram; to show the distribution of the number of incidents per each cost level.
 
-$~$
-  
 ```{r include=FALSE}
 my_data <- read_csv("results/processed_data/collision_locations_with_coordinates.csv")
 my_data$years <- year(my_data$loss_date)
@@ -1505,7 +1503,7 @@ my_data$cost_range <- cut(my_data$`paid_cost$`, breaks = c(-Inf, 200, 1000, 1000
 ui2 <-  fluidPage(
   
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 4,
       sliderInput("year", "Years", min(my_data$years), max(my_data$years),
                   value = range(my_data$years), step= 1, sep = ""),
       selectInput("experience", "Experience level of the operators",
@@ -1592,21 +1590,21 @@ server2 <- function (input, output) {
      updated_data <- year_data() %>% 
       filter(year_data()$experience_levels == input$experience)
     updated_data %>% group_by(line_no) %>% summarise(total_cost_line = sum(`paid_cost$`)) %>% 
-      data.frame()%>%  drop_na() %>% arrange(desc(total_cost_line)) %>% rename(c("Line No." = "line_no" , "Total Cost" ="total_cost_line" )) %>% head(5) %>% mutate(`Total Cost` = paste('$',formatC(`Total Cost`, big.mark=',', format = 'f')))
+      data.frame()%>%  drop_na() %>% arrange(desc(total_cost_line)) %>% rename(c("Line No." = "line_no" , "Total Cost" ="total_cost_line" )) %>% head(5) %>% mutate(`Total Cost` = paste('$',formatC(`Total Cost`, big.mark=',', format = 'f', digits = 0, drop0trailing = TRUE)))
   })
   
   output$table2 <- renderTable( spacing = c('xs') ,{
     updated_data <- year_data() %>% 
       filter(year_data()$experience_levels == input$experience)
     updated_data %>% group_by(asset_manufacturer) %>% summarise(total_cost_line = sum(`paid_cost$`)) %>% 
-    data.frame() %>% drop_na() %>% arrange(desc(total_cost_line)) %>%  rename(c("Bus Manufact." = "asset_manufacturer", "Total Cost" = "total_cost_line" )) %>% head(5) %>% mutate(`Total Cost` = paste('$',formatC(`Total Cost`, big.mark=',', format = 'f')))
+    data.frame() %>% drop_na() %>% arrange(desc(total_cost_line)) %>%  rename(c("Bus Manufact." = "asset_manufacturer", "Total Cost" = "total_cost_line" )) %>% head(5) %>% mutate(`Total Cost` = paste('$',formatC(`Total Cost`, big.mark=',', drop0trailing = TRUE, digits = 0, format = 'f')))
   })
   
   output$table3 <- renderTable( spacing = c('xs') ,{
     updated_data <- year_data() %>% 
       filter(year_data()$experience_levels == input$experience)
     updated_data %>% group_by(city_of_incident) %>% summarise(n = n()) %>% 
-    data.frame() %>% drop_na() %>% arrange(desc(n)) %>%  rename(c("City of Incident" = "city_of_incident", "Number of Incident" = "n" )) %>% head(5)
+    data.frame() %>% drop_na() %>% arrange(desc(n)) %>%  rename(c("City of Incident" = "city_of_incident", "Number of Incidents" = "n" )) %>% head(5)
   })
   
   output$plot2 <- renderPlot({
@@ -1655,11 +1653,9 @@ server2 <- function (input, output) {
 ```
 
 ```{r , echo = FALSE}
-shinyApp(ui2, server2)
+shinyApp(ui2, server2, options = list(height = 915))
 ```
 
-$~$
-  
 This dashboard has multiple interactive elements. On the top-left, there are control elements that can be used for filtering the data by incident year and operator experience. Additionally, summary views and the map will update automatically according to what is selected. With the map view, users can zoom in/out and by selecting an individual incident, a popup outlining details about the incident is displayed. The tile control on the upper right corner of the map allows users to change the appearance of the map (switching between street view, details view, and dark view). 
     
 <center> <h4>Conclusions and Recommendations</h4> </center>

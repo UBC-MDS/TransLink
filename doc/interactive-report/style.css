@@ -3,8 +3,13 @@
 body {
   background-image: url("logo.png");
   background-repeat: no-repeat;
-  background-size: 100%;
-}
+  background-size: 15%;
+  background-position: right top;
+  background-attachment: fixed;
+  font-size: 16px;
+  text-align: justify;
+  font-family: Arial, "Times New Roman";
+}				
 
 div {
   background-color: rgba(255, 255, 255, 0.50);
@@ -14,26 +19,39 @@ div {
 h1 {
   text-align: center;
   color: #C00000;
+  font-family: Arial;
 }
 
 h2, h3 {
-	text-align: center;
-	color: #002060;
+	text-align: left;
+	color: #002060;	
+	font-size: 23px;
+	font-family: Arial, "Times New Roman";
+	
 }
 
 h4 {
-	text-align: center;
+	text-align: left;
 	color: #002060;
-	font-size: 25px;
+	font-size: 23px;
+	margin-top: 19px;
+	margin-bottom: 15px;
+	font-family: Arial, "Times New Roman";
 }
 
-.btn {
-    border-width: 0 0px 0px 0px;
-    font-weight: normal;
-}
-
-.btn-default {
+.nav-tabs a {
     color: #002060;
-    background-color: #ffffff;
-    border-color: #ffffff;
+    background-color: #DCDCDC;
+    border-color: #D3D3D3;
+}
+
+.author, .date {
+	text-align: center;
+	font-size: 20px;
+	
+}
+
+#section-common-types-of-claims-by-location li {
+	font-size: 13.5px;
+	font-family: "Merriweather";
 }
