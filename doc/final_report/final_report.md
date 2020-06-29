@@ -67,8 +67,13 @@ _Figure 4: Screenshot of the Interactive Map of Claim Cost_
 
 **Spatial Analysis- Claim Description**
 
+Different locations in the Greater Vancouver area have different geographies, planning structures, and roads, all of which could influence the type of incident that occurs. In addition, there exists manually written claim descriptions that describe the context of each incident that led to each claim within the claims data. These claim descriptions typically describe the type of object hit, as well as the part of the bus that was damaged. In light of these points, we create a dashboard containing interactive maps and a word cloud that quickly summarize the most frequent object(s) struck and the most common incidents for any particular location in Greater Vancouver. The size of each word corresponds to how frequent each word appears in the set of incidents being viewed on the map. Furthermore, the top five most frequent objects struck/type of accidents can be viewed in a drop-down menu which can be used as a filter to view these specific incidents on another map at the bottom of the dashboard. Through this dashboard, a better understanding of the specific kinds of claims that are frequently occurring (if any) can be established for any area, which can hopefully lead to more targeted preventable measures. To create the dashboard, claim descriptions were wrangled and then parsed by a pre-trained natural language processing model that assigned part of speech tags to each word in a description.
 
-_Figure 2: Screenshot of the interactive map of claim description_
+
+![](images/map.png)
+
+
+_Figure 5: Screenshot of the interactive map of claim description_
 
 
 
