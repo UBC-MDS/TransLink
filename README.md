@@ -1,3 +1,6 @@
+
+<img src="images/logo.png" width="230" align = "right">
+
 # Vision over Transit Incidents & Claims
 
 Contributors: 
@@ -32,7 +35,7 @@ Our report can be found [here](https://github.com/UBC-MDS/TransLink/tree/master/
 
 The flow diagram below illustrates the overviews our analysis process and illustrates script orders and dependencies.
 
-![](images/pipeline_draft.png)
+![](images/pipeline.png)
 
 To replicate the analysis, clone this GitHub repository, install the [dependencies](#dependencies) listed below, and run the following commands at the command line/terminal from the root directory of this project:
 
