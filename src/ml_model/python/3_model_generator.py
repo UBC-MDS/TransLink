@@ -76,13 +76,11 @@ def main(train_file_path, bus_file_path, test_file_path, model_file_path, path_o
     X = combined_data_set_v1.drop(columns='incident')
     y = combined_data_set_v1['incident']
 
-
     # preprocessing with categorical features
     for c in X.columns:
         col_type = X[c].dtype
         if col_type == 'object' or col_type.name == 'category':
             X[c] = X[c].astype('category')
-    
     
     #open the final model from the given path      
     filename = model_file_path
