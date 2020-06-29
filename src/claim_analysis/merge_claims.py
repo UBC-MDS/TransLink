@@ -7,7 +7,7 @@ This script takes two datasets as input and then merges the dataset to produce a
 Usage: merge_claims.py --input_claim_path=<input_claims> --input_location_path=<input_locations> --output_path=<outputs>
 
 Example:
-python src/merge_claims.py \
+python src/claim_analysis/merge_claims.py \
 --input_claim_path "data/TransLink Raw Data/claim_vehicle_employee_line.csv" \
 --input_location_path "results/processed_data/collision_locations_with_coordinates.csv" \
 --output_path "results/claim_analysis/data"

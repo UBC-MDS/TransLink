@@ -14,7 +14,7 @@ Options:
 --output_path=<output_path> A file path to store the verb colour and noun colour dataframes.
 
 Example: 
-python src/claim_description.py \
+python src/claim_analysis/claim_description.py \
 --input_merged_path "results/claim_analysis/data/merged_collision.xlsx" \
 --color_path "src/claim_analysis/data.json" \
 --output_path "results/claim_analysis/report" 
