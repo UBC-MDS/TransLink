@@ -6,20 +6,18 @@ This script takes different data sets as input.
 It cleans different data sets by removing extra rows from the top of the dataset.
 Cleaned data is stored by creating a folder named "Clean_data". This script assumes that 'get-data.py' is run before.
 
-Usage: claim_description.py --input_merged_path=<input_merged_path> --color_path=<color_path> --output_verb_color_df=<output_verb_color_df> --output_noun_color_df=<output_noun_color_df>
-
-Example: 
-python src/claim_description.py \
---input_merged_path "data/TransLink Raw Data/merged_collision.xlsx" \
---color_path "data/TransLink Raw Data/data.json" \
---output_verb_color_df "data/TransLink Raw Data/verb_colour_df.xlsx" \
---output_noun_color_df "data/TransLink Raw Data/Claim_colour_df.xlsx"
+Usage: claim_description.py --input_merged_path=<input_merged_path> --color_path=<color_path> --output_path=<output_path> 
 
 Options:
 --input_merged_path=<input_merged_path> A file path for merged data.
 --color_path=<color> A file path for the list of colors.
---output_verb_color_df=<output_verb_color> A file path to store the verb colour dataframe.
---output_noun_color_df=<output_noun_color> A file path to store the noun colour dataframe.
+--output_path=<output_path> A file path to store the verb colour and noun colour dataframes.
+
+Example: 
+python src/claim_description.py \
+--input_merged_path "results/claim_analysis/data/merged_collision.xlsx" \
+--color_path "src/claim_analysis/data.json" \
+--output_path "results/claim_analysis/report" 
 
 """
 
@@ -32,12 +30,13 @@ from nltk.corpus import wordnet
 import time
 from collections import Counter
 import numpy as np
+import os
 
 opt = docopt(__doc__)
 
 
-def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_df):
-    """This function takes the claim data nd parses the claim description to create two different dataframes where nouns and verbs are mapped 		with different colours to store the results in the local system. These files are further used to create R shiny dashboard for the 		interactive visualisation
+def main(input_merged_path, color_path, output_path):
+    """This function takes the claim data nd parses the claim description to create two different dataframes where nouns and verbs are mapped with different colours to store the results in the local system. These files are further used to create R shiny dashboard for the 		interactive visualisation
 
 	Parameters
 	-----------
@@ -45,10 +44,8 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
 		A file path for merged data.
 	color_path 
 		A file path for the list of colors.
-	output_verb_color_df
+	output_path
 		 A file path to store the verb colour dataframe.
-	output_noun_color_df
-		 A file path to store the noun colour dataframe.
 
 	Returns
 	----------
@@ -373,11 +370,13 @@ def main(input_merged_path, color_path, output_verb_color_df, output_noun_color_
     result_verb_df = result_verb_df.replace('DarkOliveGreen3', 'sandybrown')
     result_verb_df = result_verb_df.replace('White', 'magenta')
 
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
     # saving the data with colours for unique nouns
-    result_df.to_excel(output_noun_color_df, index=False)
+    result_df.to_excel(output_path + '/claim_colour_df.xlsx', index=False)
     # saving the data with colours for unique verbs
-    result_verb_df.to_excel(output_verb_color_df, index=False)
+    result_verb_df.to_excel(output_path + '/verb_colour_df.xlsx', index=False)
 
 
 if __name__ == "__main__":
-    main(opt['--input_merged_path'], opt['--color_path'], opt['--output_verb_color_df'], opt['--output_noun_color_df'])
+    main(opt['--input_merged_path'], opt['--color_path'], opt['--output_path'])

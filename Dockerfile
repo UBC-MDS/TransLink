@@ -27,7 +27,8 @@ RUN conda install -y -c anaconda docopt \
     conda install -y -c conda-forge googlemaps \
                                        lightgbm \
                                        shap \
-                                       spacy 
+                                       spacy \
+                                       spacy-model-en_core_web_sm
 
 # RStudio authentication                            
 CMD ["/bin/bash"] 
@@ -44,8 +45,12 @@ RUN apt-get install libxrender1 libxtst6 libxi6 -y
 RUN Rscript -e "install.packages(c('caret', 'brms', 'here', 'zoo', 'shiny', 'leaflet',\
 'kableExtra', 'plotly', 'ggthemes', 'mapview', 'lubridate', 'htmlwidgets',\
 'bayesplot', 'janitor', 'VGAM', 'reticulate', 'shinydashboard', 'shinycssloaders',\
-'RColorBrewer', 'sjmisc', 'readxl', 'wordcloud', 'DT', 'ggwordcloud', 'wordcloud2',\
+'RColorBrewer', 'sjmisc', 'readxl', 'weathercan', 'wordcloud', 'DT', 'ggwordcloud', 'wordcloud2',\
 'PubMedWordcloud', 'png', 'grid'))"
+
+# Install all NLTK required packages
+
+RUN python -m nltk.downloader all
 
 # Copy get-data.py script from local files
 # First define new directory
