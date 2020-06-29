@@ -5,13 +5,13 @@
 
 Contributors: 
 
-> - Brayden Tang, brayden.tang1@gmail.com
-> 
-> - Kirk Zhong, chuusankirk@hotmail.com
-> 
-> - Merve Sahin, kymerve16@gmail.com
-> 
-> - Simardeep Kaur, simardeep.kaur.jeji@gmail.com
+ - Brayden Tang, brayden.tang1@gmail.com
+ 
+ - Kirk Zhong, chuusankirk@hotmail.com
+ 
+ - Merve Sahin, kymerve16@gmail.com
+ 
+ - Simardeep Kaur, simardeep.kaur.jeji@gmail.com
  
 
 This is a mentored group project for the Master of Data Science program at the University of British Columbia with the business partner Business Technology Services (BTS) and Insurance Claims groups of TransLink.
@@ -32,7 +32,7 @@ There are three ways to actually view the report:
 2) Using Docker + Make to compile results locally (still need Amazon S3 for the raw data)
 3) Using Make and installing all dependencies manually (not recommended)
 
-If you just wish to view the report, we **highly recommend using method 1)** since it is by far the fastest method. We mainly include method 2) and 3) for the ability to reproduce all analyses in case TransLink wishes to view/use intermediate models and/or results that are not necessarily in the final interactive report.
+If you just wish to view the report, we **highly recommend using method 1**. since it is by far the fastest method. We mainly include method 2 and 3 for the ability to reproduce all analyses in case TransLink wishes to view/use intermediate models and/or results that are not necessarily in the final interactive report.
 
 ### Method 1 (Docker + Amazon S3)
 
