@@ -14,8 +14,6 @@ bibliography: ref.bib
 
 
 
-
-
 # SUMMARY
 
 To identify the transit incident pattern, the spatial analyses of both claim cost and claim description are employed and a comprehensive machine learning model is built to assess the overall predictive power of all of these various factors such as bus line, weather conditions, time and bus characteristics by using LightGBM classifier. The bus line turned out to be the most important variable in determining how likely an incident is to occur for any scenario. All these analyses together with findings and recommendations are integrated in an interactive report.
@@ -64,7 +62,7 @@ For that purpose, we developed an interactive map tool to easily check and explo
 
 
 ![](images/figure1.png)
-_Figure 1: Screenshot of the Interactive Map of Claim Cost_
+_Figure 4: Screenshot of the Interactive Map of Claim Cost_
 
 
 **Spatial Analysis- Claim Description**
