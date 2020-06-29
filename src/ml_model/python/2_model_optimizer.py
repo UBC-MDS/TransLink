@@ -38,6 +38,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from docopt import docopt
 import pickle
+import os
 
 opt = docopt(__doc__)
 
@@ -231,8 +232,11 @@ def main(train_file_path, bus_file_path, test_file_path, path_out):
         reg_alpha=gridSearchCV.best_params_['classifier__reg_alpha'],
         subsample=gridSearchCV.best_params_['classifier__subsample']
         )
-        
-    filename = path_out + '/final_model_after_optimization'
+    
+    if not os.path.exists(path_out):
+        os.makedirs(path_out)
+
+    filename = path_out + '/final_model_after_optimization.pickle'
     with open(filename, 'wb') as out:
         pickle.dump(final_model, out)
 

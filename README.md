@@ -122,7 +122,7 @@ This method is almost the exact same thing as Method 2) but without the use of t
 
 This method requires installing **all of the dependencies** listed below in this README file. Therefore, it is difficult to give specific instructions with this method because every computer will likely require different instructions depending on what is already installed or not installed.
 
-Regardless, after installing all dependencies in the list below, edit the Makefile and then run this command from the root directory of this repository:
+Regardless, after installing all dependencies in the list below, edit the Makefile to add your Google Maps Geocoding API key and then run this command from the root directory of this repository:
 
 ```python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
