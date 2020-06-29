@@ -5,6 +5,7 @@ header-includes: \usepackage{graphicx} \usepackage{fancyhdr} \pagestyle{fancy} \
   \fancyhead[R]{\includegraphics[width=4cm]{logo.png}} \fancyfoot[R,RO]{}
 output:
   html_document:
+    keep_md: true
 bibliography: ref.bib
 ---
 
