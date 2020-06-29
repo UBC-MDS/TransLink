@@ -1053,7 +1053,7 @@ verb_data <-
 ```
 
 
-```{r include= FALSE}
+```{r include= FALSE, warning = FALSE}
 ui <- dashboardPage(
   dashboardHeader(title = "Reasons for Incidents" , titleWidth = 450),
   dashboardSidebar(sidebarMenu(
