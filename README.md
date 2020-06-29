@@ -5,13 +5,13 @@
 
 Contributors: 
 
- - Brayden Tang, brayden.tang1@gmail.com
- 
- - Xugang Zhong, chuusankirk@hotmail.com
- 
- - Merve Sahin, kymerve16@gmail.com
- 
- - Simardeep Kaur, simardeep.kaur.jeji@gmail.com
+> - Brayden Tang, brayden.tang1@gmail.com
+> 
+> - Kirk Zhong, chuusankirk@hotmail.com
+> 
+> - Merve Sahin, kymerve16@gmail.com
+> 
+> - Simardeep Kaur, simardeep.kaur.jeji@gmail.com
  
 
 This is a mentored group project for the Master of Data Science program at the University of British Columbia with the business partner Business Technology Services (BTS) and Insurance Claims groups of TransLink.
@@ -44,7 +44,7 @@ In addition, you need to have Docker and Git installed. Note that the Docker con
 
 Please consult this tutorial [here](doc/docker_instructions.pdf) that we have created specifically for those who are on Windows. Note that Docker on Windows [requires Windows 10 64-bit (Pro, Enterprise, or Education editions) and in addition, Hyper-V must be enabled.](https://docs.docker.com/docker-for-windows/install/) 
 
-Finally, we *highly recommend* that after you download the files from the AWS S3 bucket that you make local copies of both the `results` and `data` folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.
+Finally, we **highly recommend** that after you download the files from the AWS S3 bucket that you make local copies of both the `results` and `data` folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.
 
 #### Linux and Mac Users:
 
@@ -52,7 +52,7 @@ Install Docker and Git. Next, clone this repository and then run the following c
 
 ```docker run --rm -v "/$(pwd):/repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
-where you replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your actual AWS access key and AWS secret key. You may need sudo privileges. This command only needs to be run once (unless you delete the data and/or the results folders for some reason, in which case this command needs to be run again).
+where you replace `YOUR_AWS_ACCESS_KEY` and `YOUR_AWS_SECRET_KEY` with your actual AWS access key and AWS secret key. You may need sudo privileges. This command only needs to be run once (unless you delete the data and/or the results folders for some reason, in which case this command needs to be run again).
 
 Then, run the following command at the command line/terminal, again from the root directory of this repository:
 
@@ -60,7 +60,7 @@ Then, run the following command at the command line/terminal, again from the roo
 
 Navigate to the address 0.0.0.0:3838 in any web browser and after maybe 45 seconds the interactive report should be viewable. 
 
-Finally, we *highly recommend* that after you download the files from the AWS S3 bucket that you make local copies of both the `results` and `data` folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.
+Finally, we **highly recommend** that after you download the files from the AWS S3 bucket that you make local copies of both the `results` and `data` folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.
 
 ### Method 2 (Using Docker + Makefile)
 
@@ -85,7 +85,7 @@ Save the Makefile and close it. Next, run the following command at the command l
 
 ```docker run --rm -v "${pwd}://repo" btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
-Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this once and we *highly recommend* that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, run this command (again from the root directory of this repository):  
+Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this once and we **highly recommend** that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, run this command (again from the root directory of this repository):  
 
 ```docker run --rm -v "${pwd}://repo" btang101/tl_vision make -C /repo all```
 
@@ -129,7 +129,7 @@ Regardless, after installing all dependencies in the list below, edit the Makefi
 
 ```python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY```
 
-Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we highly recommend that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, run this command (again from the root of this repository):
+Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we **highly recommend** that you make copies of both the `data` and `results` folders locally so that you never have to rely on S3 again. Next, run this command (again from the root of this repository):
 
 ```make all```
 
