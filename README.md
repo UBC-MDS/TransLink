@@ -1,3 +1,6 @@
+
+<img src="images/logo.png" width="230" align = "right">
+
 # Vision over Transit Incidents & Claims
 
 Contributors: 
@@ -35,7 +38,7 @@ If you just wish to view the report, we **highly recommend using method 1)** sin
 
 To use this method, access to the Amazon Web Services (AWS) S3 bucket (where Saeed uploaded the raw data used in this analysis) is required. This requires both an [AWS Access Key and an AWS Secret Key.](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html)
 
-In addition, you need to have Docker and Git installed.
+In addition, you need to have Docker and Git installed. Note that the Docker container (with all of the required software) is about 12 GB.
 
 #### Windows Users:
 
@@ -144,7 +147,7 @@ To reset the repository to a clean state, with no intermediate or results files,
 
 The flow diagram below illustrates the overviews our analysis process and illustrates script orders and dependencies.
 
-![](images/pipeline_draft.png)
+![](images/pipeline.png)
 
 ## Dependencies
 
