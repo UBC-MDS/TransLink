@@ -205,7 +205,7 @@ The following dependencies are required to run this analysis from scratch (i.e. 
 - [Contributing](https://github.com/UBC-MDS/Translink/blob/master/CONTRIBUTING.md)
 - [Contributors](https://github.com/UBC-MDS/Translink/blob/master/CONTRIBUTORS.md)
 - [Proposal](https://github.com/UBC-MDS/TransLink/blob/master/doc/proposal/Proposal.pdf)
-- [Final Report]
+- [Final Report](https://github.com/UBC-MDS/TransLink/blob/master/doc/final_report/final_report.pdf)
 
 ## References
 
