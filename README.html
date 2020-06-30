@@ -371,7 +371,7 @@ summary {
 <p>Contributors:</p>
 <ul>
 <li><p>Brayden Tang, <a href="mailto:brayden.tang1@gmail.com" class="email">brayden.tang1@gmail.com</a></p></li>
-<li><p>Xugang Zhong, <a href="mailto:chuusankirk@hotmail.com" class="email">chuusankirk@hotmail.com</a></p></li>
+<li><p>Kirk Zhong, <a href="mailto:chuusankirk@hotmail.com" class="email">chuusankirk@hotmail.com</a></p></li>
 <li><p>Merve Sahin, <a href="mailto:kymerve16@gmail.com" class="email">kymerve16@gmail.com</a></p></li>
 <li><p>Simardeep Kaur, <a href="mailto:simardeep.kaur.jeji@gmail.com" class="email">simardeep.kaur.jeji@gmail.com</a></p></li>
 </ul>
@@ -390,7 +390,7 @@ summary {
 <li>Using Docker + Make to compile results locally (still need Amazon S3 for the raw data)</li>
 <li>Using Make and installing all dependencies manually (not recommended)</li>
 </ol>
-<p>If you just wish to view the report, we <strong>highly recommend using method 1)</strong> since it is by far the fastest method. We mainly include method 2) and 3) for the ability to reproduce all analyses in case TransLink wishes to view/use intermediate models and/or results that are not necessarily in the final interactive report.</p>
+<p>If you just wish to view the report, we <strong>highly recommend using method 1</strong>. since it is by far the fastest method. We mainly include method 2 and 3 for the ability to reproduce all analyses in case TransLink wishes to view/use intermediate models and/or results that are not necessarily in the final interactive report.</p>
 <div id="method-1-docker-amazon-s3" class="section level3">
 <h3>Method 1 (Docker + Amazon S3)</h3>
 <p>To use this method, access to the Amazon Web Services (AWS) S3 bucket (where Saeed uploaded the raw data used in this analysis) is required. This requires both an <a href="https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html">AWS Access Key and an AWS Secret Key.</a></p>
@@ -398,17 +398,17 @@ summary {
 <div id="windows-users" class="section level4">
 <h4>Windows Users:</h4>
 <p>Please consult this tutorial <a href="doc/docker_instructions.pdf">here</a> that we have created specifically for those who are on Windows. Note that Docker on Windows <a href="https://docs.docker.com/docker-for-windows/install/">requires Windows 10 64-bit (Pro, Enterprise, or Education editions) and in addition, Hyper-V must be enabled.</a></p>
-<p>Finally, we <em>highly recommend</em> that after you download the files from the AWS S3 bucket that you make local copies of both the <code>results</code> and <code>data</code> folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.</p>
+<p>Finally, we <strong>highly recommend</strong> that after you download the files from the AWS S3 bucket that you make local copies of both the <code>results</code> and <code>data</code> folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.</p>
 </div>
 <div id="linux-and-mac-users" class="section level4">
 <h4>Linux and Mac Users:</h4>
 <p>Install Docker and Git. Next, clone this repository and then run the following command at the command line/terminal from the root directory of this repository:</p>
 <p><code>docker run --rm -v &quot;/$(pwd):/repo&quot; btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY</code></p>
-<p>where you replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your actual AWS access key and AWS secret key. You may need sudo privileges. This command only needs to be run once (unless you delete the data and/or the results folders for some reason, in which case this command needs to be run again).</p>
+<p>where you replace <code>YOUR_AWS_ACCESS_KEY</code> and <code>YOUR_AWS_SECRET_KEY</code> with your actual AWS access key and AWS secret key. You may need sudo privileges. This command only needs to be run once (unless you delete the data and/or the results folders for some reason, in which case this command needs to be run again).</p>
 <p>Then, run the following command at the command line/terminal, again from the root directory of this repository:</p>
-<p><code>docker run --rm -p 3838:3838 -v &quot;/$(pwd):/repo&quot; btang101/tl_vision Rscript -e &quot;rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))&quot;</code></p>
+<p><code>docker run --rm -p 3838:3838 -v &quot;/$(pwd):/repo&quot; btang101/tl_vision Rscript -e &quot;rmarkdown::run(&#39;doc/interactive-report/interactive-report.rmd&#39;, shiny_args = list(port = 3838, host = &#39;0.0.0.0&#39;))&quot;</code></p>
 <p>Navigate to the address 0.0.0.0:3838 in any web browser and after maybe 45 seconds the interactive report should be viewable.</p>
-<p>Finally, we <em>highly recommend</em> that after you download the files from the AWS S3 bucket that you make local copies of both the <code>results</code> and <code>data</code> folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.</p>
+<p>Finally, we <strong>highly recommend</strong> that after you download the files from the AWS S3 bucket that you make local copies of both the <code>results</code> and <code>data</code> folders (these folders are in the repository after downloading everything from S3). This ensures that you never have to rely on the AWS S3 bucket being available again. This way, if the AWS S3 bucket is lost all you have to do is copy these two folders to the root of the repository (and only run the second Docker command as given in the instructions above) to view the report.</p>
 </div>
 </div>
 <div id="method-2-using-docker-makefile" class="section level3">
@@ -427,10 +427,10 @@ summary {
 <p>Replace “…” where it says <code>--api_key=...</code> with your Google Maps Geocoding API key.</p>
 <p>Save the Makefile and close it. Next, run the following command at the command line/terminal from the root directory of this repository:</p>
 <p><code>docker run --rm -v &quot;${pwd}://repo&quot; btang101/tl_vision python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY</code></p>
-<p>Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this once and we <em>highly recommend</em> that you make copies of both the <code>data</code> and <code>results</code> folders locally so that you never have to rely on S3 again. Next, run this command (again from the root directory of this repository):</p>
+<p>Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this once and we <strong>highly recommend</strong> that you make copies of both the <code>data</code> and <code>results</code> folders locally so that you never have to rely on S3 again. Next, run this command (again from the root directory of this repository):</p>
 <p><code>docker run --rm -v &quot;${pwd}://repo&quot; btang101/tl_vision make -C /repo all</code></p>
 <p>After everything has completed (which will likely take over a day), run the following command again from the root directory of this repository:</p>
-<p><code>docker run --rm -p 3838:3838 -v &quot;${pwd}://repo&quot; btang101/tl_vision Rscript -e &quot;rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))&quot;</code></p>
+<p><code>docker run --rm -p 3838:3838 -v &quot;${pwd}://repo&quot; btang101/tl_vision Rscript -e &quot;rmarkdown::run(&#39;doc/interactive-report/interactive-report.rmd&#39;, shiny_args = list(port = 3838, host = &#39;0.0.0.0&#39;))&quot;</code></p>
 <p>Then, visit localhost:3838 in a web browser to view the interactive report.</p>
 <p>To reset the repository to a clean state, with no intermediate or results files, run the following command at the command line/terminal from the root directory of this repository:</p>
 <p><code>docker run --rm -v &quot;${pwd}://repo&quot; btang101/tl_vision make -C /repo clean</code></p>
@@ -442,7 +442,7 @@ summary {
 <p>Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we <strong>highly recommend</strong> that you make copies of both the <code>data</code> and <code>results</code> folders locally so that you never have to rely on S3 again. Next, from the root directory of this repository run this command:</p>
 <p><code>docker run --rm -v &quot;/$(pwd):/repo&quot; btang101/tl_vision make -C /repo all</code></p>
 <p>Finally, run this command (again from the root directory of this repository):</p>
-<p><code>sudo docker run --rm -p 3838:3838 -v &quot;/$(pwd):/repo&quot; btang101/tl_vision Rscript -e &quot;rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0'))&quot;</code></p>
+<p><code>sudo docker run --rm -p 3838:3838 -v &quot;/$(pwd):/repo&quot; btang101/tl_vision Rscript -e &quot;rmarkdown::run(&#39;doc/interactive-report/interactive-report.rmd&#39;, shiny_args = list(port = 3838, host = &#39;0.0.0.0&#39;))&quot;</code></p>
 <p>Then, visit 0.0.0.0:3838 in a web browser to view the interactive report.</p>
 <p>To reset the repository to a clean state, with no intermediate or results files, run the following command at the command line/terminal from the root directory of this repository:</p>
 <p><code>docker run --rm -v &quot;/$(pwd):/repo&quot; btang101/tl_vision make -C /repo clean</code></p>
@@ -454,10 +454,10 @@ summary {
 <p>This method requires installing <strong>all of the dependencies</strong> listed below in this README file. Therefore, it is difficult to give specific instructions with this method because every computer will likely require different instructions depending on what is already installed or not installed.</p>
 <p>Regardless, after installing all dependencies in the list below, edit the Makefile to add your Google Maps Geocoding API key and then run this command from the root directory of this repository:</p>
 <p><code>python src/get-data.py --access_key=YOUR_AWS_ACCESS_KEY --secret_key=YOUR_AWS_SECRET_KEY</code></p>
-<p>Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we highly recommend that you make copies of both the <code>data</code> and <code>results</code> folders locally so that you never have to rely on S3 again. Next, run this command (again from the root of this repository):</p>
+<p>Like before, you have to replace YOUR_AWS_ACCESS_KEY and YOUR_AWS_SECRET_KEY with your access and secret keys from AWS. This downloads all the raw data from the AWS S3 bucket. Again, you only need to run this command once and we <strong>highly recommend</strong> that you make copies of both the <code>data</code> and <code>results</code> folders locally so that you never have to rely on S3 again. Next, run this command (again from the root of this repository):</p>
 <p><code>make all</code></p>
 <p>This will take over a day to finish. Once everything has finished running, run this command in the root directory of this repository:</p>
-<p><code>Rscript -e rmarkdown::run('doc/interactive-report/interactive-report.rmd', shiny_args = list(port = 3838, host = '0.0.0.0')</code></p>
+<p><code>Rscript -e rmarkdown::run(&#39;doc/interactive-report/interactive-report.rmd&#39;, shiny_args = list(port = 3838, host = &#39;0.0.0.0&#39;)</code></p>
 <p>Then, visit 0.0.0.0:3838 (Linux or Mac) OR localhost:3838 (Windows) to view the interactive report.</p>
 <p>To reset the repository to a clean state, with no intermediate or results files, run the following command at the command line/terminal from the root directory of this repository:</p>
 <p><code>make clean</code></p>
@@ -528,7 +528,7 @@ summary {
 <li><a href="https://github.com/UBC-MDS/Translink/blob/master/CONTRIBUTING.md">Contributing</a></li>
 <li><a href="https://github.com/UBC-MDS/Translink/blob/master/CONTRIBUTORS.md">Contributors</a></li>
 <li><a href="https://github.com/UBC-MDS/TransLink/blob/master/doc/proposal/Proposal.pdf">Proposal</a></li>
-<li>[Final Report]</li>
+<li><a href="https://github.com/UBC-MDS/TransLink/blob/master/doc/final_report/final_report.pdf">Final Report</a></li>
 </ul>
 </div>
 <div id="references" class="section level2">
